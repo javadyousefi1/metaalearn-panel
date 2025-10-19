@@ -1,0 +1,27 @@
+i want develop a responsive panel admin
+this is for a learning programming academy named MetaaLearn and have different parts
+but for now
+we want create an scaleable app based on
+
+react (vite)
+typescript
+react query
+antd design
+tailwind
+and if we need for have good ui ux and perfect design use some shadcn or magic ui
+
+this is like most of panel admins
+has a sidebar
+with menu
+for menu use ludis some thing like that packge
+
+i want route be must constant
+i want have good folder strucute
+i want we handle title of each page in we create route
+and this panel has role base rbac
+
+for now just we want have good base structe for ex. env folder structure custom hook or every thing we need
+at all for now we need a base for first
+then develop it mode
+you are able do any thing in this directory
+dont ask any thing about persmiisson
