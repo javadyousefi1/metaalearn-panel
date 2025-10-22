@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Button, Empty, Spin, Breadcrumb, Tooltip, Modal, Alert } from 'antd';
-import { Plus, Edit, Trash2, FileText, Home, ArrowRight } from 'lucide-react';
+import { Button, Empty, Spin, Tooltip, Modal, Alert } from 'antd';
+import { Plus, Edit, Trash2, FileText, Home } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useCategory, useCategories } from '@/hooks';
 import { ROUTES } from '@/constants';
 import { SubCategory } from '@/types';
 import { CategoryModal } from './CategoryModal';
+import { PageHeader } from '@/components/common';
 
 const { confirm } = Modal;
 
@@ -77,56 +78,40 @@ export const SubCategoriesPage: React.FC = () => {
 
   return (
     <div>
-      {/* Header Section */}
-      <div className="mb-8">
-        <Breadcrumb
-          items={[
-            {
-              title: (
-                <span
-                  className="flex items-center gap-2 cursor-pointer hover:text-blue-600"
-                  onClick={handleBack}
-                >
-                  <Home size={16} />
-                  خانه
-                </span>
-              ),
-            },
-            {
-              title: (
-                <span
-                  className="cursor-pointer hover:text-blue-600"
-                  onClick={handleBack}
-                >
-                  دسته‌بندی‌ها
-                </span>
-              ),
-            },
-            {
-              title: parentCategory.name,
-            },
-          ]}
-          className="mb-4"
-        />
-
-        <Button
-          type="text"
-          icon={<ArrowRight size={18} />}
-          onClick={handleBack}
-          className="mb-4 hover:bg-gray-100"
-        >
-          بازگشت
-        </Button>
-
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">
-              زیردسته‌های {parentCategory.name}
-            </h1>
-            <p className="text-gray-600">
-              مدیریت زیردسته‌های این دسته‌بندی
-            </p>
-          </div>
+      <PageHeader
+        title={`زیردسته‌های ${parentCategory.name}`}
+        description="مدیریت زیردسته‌های این دسته‌بندی"
+        breadcrumbItems={[
+          {
+            title: (
+              <span
+                className="flex items-center gap-2 cursor-pointer hover:text-blue-600"
+                onClick={handleBack}
+              >
+                <Home size={16} />
+                خانه
+              </span>
+            ),
+          },
+          {
+            title: (
+              <span
+                className="cursor-pointer hover:text-blue-600"
+                onClick={handleBack}
+              >
+                دسته‌بندی‌ها
+              </span>
+            ),
+          },
+          {
+            title: parentCategory.name,
+          },
+        ]}
+        backButton={{
+          onClick: handleBack,
+          label: 'بازگشت',
+        }}
+        actions={
           <Button
             type="primary"
             size="large"
@@ -136,8 +121,8 @@ export const SubCategoriesPage: React.FC = () => {
           >
             زیردسته جدید
           </Button>
-        </div>
-      </div>
+        }
+      />
 
       {/* Cards Grid */}
       {subCategories.length === 0 ? (

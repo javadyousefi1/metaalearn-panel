@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Button, Empty, Spin, Breadcrumb, Tooltip, Modal } from 'antd';
+import { Button, Empty, Spin, Tooltip, Modal } from 'antd';
 import { Plus, Edit, Trash2, FolderOpen, Home } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useCategories } from '@/hooks';
 import { ROUTES } from '@/constants';
 import { CategoryListItem } from '@/types';
 import { CategoryModal } from './CategoryModal';
+import { PageHeader } from '@/components/common';
 
 const { confirm } = Modal;
 
@@ -57,33 +58,23 @@ export const CategoriesPage: React.FC = () => {
 
   return (
     <div>
-      {/* Header Section */}
-      <div className="mb-8">
-        <Breadcrumb
-          items={[
-            {
-              title: (
-                <span className="flex items-center gap-2">
-                  <Home size={16} />
-                  خانه
-                </span>
-              ),
-            },
-            {
-              title: 'دسته‌بندی‌ها',
-            },
-          ]}
-          className="mb-4"
-        />
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">
-              مدیریت دسته‌بندی‌ها
-            </h1>
-            <p className="text-gray-600">
-              دسته‌بندی‌های اصلی را مشاهده و مدیریت کنید
-            </p>
-          </div>
+      <PageHeader
+        title="مدیریت دسته‌بندی‌ها"
+        description="دسته‌بندی‌های اصلی را مشاهده و مدیریت کنید"
+        breadcrumbItems={[
+          {
+            title: (
+              <span className="flex items-center gap-2">
+                <Home size={16} />
+                خانه
+              </span>
+            ),
+          },
+          {
+            title: 'دسته‌بندی‌ها',
+          },
+        ]}
+        actions={
           <Button
             type="primary"
             size="large"
@@ -93,8 +84,8 @@ export const CategoriesPage: React.FC = () => {
           >
             دسته‌بندی جدید
           </Button>
-        </div>
-      </div>
+        }
+      />
 
       {/* Cards Grid */}
       {categories.length === 0 ? (
