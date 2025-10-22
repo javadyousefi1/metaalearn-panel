@@ -3,7 +3,7 @@ import { Layout, Menu, Avatar, Dropdown, theme } from 'antd';
 import type { MenuProps } from 'antd';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { LogOut, User, Settings, ChevronLeft, ChevronRight } from 'lucide-react';
-import { useAuth, usePermissions } from '@/hooks';
+import { useAuth } from '@/hooks';
 import { MENU_ITEMS } from '@/constants';
 import { getInitials, getFullName } from '@/utils';
 
@@ -18,17 +18,12 @@ export const MainLayout: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuth();
-  const { can } = usePermissions();
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
 
-  // Filter menu items based on permissions
-  const filteredMenuItems = MENU_ITEMS.filter((item) => {
-    if (item.divider) return true;
-    if (!item.permissions || item.permissions.length === 0) return true;
-    return can(item.permissions);
-  }).map((item) => {
+  // Map menu items without permission filtering
+  const menuItems = MENU_ITEMS.map((item) => {
     if (item.divider) {
       return { type: 'divider' as const, key: item.key };
     }
@@ -49,18 +44,11 @@ export const MainLayout: React.FC = () => {
 
     // Handle children
     if (item.children) {
-      const filteredChildren = item.children.filter((child) => {
-        if (!child.permissions || child.permissions.length === 0) return true;
-        return can(child.permissions);
-      });
-
-      if (filteredChildren.length > 0) {
-        menuItem.children = filteredChildren.map((child) => ({
-          key: child.key,
-          label: child.label,
-          onClick: () => navigate(child.path),
-        }));
-      }
+      menuItem.children = item.children.map((child) => ({
+        key: child.key,
+        label: child.label,
+        onClick: () => navigate(child.path),
+      }));
     }
 
     return menuItem;
@@ -71,20 +59,20 @@ export const MainLayout: React.FC = () => {
     {
       key: 'profile',
       icon: <User size={16} />,
-      label: 'Profile',
+      label: 'پروفایل',
       onClick: () => navigate('/settings/profile'),
     },
     {
       key: 'settings',
       icon: <Settings size={16} />,
-      label: 'Settings',
+      label: 'تنظیمات',
       onClick: () => navigate('/settings'),
     },
     { type: 'divider' },
     {
       key: 'logout',
       icon: <LogOut size={16} />,
-      label: 'Logout',
+      label: 'خروج',
       onClick: logout,
       danger: true,
     },
@@ -116,7 +104,7 @@ export const MainLayout: React.FC = () => {
         <Menu
           mode="inline"
           selectedKeys={[selectedKey]}
-          items={filteredMenuItems}
+          items={menuItems}
           className="border-r-0"
         />
       </Sider>

@@ -20,10 +20,10 @@ export const useAuth = () => {
     try {
       setLoading(true);
       const response = await authService.login(credentials);
-      message.success(response.message || 'OTP sent to your phone!');
+      message.success(response.message || 'کد به شماره شما ارسال شد!');
       return response;
     } catch (error) {
-      message.error('Failed to send OTP. Please check your phone number.');
+      message.error('ارسال کد ناموفق بود. لطفا شماره تلفن خود را بررسی کنید.');
       throw error;
     } finally {
       setLoading(false);
@@ -38,10 +38,10 @@ export const useAuth = () => {
       setLoading(true);
       const response = await authService.verifyOtp(data);
       setAuth(response.user, response.token, response.refreshToken);
-      message.success('Login successful!');
+      message.success('ورود موفقیت‌آمیز بود!');
       navigate(ROUTES.DASHBOARD.OVERVIEW);
     } catch (error) {
-      message.error('Invalid code. Please try again.');
+      message.error('کد نامعتبر است. لطفا دوباره تلاش کنید.');
       throw error;
     } finally {
       setLoading(false);
@@ -55,10 +55,10 @@ export const useAuth = () => {
     try {
       setLoading(true);
       const response = await authService.resendOtp(data);
-      message.success(response.message || 'OTP resent successfully!');
+      message.success(response.message || 'کد مجددا ارسال شد!');
       return response;
     } catch (error) {
-      message.error('Failed to resend OTP. Please try again.');
+      message.error('ارسال مجدد کد ناموفق بود. لطفا دوباره تلاش کنید.');
       throw error;
     } finally {
       setLoading(false);
@@ -72,7 +72,7 @@ export const useAuth = () => {
     try {
       await authService.logout();
       clearAuth();
-      message.success('Logged out successfully');
+      message.success('خروج با موفقیت انجام شد');
       navigate(ROUTES.AUTH.LOGIN);
     } catch (error) {
       // Clear auth even if logout API fails
@@ -94,10 +94,10 @@ export const useAuth = () => {
       setLoading(true);
       const response = await authService.register(data);
       setAuth(response.user, response.token, response.refreshToken);
-      message.success('Registration successful!');
+      message.success('ثبت نام با موفقیت انجام شد!');
       navigate(ROUTES.DASHBOARD.OVERVIEW);
     } catch (error) {
-      message.error('Registration failed. Please try again.');
+      message.error('ثبت نام ناموفق بود. لطفا دوباره تلاش کنید.');
       throw error;
     } finally {
       setLoading(false);
