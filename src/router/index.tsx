@@ -5,6 +5,7 @@ import { LoginPage } from '@/pages/auth';
 import { DashboardPage } from '@/pages/dashboard';
 import { UsersPage } from '@/pages/users';
 import { CoursesPage } from '@/pages/courses';
+import { CategoriesPage, SubCategoriesPage } from '@/pages/categories';
 import { SettingsPage } from '@/pages/settings';
 import { ROUTES } from '@/constants';
 import { Permission } from '@/types';
@@ -63,6 +64,16 @@ export const router = createBrowserRouter([
             <CoursesPage />
           </ProtectedRoute>
         ),
+      },
+
+      // Categories Management
+      {
+        path: ROUTES.CATEGORIES.LIST,
+        element: <CategoriesPage />,
+      },
+      {
+        path: `${ROUTES.CATEGORIES.ROOT}/:id`,
+        element: <SubCategoriesPage />,
       },
 
       // Settings

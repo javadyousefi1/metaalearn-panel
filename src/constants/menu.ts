@@ -4,6 +4,7 @@ import {
   BookOpen,
   Settings,
   BarChart3,
+  FolderTree,
   LucideIcon,
 } from 'lucide-react';
 import { ROUTES } from './routes';
@@ -45,9 +46,22 @@ export const MENU_ITEMS: MenuItemConfig[] = [
   {
     key: 'courses',
     path: ROUTES.COURSES.ROOT,
-    label: 'Courses',
+    label: 'دوره‌ها',
     icon: BookOpen,
     permissions: [Permission.COURSE_VIEW],
+    children: [
+      {
+        key: 'courses-list',
+        path: ROUTES.COURSES.LIST,
+        label: 'لیست دوره‌ها',
+      },
+      {
+        key: 'categories',
+        path: ROUTES.CATEGORIES.ROOT,
+        label: 'دسته‌بندی‌ها',
+        icon: FolderTree,
+      },
+    ],
   },
   {
     key: 'divider-2',

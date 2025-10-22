@@ -38,6 +38,13 @@ export const ROUTES = {
     VIEW: '/courses/:id',
   },
 
+  // Category Management Routes
+  CATEGORIES: {
+    ROOT: '/categories',
+    LIST: '/categories',
+    VIEW: '/categories/:id',
+  },
+
   // Settings Routes
   SETTINGS: {
     ROOT: '/settings',
@@ -77,6 +84,8 @@ export const PAGE_TITLES: Record<string, string> = {
   [ROUTES.COURSES.CREATE]: 'Create Course',
   [ROUTES.COURSES.EDIT]: 'Edit Course',
   [ROUTES.COURSES.VIEW]: 'Course Details',
+  [ROUTES.CATEGORIES.LIST]: 'مدیریت دسته‌بندی‌ها',
+  [ROUTES.CATEGORIES.VIEW]: 'نمایش زیردسته‌ها',
   [ROUTES.SETTINGS.PROFILE]: 'Profile Settings',
   [ROUTES.SETTINGS.ACCOUNT]: 'Account Settings',
   [ROUTES.SETTINGS.SECURITY]: 'Security Settings',

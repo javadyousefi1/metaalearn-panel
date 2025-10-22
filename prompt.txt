@@ -1,15 +1,8 @@
-/login
-{
-  "phoneNumber": "string"
-}
-
-/resend
-{
-  "phoneNumber": "string"
-}
-
-/verify
-{
-  "phoneNumber": "string",
-  "code": "string"
-}
+for category
+use cart instead of table
+then click on each cart in other route show the list of cart for that parent clicked before
+and do not use border aound of content
+use breadcurmp
+show delete and edit on each cart
+use modol and in modal we have form for edit each item parent or child
+please be more good desing and ui ux and responsive

@@ -6,7 +6,9 @@
       "Bash(npm run build)",
       "Bash(npm run dev:*)",
       "Bash(timeout /t 5)",
-      "Bash(ping:*)"
+      "Bash(ping:*)",
+      "Bash(find:*)",
+      "Bash(npx tsc:*)"
     ],
     "deny": [],
     "ask": []
