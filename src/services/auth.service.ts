@@ -1,8 +1,18 @@
 import { httpService } from './http.service';
-import { LoginCredentials, LoginResponse, User, UserRole, Permission } from '@/types';
+import {
+  LoginCredentials,
+  LoginResponse,
+  User,
+  UserRole,
+  Permission,
+  OtpLoginCredentials,
+  OtpResponse,
+  VerifyOtpRequest,
+  ResendOtpRequest
+} from '@/types';
 
 // Set to true to use mock data for development
-const USE_MOCK_AUTH = true;
+const USE_MOCK_AUTH = false;
 
 /**
  * Authentication Service
@@ -10,39 +20,76 @@ const USE_MOCK_AUTH = true;
  */
 export const authService = {
   /**
-   * Login user
+   * Login user - Send OTP
    */
-  login: async (credentials: LoginCredentials): Promise<LoginResponse> => {
+  login: async (credentials: OtpLoginCredentials): Promise<OtpResponse> => {
     // Mock authentication for development
     if (USE_MOCK_AUTH) {
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve) => {
         setTimeout(() => {
-          // Simple mock validation
-          if (credentials.email && credentials.password) {
-            resolve({
-              token: 'mock-token-' + Date.now(),
-              refreshToken: 'mock-refresh-token-' + Date.now(),
-              user: {
-                id: '1',
-                email: credentials.email,
-                firstName: 'John',
-                lastName: 'Doe',
-                avatar: undefined,
-                role: UserRole.SUPER_ADMIN,
-                permissions: Object.values(Permission),
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-              },
-            });
-          } else {
-            reject(new Error('Invalid credentials'));
-          }
-        }, 1000); // Simulate network delay
+          resolve({
+            message: 'OTP sent successfully',
+            expiresIn: 120,
+          });
+        }, 1000);
       });
     }
 
     // Real API call
-    const response = await httpService.post<LoginResponse>('/auth/login', credentials);
+    const response = await httpService.post<OtpResponse>('/Authentication/login', credentials);
+    return response.data;
+  },
+
+  /**
+   * Verify OTP and complete login
+   */
+  verifyOtp: async (data: VerifyOtpRequest): Promise<LoginResponse> => {
+    // Mock authentication for development
+    if (USE_MOCK_AUTH) {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve({
+            token: 'mock-token-' + Date.now(),
+            refreshToken: 'mock-refresh-token-' + Date.now(),
+            user: {
+              id: '1',
+              email: data.phoneNumber,
+              firstName: 'John',
+              lastName: 'Doe',
+              avatar: undefined,
+              role: UserRole.SUPER_ADMIN,
+              permissions: Object.values(Permission),
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            },
+          });
+        }, 1000);
+      });
+    }
+
+    // Real API call
+    const response = await httpService.post<LoginResponse>('/Authentication/VerifyOtp', data);
+    return response.data;
+  },
+
+  /**
+   * Resend OTP
+   */
+  resendOtp: async (data: ResendOtpRequest): Promise<OtpResponse> => {
+    // Mock authentication for development
+    if (USE_MOCK_AUTH) {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve({
+            message: 'OTP resent successfully',
+            expiresIn: 120,
+          });
+        }, 1000);
+      });
+    }
+
+    // Real API call
+    const response = await httpService.post<OtpResponse>('/Authentication/resend', data);
     return response.data;
   },
 

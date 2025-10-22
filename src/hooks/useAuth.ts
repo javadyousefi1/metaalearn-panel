@@ -1,6 +1,6 @@
 import { useAuthStore } from '@/store';
 import { authService } from '@/services';
-import { LoginCredentials } from '@/types';
+import { OtpLoginCredentials, VerifyOtpRequest, ResendOtpRequest } from '@/types';
 import { message } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/constants';
@@ -14,17 +14,51 @@ export const useAuth = () => {
   const { user, token, isAuthenticated, isLoading, setAuth, clearAuth, setLoading } = useAuthStore();
 
   /**
-   * Login user
+   * Login user - Send OTP
    */
-  const login = async (credentials: LoginCredentials) => {
+  const login = async (credentials: OtpLoginCredentials) => {
     try {
       setLoading(true);
       const response = await authService.login(credentials);
+      message.success(response.message || 'OTP sent to your phone!');
+      return response;
+    } catch (error) {
+      message.error('Failed to send OTP. Please check your phone number.');
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /**
+   * Verify OTP
+   */
+  const verifyOtp = async (data: VerifyOtpRequest) => {
+    try {
+      setLoading(true);
+      const response = await authService.verifyOtp(data);
       setAuth(response.user, response.token, response.refreshToken);
       message.success('Login successful!');
       navigate(ROUTES.DASHBOARD.OVERVIEW);
     } catch (error) {
-      message.error('Login failed. Please check your credentials.');
+      message.error('Invalid code. Please try again.');
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /**
+   * Resend OTP
+   */
+  const resendOtp = async (data: ResendOtpRequest) => {
+    try {
+      setLoading(true);
+      const response = await authService.resendOtp(data);
+      message.success(response.message || 'OTP resent successfully!');
+      return response;
+    } catch (error) {
+      message.error('Failed to resend OTP. Please try again.');
       throw error;
     } finally {
       setLoading(false);
@@ -76,6 +110,8 @@ export const useAuth = () => {
     isAuthenticated,
     isLoading,
     login,
+    verifyOtp,
+    resendOtp,
     logout,
     register,
   };

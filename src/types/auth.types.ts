@@ -4,6 +4,24 @@ export interface LoginCredentials {
   remember?: boolean;
 }
 
+export interface OtpLoginCredentials {
+  phoneNumber: string;
+}
+
+export interface OtpResponse {
+  message: string;
+  expiresIn?: number;
+}
+
+export interface VerifyOtpRequest {
+  phoneNumber: string;
+  code: string;
+}
+
+export interface ResendOtpRequest {
+  phoneNumber: string;
+}
+
 export interface LoginResponse {
   token: string;
   refreshToken: string;
