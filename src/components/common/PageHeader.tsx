@@ -1,4 +1,5 @@
 import React, { ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { Breadcrumb, Button } from 'antd';
 import { ArrowRight } from 'lucide-react';
 import type { BreadcrumbItemType } from 'antd/es/breadcrumb/Breadcrumb';
@@ -33,12 +34,20 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
   backButton,
   className = '',
 }) => {
+  // Get portal target element
+  const portalTarget = document.getElementById('breadcrumb-portal');
+
+  // Render breadcrumbs in portal if target exists
+  const breadcrumbElement = breadcrumbItems && breadcrumbItems.length > 0 && (
+    <Breadcrumb items={breadcrumbItems}  />
+  );
+
   return (
     <div className={`mb-8 ${className}`}>
-      {/* Breadcrumb */}
-      {breadcrumbItems && breadcrumbItems.length > 0 && (
-        <Breadcrumb items={breadcrumbItems} className="mb-4" />
-      )}
+      {/* Breadcrumb - Portal to header if target exists, otherwise render here */}
+      {breadcrumbElement && portalTarget
+        ? createPortal(breadcrumbElement, portalTarget)
+        : breadcrumbElement}
 
       {/* Back Button */}
       {backButton && (

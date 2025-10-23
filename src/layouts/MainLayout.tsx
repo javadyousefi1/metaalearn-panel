@@ -95,8 +95,9 @@ export const MainLayout: React.FC = () => {
         trigger={null}
         collapsible
         collapsed={collapsed}
-        className="!bg-white border-r border-gray-200"
+        className="!bg-white border-l border-gray-200 !fixed !right-0 !top-0 !bottom-0 !h-screen overflow-auto"
         width={250}
+        style={{ position: 'fixed', height: '100vh', right: 0, top: 0 }}
       >
         <div className="h-16 flex items-center justify-center border-b border-gray-200">
           <h1 className="text-xl font-bold text-primary-600">
@@ -110,33 +111,35 @@ export const MainLayout: React.FC = () => {
           className="border-r-0"
         />
       </Sider>
-      <Layout>
-        {/*<Header*/}
-        {/*  style={{ background: colorBgContainer }}*/}
-        {/*  className="flex items-center justify-between px-6 border-b border-gray-200 !h-16"*/}
-        {/*>*/}
-        {/*  <button*/}
-        {/*    onClick={() => setCollapsed(!collapsed)}*/}
-        {/*    className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-gray-100 transition-colors"*/}
-        {/*  >*/}
-        {/*    {collapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}*/}
-        {/*  </button>*/}
+      <Layout style={{ marginRight: collapsed ? 80 : 250, transition: 'margin-right 0.2s' }}>
+        <Header
+          style={{ background: colorBgContainer, position: 'fixed', top: 0, right: collapsed ? 80 : 250, left: 0, zIndex: 999, transition: 'right 0.2s' }}
+          className="flex items-center justify-between px-6 border-b border-gray-200 !h-16"
+        >
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-gray-100 transition-colors"
+          >
+            {collapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+          </button>
 
-        {/*  <Dropdown menu={{ items: userMenuItems }} placement="bottomRight" arrow>*/}
-        {/*    <div className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 px-3 py-2 rounded-lg transition-colors">*/}
-        {/*      <div className="text-right">*/}
-        {/*        <div className="text-sm font-medium text-gray-900">*/}
-        {/*          {user ? getFullName(user.firstName, user.lastName) : 'User'}*/}
-        {/*        </div>*/}
-        {/*        <div className="text-xs text-gray-500">{user?.role || 'Role'}</div>*/}
-        {/*      </div>*/}
-        {/*      <Avatar size={40} className="bg-primary-500">*/}
-        {/*        {user ? getInitials(getFullName(user.firstName, user.lastName)) : 'U'}*/}
-        {/*      </Avatar>*/}
-        {/*    </div>*/}
-        {/*  </Dropdown>*/}
-        {/*</Header>*/}
-        <Content className="p-6 overflow-auto">
+          <div id="breadcrumb-portal" className="flex-1 px-6 items-center flex" />
+
+          <Dropdown menu={{ items: userMenuItems }} placement="bottomRight" arrow>
+            <div className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 px-3 py-2 rounded-lg transition-colors">
+              <div className="text-right">
+                <div className="text-sm font-medium text-gray-900">
+                  {user ? getFullName(user.firstName, user.lastName) : 'User'}
+                </div>
+                <div className="text-xs text-gray-500">{user?.role || 'Role'}</div>
+              </div>
+              <Avatar size={40} className="bg-primary-500">
+                {user ? getInitials(getFullName(user.firstName, user.lastName)) : 'U'}
+              </Avatar>
+            </div>
+          </Dropdown>
+        </Header>
+        <Content className="p-6 overflow-auto min-h-screen" style={{ marginTop: 64 }}>
           <div
             style={{
               background: colorBgContainer,

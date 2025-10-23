@@ -39,7 +39,7 @@ export function DataTable<T extends object>({
   loading = false,
   totalCount,
   pagination,
-  scroll = { x: 1200 },
+  scroll,
   emptyText = 'هیچ موردی یافت نشد',
   showTotal,
   pageSizeOptions = ['5', '10', '20', '50', '100'],
@@ -51,7 +51,7 @@ export function DataTable<T extends object>({
     `${range[0]}-${range[1]} از ${total} ${itemName}`;
 
   return (
-    <Card className="shadow-sm">
+    <div>
       <Table<T>
         columns={columns}
         dataSource={dataSource}
@@ -122,6 +122,6 @@ export function DataTable<T extends object>({
           </Space>
         </div>
       )}
-    </Card>
+    </div>
   );
 }
