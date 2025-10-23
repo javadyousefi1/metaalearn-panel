@@ -39,7 +39,6 @@ export const MainLayout: React.FC = () => {
       key: item.key,
       icon: Icon ? <Icon size={18} /> : null,
       label: item.label,
-      onClick: () => navigate(item.path),
     };
 
     // Handle children
@@ -49,6 +48,9 @@ export const MainLayout: React.FC = () => {
         label: child.label,
         onClick: () => navigate(child.path),
       }));
+    } else {
+      // Only add onClick if there are no children
+      menuItem.onClick = () => navigate(item.path);
     }
 
     return menuItem;

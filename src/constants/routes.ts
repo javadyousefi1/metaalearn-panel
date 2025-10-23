@@ -32,10 +32,7 @@ export const ROUTES = {
   // Course Management Routes
   COURSES: {
     ROOT: '/courses',
-    LIST: '/courses',
-    CREATE: '/courses/create',
-    EDIT: '/courses/:id/edit',
-    VIEW: '/courses/:id',
+    COURSE_LIST: '/courses/course-list',
   },
 
   // Category Management Routes
@@ -81,6 +78,7 @@ export const PAGE_TITLES: Record<string, string> = {
   [ROUTES.USERS.EDIT]: 'Edit User',
   [ROUTES.USERS.VIEW]: 'User Details',
   [ROUTES.COURSES.LIST]: 'Courses Management',
+  [ROUTES.COURSES.COURSE_LIST]: 'لیست دوره‌ها',
   [ROUTES.COURSES.CREATE]: 'Create Course',
   [ROUTES.COURSES.EDIT]: 'Edit Course',
   [ROUTES.COURSES.VIEW]: 'Course Details',

@@ -4,7 +4,7 @@ import { ProtectedRoute } from '@/components/common';
 import { LoginPage } from '@/pages/auth';
 import { DashboardPage } from '@/pages/dashboard';
 import { UsersPage } from '@/pages/users';
-import { CoursesPage } from '@/pages/courses';
+import { CoursesPage, CourseListPage } from '@/pages/courses';
 import { CategoriesPage, SubCategoriesPage } from '@/pages/categories';
 import { SettingsPage } from '@/pages/settings';
 import { ROUTES } from '@/constants';
@@ -60,9 +60,13 @@ export const router = createBrowserRouter([
       {
         path: ROUTES.COURSES.ROOT,
         element: (
-          <ProtectedRoute permissions={[Permission.COURSE_VIEW]}>
             <CoursesPage />
-          </ProtectedRoute>
+        ),
+      },
+      {
+        path: ROUTES.COURSES.COURSE_LIST,
+        element: (
+            <CourseListPage />
         ),
       },
 

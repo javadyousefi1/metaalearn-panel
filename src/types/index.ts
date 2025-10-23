@@ -4,3 +4,4 @@ export * from './user.types';
 export * from './route.types';
 export * from './common.types';
 export * from './category.types';
+export * from './course.types';

@@ -48,11 +48,10 @@ export const MENU_ITEMS: MenuItemConfig[] = [
         path: ROUTES.COURSES.ROOT,
         label: 'دوره‌ها',
         icon: BookOpen,
-        permissions: [Permission.COURSE_VIEW],
         children: [
             {
                 key: 'courses-list',
-                path: ROUTES.COURSES.LIST,
+                path: ROUTES.COURSES.COURSE_LIST,
                 label: 'لیست دوره‌ها',
             },
             {

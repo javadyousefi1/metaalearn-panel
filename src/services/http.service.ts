@@ -2,6 +2,7 @@ import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } f
 import { env } from '@/config';
 import { useAuthStore } from '@/store';
 import { message } from 'antd';
+import {ROUTES} from "@/constants";
 
 /**
  * HTTP Service
@@ -96,6 +97,7 @@ class HttpService {
           break;
         case 401:
           message.error('Unauthorized. Please login again.');
+          window.location.href = ROUTES.AUTH.LOGIN
           break;
         case 403:
           message.error('You do not have permission to perform this action');

@@ -1,8 +1,82 @@
-for category
-use cart instead of table
-then click on each cart in other route show the list of cart for that parent clicked before
-and do not use border aound of content
-use breadcurmp
-show delete and edit on each cart
-use modol and in modal we have form for edit each item parent or child
-please be more good desing and ui ux and responsive
+we want add new page in course tab
+named course list
+
+and in this page at first we want an api to call an api and show data in table
+
+and how we want the table do
+
+you should create a custom hook for table gets fn for requesting and returning data
+and return the table tools like next page prev page refresh table or some page size page index every thing need
+and a table with antd get data
+
+at all we want use a custom hook for handle network logic of table in best case and share able
+and this is api out put
+{
+  "items": [
+    {
+      "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      "category": {
+        "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        "name": "string"
+      },
+      "name": "string",
+      "type": 0,
+      "status": 0,
+      "paymentMethod": 0,
+      "price": 0,
+      "isCertificateAvailable": true,
+      "preRequisites": "string",
+      "shortText": "string",
+      "intervalTime": "string",
+      "durationTime": "string",
+      "daysOfWeeks": [
+        0
+      ],
+      "enrollmentCount": 0,
+      "favoriteCount": 0,
+      "instructors": [
+        {
+          "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+          "fullNameFa": "string",
+          "imageUrl": "string"
+        }
+      ],
+      "gallery": [
+        {
+          "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+          "shareableUrl": "string",
+          "type": 0,
+          "category": 0
+        }
+      ]
+    }
+  ],
+  "totalCount": 0
+}
+
+for now just we use
+{
+  "categoryId": "aebabbb9-9274-4404-a6ad-04f2219e3906",
+  "name": "django",
+  "type": 1,
+  "status": 1,
+  "paymentMethod": 1,
+  "price": 110000,
+  "isCertificateAvailable": true,
+  "preRequisites": "string"
+}
+in table
+
+pay attention we want be useable and scale able
+
+this is api
+Course/GetAll?PageIndex=1&PageSize=10
+
+and for pagination the quueries name is
+PageIndex
+PageSize
+
+
+pay attention to scale able readblilty speration of concern
+
+ask if you have questions
