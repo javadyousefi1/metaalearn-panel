@@ -8,10 +8,39 @@ import { courseService } from '@/services';
 import { Course } from '@/types/course.types';
 import {CoursePaymentType, CourseStatus, CourseType} from "@/enums";
 
-/**
- * CourseListPage Component
- * Displays a paginated table of courses using the reusable useTable hook
- */
+const getCourseTypeColor = (type: number): string => {
+  const colorMap: Record<number, string> = {
+    0: 'default',     // تعیین نشده
+    1: 'blue',        // آنلاین
+    2: 'purple',      // ویدیویی
+    3: 'cyan',        // آنلاین و ویدیویی
+  };
+  return colorMap[type] || 'default';
+};
+
+const getCourseStatusColor = (status: number): string => {
+  const colorMap: Record<number, string> = {
+    0: 'default',     // تعیین نشده
+    1: 'green',       // عادی
+    2: 'red',         // تمام شده
+    3: 'orange',      // پیش ثبت نام
+    4: 'volcano',     // غیر فعال
+    5: 'red',         // تمام شده
+  };
+  return colorMap[status] || 'default';
+};
+
+
+const getPaymentMethodColor = (method: number): string => {
+  const colorMap: Record<number, string> = {
+    0: 'default',     // تعیین نشده
+    1: 'green',       // رایگان
+    2: 'orange',      // قسطی
+    3: 'blue',        // نقدی
+  };
+  return colorMap[method] || 'default';
+};
+
 export const CourseListPage: React.FC = () => {
   const {
     data: courses,
@@ -26,7 +55,6 @@ export const CourseListPage: React.FC = () => {
     initialPageIndex: 1,
   });
 
-  // Define table columns
   const columns: ColumnsType<Course> = [
     {
       title: 'نام دوره',
@@ -44,21 +72,33 @@ export const CourseListPage: React.FC = () => {
       dataIndex: 'type',
       key: 'type',
       align: 'center',
-      render: (courseType:number) => CourseType[Number(courseType)]
+      render: (courseType: number) => (
+        <Tag color={getCourseTypeColor(courseType)}>
+          {CourseType[Number(courseType)]}
+        </Tag>
+      ),
     },
     {
       title: 'وضعیت',
       dataIndex: 'status',
       key: 'status',
       align: 'center',
-      render: (courseStatus:number) => CourseStatus[Number(courseStatus)]
+      render: (courseStatus: number) => (
+        <Tag color={getCourseStatusColor(courseStatus)}>
+          {CourseStatus[Number(courseStatus)]}
+        </Tag>
+      ),
     },
     {
       title: 'روش پرداخت',
       dataIndex: 'paymentMethod',
       key: 'paymentMethod',
       align: 'center',
-      render: (coursePaymentType:number) => CoursePaymentType[Number(coursePaymentType)]
+      render: (coursePaymentType: number) => (
+        <Tag color={getPaymentMethodColor(coursePaymentType)}>
+          {CoursePaymentType[Number(coursePaymentType)]}
+        </Tag>
+      ),
     },
     {
       title: 'قیمت (تومان)',
@@ -132,7 +172,6 @@ export const CourseListPage: React.FC = () => {
         loading={isLoading}
         totalCount={totalCount}
         pagination={pagination}
-        scroll={{ x: 1200 }}
         emptyText="هیچ دوره‌ای یافت نشد"
         itemName="دوره"
       />
