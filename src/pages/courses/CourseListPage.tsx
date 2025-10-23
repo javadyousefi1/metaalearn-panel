@@ -6,6 +6,7 @@ import { PageHeader, DataTable } from '@/components/common';
 import { useTable } from '@/hooks';
 import { courseService } from '@/services';
 import { Course } from '@/types/course.types';
+import {CoursePaymentType, CourseStatus, CourseType} from "@/enums";
 
 /**
  * CourseListPage Component
@@ -31,42 +32,38 @@ export const CourseListPage: React.FC = () => {
       title: 'نام دوره',
       dataIndex: 'name',
       key: 'name',
-      width: 200,
-      fixed: 'left',
     },
     {
       title: 'دسته‌بندی',
       dataIndex: ['category', 'name'],
       key: 'categoryName',
-      width: 150,
       render :(cName:string) => <Tag>{cName}</Tag>
     },
     {
       title: 'نوع',
       dataIndex: 'type',
       key: 'type',
-      width: 100,
       align: 'center',
+      render: (courseType:number) => CourseType[Number(courseType)]
     },
     {
       title: 'وضعیت',
       dataIndex: 'status',
       key: 'status',
-      width: 100,
       align: 'center',
+      render: (courseStatus:number) => CourseStatus[Number(courseStatus)]
     },
     {
       title: 'روش پرداخت',
       dataIndex: 'paymentMethod',
       key: 'paymentMethod',
-      width: 120,
       align: 'center',
+      render: (coursePaymentType:number) => CoursePaymentType[Number(coursePaymentType)]
     },
     {
       title: 'قیمت (تومان)',
       dataIndex: 'price',
       key: 'price',
-      width: 150,
       align: 'right',
       render: (price: number) => price.toLocaleString('fa-IR'),
     },
@@ -74,15 +71,13 @@ export const CourseListPage: React.FC = () => {
       title: 'گواهینامه',
       dataIndex: 'isCertificateAvailable',
       key: 'isCertificateAvailable',
-      width: 100,
       align: 'center',
-      render: (value: boolean) => (value ? 'دارد' : 'ندارد'),
+      render: (value: boolean) => (value ? <Tag color={"blue"}>دارد</Tag> : <Tag color={"red"}>ندارد</Tag>),
     },
     {
       title: 'پیش‌نیازها',
       dataIndex: 'preRequisites',
       key: 'preRequisites',
-      width: 200,
       ellipsis: true,
     },
   ];
