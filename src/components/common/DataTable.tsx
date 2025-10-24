@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table, Button, Space, Card } from 'antd';
+import { Table, Button, Space } from 'antd';
 import type { ColumnsType, TableProps } from 'antd/es/table';
 
 interface PaginationState {
@@ -51,7 +51,7 @@ export function DataTable<T extends object>({
     `${range[0]}-${range[1]} از ${total} ${itemName}`;
 
   return (
-    <div>
+    <div className="min-h-[400px]">
       <Table<T>
         columns={columns}
         dataSource={dataSource}

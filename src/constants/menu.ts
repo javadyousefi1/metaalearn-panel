@@ -56,7 +56,7 @@ export const MENU_ITEMS: MenuItemConfig[] = [
             },
             {
                 key: 'categories',
-                path: ROUTES.CATEGORIES.ROOT,
+                path: ROUTES.COURSES.CATEGORIES.ROOT,
                 label: 'دسته‌بندی‌ها',
                 icon: FolderTree,
             },

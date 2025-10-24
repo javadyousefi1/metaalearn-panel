@@ -72,11 +72,11 @@ export const router = createBrowserRouter([
 
       // Categories Management
       {
-        path: ROUTES.CATEGORIES.LIST,
+        path: ROUTES.COURSES.CATEGORIES.ROOT,
         element: <CategoriesPage />,
       },
       {
-        path: `${ROUTES.CATEGORIES.ROOT}/:id`,
+        path: ROUTES.COURSES.CATEGORIES.VIEW,
         element: <SubCategoriesPage />,
       },
 

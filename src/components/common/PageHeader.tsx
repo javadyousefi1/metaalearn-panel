@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Breadcrumb, Button } from 'antd';
 import { ArrowRight } from 'lucide-react';
@@ -34,8 +34,14 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
   backButton,
   className = '',
 }) => {
-  // Get portal target element
-  const portalTarget = document.getElementById('breadcrumb-portal');
+  // State to track portal target availability
+  const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null);
+
+  // Check for portal target on mount and when breadcrumbItems change
+  useEffect(() => {
+    const target = document.getElementById('breadcrumb-portal');
+    setPortalTarget(target);
+  }, [breadcrumbItems]);
 
   // Render breadcrumbs in portal if target exists
   const breadcrumbElement = breadcrumbItems && breadcrumbItems.length > 0 && (
@@ -44,10 +50,8 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
 
   return (
     <div className={`mb-8 ${className}`}>
-      {/* Breadcrumb - Portal to header if target exists, otherwise render here */}
-      {breadcrumbElement && portalTarget
-        ? createPortal(breadcrumbElement, portalTarget)
-        : breadcrumbElement}
+      {/* Breadcrumb - Portal to header if target exists, otherwise don't render here */}
+      {breadcrumbElement && portalTarget && createPortal(breadcrumbElement, portalTarget)}
 
       {/* Back Button */}
       {backButton && (

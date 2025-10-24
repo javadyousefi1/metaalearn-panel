@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import {Button, Spin, Tag, Tooltip} from 'antd';
+import {Button, Tag, Tooltip} from 'antd';
 import { Home, Plus, Edit } from 'lucide-react';
 import type { ColumnsType } from 'antd/es/table';
 import { PageHeader, DataTable } from '@/components/common';
@@ -162,7 +162,7 @@ export const CourseListPage: React.FC = () => {
   ];
 
   return (
-    <div>
+    <div className="min-h-[60vh]">
       <PageHeader
         title="لیست دوره‌ها"
         description="مشاهده و مدیریت دوره‌های آموزشی"
