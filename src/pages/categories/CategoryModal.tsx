@@ -16,6 +16,10 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({
   parentId,
   onClose,
 }) => {
+    console.log( open,
+        category,
+        parentId,
+        onClose, )
   const [form] = Form.useForm();
   const { categories, createCategory, updateCategory, isCreating, isUpdating } =
     useCategories();
@@ -53,9 +57,10 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({
           parentId: values.parentId,
         });
       } else {
+          alert("dfhwdwj")
         await createCategory({
           name: values.name,
-          parentId: values.parentId,
+          parentId: parentId,
         });
       }
 
@@ -97,15 +102,6 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({
       destroyOnClose
     >
       <div className="py-4">
-        {!isEditMode && (
-          <Alert
-            message="راهنما"
-            description="برای ایجاد دسته اصلی، فیلد دسته والد را خالی بگذارید. برای ایجاد زیردسته، یک دسته والد انتخاب کنید."
-            type="info"
-            showIcon
-            className="mb-6"
-          />
-        )}
 
         <Form
           form={form}
@@ -135,23 +131,7 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({
             />
           </Form.Item>
 
-          <Form.Item
-            name="parentId"
-            label="دسته والد (اختیاری)"
-            help="برای ایجاد زیردسته، دسته والد را انتخاب کنید"
-          >
-            <Select
-              placeholder="انتخاب دسته والد"
-              allowClear
-              showSearch
-              optionFilterProp="children"
-              disabled={!!parentId}
-              options={availableParentCategories.map((cat) => ({
-                label: cat.name,
-                value: cat.id,
-              }))}
-            />
-          </Form.Item>
+
         </Form>
       </div>
     </Modal>
