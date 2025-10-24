@@ -35,7 +35,7 @@ export const ROUTES = {
     COURSE_LIST: '/courses/course-list',
     CATEGORIES: {
       ROOT: '/courses/categories',
-      VIEW: '/courses/categories/:id',
+      SUB: (id:string) => '/courses/categories/:id'.replace(":id" , id),
     },
   },
 

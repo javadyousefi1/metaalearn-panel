@@ -76,7 +76,7 @@ export const router = createBrowserRouter([
         element: <CategoriesPage />,
       },
       {
-        path: ROUTES.COURSES.CATEGORIES.VIEW,
+        path: ROUTES.COURSES.CATEGORIES.SUB(":id"),
         element: <SubCategoriesPage />,
       },
 

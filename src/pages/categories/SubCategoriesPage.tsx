@@ -47,7 +47,7 @@ export const SubCategoriesPage: React.FC = () => {
   };
 
   const handleBack = () => {
-    navigate(ROUTES.COURSES.CATEGORIES.LIST);
+    navigate(ROUTES.COURSES.CATEGORIES.ROOT);
   };
 
   if (isLoadingParent) {

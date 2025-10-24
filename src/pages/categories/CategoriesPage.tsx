@@ -40,7 +40,7 @@ export const CategoriesPage: React.FC = () => {
   };
 
   const handleCardClick = (categoryId: string) => {
-    navigate(`${ROUTES.CATEGORIES.ROOT}/${categoryId}`);
+    navigate(ROUTES.COURSES.CATEGORIES.SUB(categoryId));
   };
 
   const handleModalClose = () => {
