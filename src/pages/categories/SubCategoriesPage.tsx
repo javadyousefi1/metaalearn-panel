@@ -107,10 +107,6 @@ export const SubCategoriesPage: React.FC = () => {
             title: parentCategory.name,
           },
         ]}
-        backButton={{
-          onClick: handleBack,
-          label: 'بازگشت',
-        }}
         actions={
           <Button
             type="primary"

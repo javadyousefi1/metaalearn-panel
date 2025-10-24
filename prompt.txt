@@ -1,82 +1,46 @@
-we want add new page in course tab
-named course list
-
-and in this page at first we want an api to call an api and show data in table
-
-and how we want the table do
-
-you should create a custom hook for table gets fn for requesting and returning data
-and return the table tools like next page prev page refresh table or some page size page index every thing need
-and a table with antd get data
-
-at all we want use a custom hook for handle network logic of table in best case and share able
-and this is api out put
-{
-  "items": [
-    {
-      "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-      "category": {
-        "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-        "name": "string"
-      },
-      "name": "string",
-      "type": 0,
-      "status": 0,
-      "paymentMethod": 0,
-      "price": 0,
-      "isCertificateAvailable": true,
-      "preRequisites": "string",
-      "shortText": "string",
-      "intervalTime": "string",
-      "durationTime": "string",
-      "daysOfWeeks": [
-        0
-      ],
-      "enrollmentCount": 0,
-      "favoriteCount": 0,
-      "instructors": [
-        {
-          "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-          "fullNameFa": "string",
-          "imageUrl": "string"
-        }
-      ],
-      "gallery": [
-        {
-          "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-          "shareableUrl": "string",
-          "type": 0,
-          "category": 0
-        }
-      ]
-    }
-  ],
-  "totalCount": 0
-}
-
-for now just we use
-{
-  "categoryId": "aebabbb9-9274-4404-a6ad-04f2219e3906",
-  "name": "django",
-  "type": 1,
-  "status": 1,
-  "paymentMethod": 1,
-  "price": 110000,
+in courses list
+instead of به روز رسانی button
+add button for creating course and this is the feilds
+  "categoryId": "3fa85f64-5717-4562-b3fc-2c963f66afa6", -> call all get all categories uses in categories page
+  "name": "string",
+  "type": 0, in course enums
+  "status": 0, in course enums
+  "paymentMethod": 0, in course enums
+  "price": 0,
   "isCertificateAvailable": true,
-  "preRequisites": "string"
-}
-in table
-
-pay attention we want be useable and scale able
-
-this is api
-Course/GetAll?PageIndex=1&PageSize=10
-
-and for pagination the quueries name is
-PageIndex
-PageSize
+  "preRequisites": "string",
+  "intervalTime": "string",
+  "durationTime": "string",
+  "daysOfWeeks": [
+    0
+  ], it is simple to now and added the enum in course enums
+  "progressPercentage": 0,
+  "installmentCount": 0,
+  "minimumInstallmentCount": 0,
+  "discountPercentage": 0,
 
 
-pay attention to scale able readblilty speration of concern
+start creating form and put in page header actions
+and send data to this api
+/Course/Create
 
-ask if you have questions
+this is category response
+[
+  {
+    "name": "زبان برنامه نویسی",
+    "subCategories": [
+      {
+        "name": "Python",
+        "subCategories": null,
+        "id": "aebabbb9-9274-4404-a6ad-04f2219e3906"
+      },
+      {
+        "name": "12",
+        "subCategories": null,
+        "id": "28950379-63ef-43bd-9a80-731b9355922a"
+      }
+    ],
+    "id": "ac4b0599-ceca-418b-a700-d5b55d300d17"
+  }
+]
+flat map the subCategories with id and label name

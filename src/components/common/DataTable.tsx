@@ -74,7 +74,7 @@ export function DataTable<T extends object>({
           },
           position: ['bottomCenter'],
           locale: {
-            items_per_page: '/ صفحه',
+            items_per_page: '',
           },
         }}
         locale={{

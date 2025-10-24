@@ -1,12 +1,13 @@
-import React from 'react';
-import {Button, Spin, Tag} from 'antd';
-import { Home, RefreshCw } from 'lucide-react';
+import React, { useState } from 'react';
+import {Button, Spin, Tag, Tooltip} from 'antd';
+import { Home, Plus, Edit } from 'lucide-react';
 import type { ColumnsType } from 'antd/es/table';
 import { PageHeader, DataTable } from '@/components/common';
 import { useTable } from '@/hooks';
 import { courseService } from '@/services';
 import { Course } from '@/types/course.types';
 import {CoursePaymentType, CourseStatus, CourseType} from "@/enums";
+import { CourseCreateModal } from './CourseCreateModal';
 
 const getCourseTypeColor = (type: number): string => {
   const colorMap: Record<number, string> = {
@@ -42,6 +43,9 @@ const getPaymentMethodColor = (method: number): string => {
 };
 
 export const CourseListPage: React.FC = () => {
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingCourse, setEditingCourse] = useState<Course | null>(null);
+
   const {
     data: courses,
     totalCount,
@@ -54,6 +58,25 @@ export const CourseListPage: React.FC = () => {
     initialPageSize: 10,
     initialPageIndex: 1,
   });
+
+  const handleCreateClick = () => {
+    setEditingCourse(null);
+    setModalOpen(true);
+  };
+
+  const handleEditClick = (course: Course) => {
+    setEditingCourse(course);
+    setModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setModalOpen(false);
+    setEditingCourse(null);
+  };
+
+  const handleSuccess = () => {
+    refresh();
+  };
 
   const columns: ColumnsType<Course> = [
     {
@@ -74,7 +97,7 @@ export const CourseListPage: React.FC = () => {
       align: 'center',
       render: (courseType: number) => (
         <Tag color={getCourseTypeColor(courseType)}>
-          {CourseType[Number(courseType)]}
+          {CourseType[courseType as keyof typeof CourseType]}
         </Tag>
       ),
     },
@@ -85,7 +108,7 @@ export const CourseListPage: React.FC = () => {
       align: 'center',
       render: (courseStatus: number) => (
         <Tag color={getCourseStatusColor(courseStatus)}>
-          {CourseStatus[Number(courseStatus)]}
+          {CourseStatus[courseStatus as keyof typeof CourseStatus]}
         </Tag>
       ),
     },
@@ -96,7 +119,7 @@ export const CourseListPage: React.FC = () => {
       align: 'center',
       render: (coursePaymentType: number) => (
         <Tag color={getPaymentMethodColor(coursePaymentType)}>
-          {CoursePaymentType[Number(coursePaymentType)]}
+          {CoursePaymentType[coursePaymentType as keyof typeof CoursePaymentType]}
         </Tag>
       ),
     },
@@ -120,15 +143,23 @@ export const CourseListPage: React.FC = () => {
       key: 'preRequisites',
       ellipsis: true,
     },
+    {
+      title: 'عملیات',
+      key: 'actions',
+      align: 'center',
+      width: 100,
+      render: (_: any, record: Course) => (
+        <Tooltip title="ویرایش">
+          <Button
+            type="text"
+            icon={<Edit size={18} />}
+            onClick={() => handleEditClick(record)}
+            className="hover:bg-blue-50 hover:text-blue-600"
+          />
+        </Tooltip>
+      ),
+    },
   ];
-
-  if (isLoading && courses.length === 0) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Spin size="large" tip="در حال بارگذاری..." />
-      </div>
-    );
-  }
 
   return (
     <div>
@@ -153,14 +184,13 @@ export const CourseListPage: React.FC = () => {
         ]}
         actions={
           <Button
-            type="default"
+            type="primary"
             size="large"
-            icon={<RefreshCw size={18} />}
-            onClick={() => refresh()}
-            loading={isLoading}
-            className="shadow-sm hover:shadow-md transition-all"
+            icon={<Plus size={20} />}
+            onClick={handleCreateClick}
+            className="shadow-lg hover:shadow-xl transition-all"
           >
-            به‌روزرسانی
+            دوره جدید
           </Button>
         }
       />
@@ -174,6 +204,13 @@ export const CourseListPage: React.FC = () => {
         pagination={pagination}
         emptyText="هیچ دوره‌ای یافت نشد"
         itemName="دوره"
+      />
+
+      <CourseCreateModal
+        open={modalOpen}
+        course={editingCourse}
+        onClose={handleModalClose}
+        onSuccess={handleSuccess}
       />
     </div>
   );

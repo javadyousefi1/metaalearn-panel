@@ -47,3 +47,40 @@ export interface CourseListResponse {
   items: Course[];
   totalCount: number;
 }
+
+export interface CreateCoursePayload {
+  categoryId: string;
+  name: string;
+  type: number;
+  status: number;
+  paymentMethod: number;
+  price: number;
+  isCertificateAvailable: boolean;
+  preRequisites: string;
+  intervalTime: string;
+  durationTime: string;
+  daysOfWeeks: number[];
+  progressPercentage: number;
+  installmentCount: number;
+  minimumInstallmentCount: number;
+  discountPercentage: number;
+}
+
+export interface UpdateCoursePayload {
+  id: string;
+  categoryId: string;
+  name: string;
+  type: number;
+  status: number;
+  paymentMethod: number;
+  price: number;
+  isCertificateAvailable: boolean;
+  preRequisites: string;
+  intervalTime: string;
+  durationTime: string;
+  daysOfWeeks: number[];
+  progressPercentage: number;
+  installmentCount: number;
+  minimumInstallmentCount: number;
+  discountPercentage: number;
+}

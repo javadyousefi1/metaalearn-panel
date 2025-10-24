@@ -20,3 +20,13 @@ export const CourseStatus = {
     4: "غیر فعال",
     5: "تمام شده",
 } as const;
+
+export const DaysOfWeek = {
+    0: "شنبه",
+    1: "یکشنبه",
+    2: "دوشنبه",
+    3: "سه‌شنبه",
+    4: "چهارشنبه",
+    5: "پنجشنبه",
+    6: "جمعه",
+} as const;
