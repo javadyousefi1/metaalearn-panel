@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import {Button, Tag, Tooltip} from 'antd';
-import { Home, Plus, Edit } from 'lucide-react';
+import { Home, Plus, Edit, Eye } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import type { ColumnsType } from 'antd/es/table';
 import { PageHeader, DataTable } from '@/components/common';
 import { useTable } from '@/hooks';
@@ -8,6 +9,7 @@ import { courseService } from '@/services';
 import { Course } from '@/types/course.types';
 import {CoursePaymentType, CourseStatus, CourseType} from "@/enums";
 import { CourseCreateModal } from './CourseCreateModal';
+import { ROUTES } from '@/constants';
 
 const getCourseTypeColor = (type: number): string => {
   const colorMap: Record<number, string> = {
@@ -43,6 +45,7 @@ const getPaymentMethodColor = (method: number): string => {
 };
 
 export const CourseListPage: React.FC = () => {
+  const navigate = useNavigate();
   const [modalOpen, setModalOpen] = useState(false);
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
 
@@ -67,6 +70,10 @@ export const CourseListPage: React.FC = () => {
   const handleEditClick = (course: Course) => {
     setEditingCourse(course);
     setModalOpen(true);
+  };
+
+  const handleDetailsClick = (courseId: string) => {
+    navigate(ROUTES.COURSE.ROOT(courseId));
   };
 
   const handleModalClose = () => {
@@ -142,6 +149,22 @@ export const CourseListPage: React.FC = () => {
       dataIndex: 'preRequisites',
       key: 'preRequisites',
       ellipsis: true,
+    },
+    {
+      title: 'جزئیات',
+      key: 'details',
+      align: 'center',
+      width: 100,
+      render: (_: any, record: Course) => (
+        <Tooltip title="مشاهده جزئیات">
+          <Button
+            type="text"
+            icon={<Eye size={18} />}
+            onClick={() => handleDetailsClick(record.id)}
+            className="hover:bg-green-50 hover:text-green-600"
+          />
+        </Tooltip>
+      ),
     },
     {
       title: 'عملیات',

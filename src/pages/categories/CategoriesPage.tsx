@@ -70,6 +70,14 @@ export const CategoriesPage: React.FC = () => {
               </span>
             ),
           },
+            {
+                title: (
+                    <span
+                    >
+           دوره‌ها
+              </span>
+                ),
+            },
           {
             title: 'دسته‌بندی‌ها',
           },

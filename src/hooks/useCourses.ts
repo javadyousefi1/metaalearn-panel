@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { message } from 'antd';
 import { courseService } from '@/services';
 import { queryKeys } from '@/config';
@@ -43,4 +43,17 @@ export const useCourses = () => {
     isCreating: createMutation.isPending,
     isUpdating: updateMutation.isPending,
   };
+};
+
+/**
+ * Custom hook for getting a course by ID
+ * @param id - Course ID
+ * @param enabled - Whether the query should run (optional, defaults to true when id is provided)
+ */
+export const useGetCourseById = (id: string, enabled = true) => {
+  return useQuery({
+    queryKey: queryKeys.courses.detail(id),
+    queryFn: () => courseService.getById(id),
+    enabled: !!id && enabled,
+  });
 };

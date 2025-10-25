@@ -93,6 +93,14 @@ export const SubCategoriesPage: React.FC = () => {
               </span>
             ),
           },
+            {
+                title: (
+                    <span
+                    >
+                دوره‌ها
+              </span>
+                ),
+            },
           {
             title: (
               <span

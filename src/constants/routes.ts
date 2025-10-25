@@ -39,6 +39,14 @@ export const ROUTES = {
     },
   },
 
+  // Course Detail Routes
+  COURSE: {
+    ROOT: (id: string) => `/course/${id}`,
+    DETAIL: '/course/:id',
+    FAQ: (id: string) => `/course/${id}/faq`,
+    FAQ_PATH: '/course/:id/faq',
+  },
+
 
   // Settings Routes
   SETTINGS: {
@@ -76,8 +84,9 @@ export const PAGE_TITLES: Record<string, string> = {
   [ROUTES.USERS.EDIT]: 'Edit User',
   [ROUTES.USERS.VIEW]: 'User Details',
   [ROUTES.COURSES.COURSE_LIST]: 'لیست دوره‌ها',
-  [ROUTES.COURSES.CATEGORIES.LIST]: 'مدیریت دسته‌بندی‌ها',
-  [ROUTES.COURSES.CATEGORIES.VIEW]: 'نمایش زیردسته‌ها',
+  [ROUTES.COURSES.CATEGORIES.ROOT]: 'مدیریت دسته‌بندی‌ها',
+  [ROUTES.COURSE.DETAIL]: 'جزئیات دوره',
+  [ROUTES.COURSE.FAQ_PATH]: 'سوالات متداول',
   [ROUTES.SETTINGS.PROFILE]: 'Profile Settings',
   [ROUTES.SETTINGS.ACCOUNT]: 'Account Settings',
   [ROUTES.SETTINGS.SECURITY]: 'Security Settings',

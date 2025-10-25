@@ -49,7 +49,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
   );
 
   return (
-    <div className={`mb-8 ${className}`}>
+    <div className={`mb-8 border-b pb-10 ${className}`}>
       {/* Breadcrumb - Portal to header if target exists, otherwise don't render here */}
       {breadcrumbElement && portalTarget && createPortal(breadcrumbElement, portalTarget)}
 

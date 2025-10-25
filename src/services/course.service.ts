@@ -1,5 +1,5 @@
 import { httpService } from './http.service';
-import { CourseListResponse, CourseListParams, CreateCoursePayload, UpdateCoursePayload } from '@/types/course.types';
+import { CourseListResponse, CourseListParams, CreateCoursePayload, UpdateCoursePayload, Course } from '@/types/course.types';
 
 /**
  * Course Service
@@ -16,6 +16,18 @@ export const courseService = {
     const { PageIndex, PageSize } = params;
     const response = await httpService.get<CourseListResponse>(
       `/Course/GetAll?PageIndex=${PageIndex}&PageSize=${PageSize}`
+    );
+    return response.data;
+  },
+
+  /**
+   * Get course by ID
+   * @param id - Course ID
+   * @returns Promise with course details
+   */
+  getById: async (id: string): Promise<Course> => {
+    const response = await httpService.get<Course>(
+      `/Course/Get?Id=${id}`
     );
     return response.data;
   },
