@@ -15,6 +15,9 @@ export const CourseDetailPage: React.FC = () => {
     if (location.pathname.endsWith('/faq')) {
       return 'faq';
     }
+    if (location.pathname.endsWith('/sessions')) {
+      return 'sessions';
+    }
     // Default to FAQ when on the base course detail page
     return 'faq';
   };
@@ -39,8 +42,9 @@ export const CourseDetailPage: React.FC = () => {
     switch (value) {
       case 'faq':
         navigate(ROUTES.COURSE.FAQ(id));
-        case 'sessions':
-            navigate(ROUTES.COURSE.FAQ(id));
+        break;
+      case 'sessions':
+        navigate(ROUTES.COURSE.SESSIONS(id));
         break;
       default:
         navigate(ROUTES.COURSE.FAQ(id));
@@ -76,6 +80,10 @@ export const CourseDetailPage: React.FC = () => {
                 {
                     label: 'سوالات متداول',
                     value: 'faq',
+                },
+                {
+                    label: 'جلسات',
+                    value: 'sessions',
                 },
             ]}
             size="large"

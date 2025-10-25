@@ -45,6 +45,8 @@ export const ROUTES = {
     DETAIL: '/course/:id',
     FAQ: (id: string) => `/course/${id}/faq`,
     FAQ_PATH: '/course/:id/faq',
+    SESSIONS: (id: string) => `/course/${id}/sessions`,
+    SESSIONS_PATH: '/course/:id/sessions',
   },
 
 
