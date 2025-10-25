@@ -22,4 +22,12 @@ export const queryKeys = {
     details: () => [...queryKeys.courses.all, 'detail'] as const,
     detail: (id: string) => [...queryKeys.courses.details(), id] as const,
   },
+  sessions: {
+    all: ['sessions'] as const,
+    lists: () => [...queryKeys.sessions.all, 'list'] as const,
+    list: (filters?: Record<string, unknown>) =>
+      [...queryKeys.sessions.lists(), { ...filters }] as const,
+    details: () => [...queryKeys.sessions.all, 'detail'] as const,
+    detail: (id: string) => [...queryKeys.sessions.details(), id] as const,
+  },
 } as const;

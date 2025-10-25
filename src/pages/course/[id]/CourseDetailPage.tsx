@@ -73,21 +73,24 @@ export const CourseDetailPage: React.FC = () => {
           },
         ]}
         actions={
-          <Segmented
-            value={activeTab}
-            onChange={handleSegmentChange}
-            options={[
-                {
-                    label: 'سوالات متداول',
-                    value: 'faq',
-                },
-                {
-                    label: 'جلسات',
-                    value: 'sessions',
-                },
-            ]}
-            size="large"
-        />}
+          <div dir="rtl">
+            <Segmented
+              value={activeTab}
+              onChange={handleSegmentChange}
+              options={[
+                  {
+                      label: 'سوالات متداول',
+                      value: 'faq',
+                  },
+                  {
+                      label: 'جلسات',
+                      value: 'sessions',
+                  },
+              ]}
+              size="large"
+            />
+          </div>
+        }
       />
 
       {/* Outlet for nested routes */}

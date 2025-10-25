@@ -1,46 +1,74 @@
-in courses list
-instead of به روز رسانی button
-add button for creating course and this is the feilds
-  "categoryId": "3fa85f64-5717-4562-b3fc-2c963f66afa6", -> call all get all categories uses in categories page
+in course session page
+we need new coursesesson.service in services
+and new custom hook
+
+/CourseSession/Update
+/CourseSession/Create
+/CourseSession/Delete/{id}
+/CourseSession/Get/{id}
+/CourseSession/GetAll
+
+handle these in custom hook like course
+
+and this is the dto
+udpate
+{
+  "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
   "name": "string",
-  "type": 0, in course enums
-  "status": 0, in course enums
-  "paymentMethod": 0, in course enums
-  "price": 0,
-  "isCertificateAvailable": true,
-  "preRequisites": "string",
-  "intervalTime": "string",
-  "durationTime": "string",
-  "daysOfWeeks": [
-    0
-  ], it is simple to now and added the enum in course enums
-  "progressPercentage": 0,
-  "installmentCount": 0,
-  "minimumInstallmentCount": 0,
-  "discountPercentage": 0,
-
-
-start creating form and put in page header actions
-and send data to this api
-/Course/Create
-
-this is category response
+  "description": "string",
+  "index": 0,
+  "occurrenceTime": "2025-10-25T21:25:24.722Z",
+  "practiceDueTime": "2025-10-25T21:25:24.722Z",
+  "videoUrl": "string",
+  "fileUrl": "string",
+  "onlineMeetingUrl": "string",
+  "parentId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "isPracticeAvailable": true
+}
+create
+{
+  "name": "string",
+  "description": "string",
+  "index": 0,
+  "occurrenceTime": "2025-10-25T21:25:24.722Z",
+  "practiceDueTime": "2025-10-25T21:25:24.722Z",
+  "videoUrl": "string",
+  "fileUrl": "string",
+  "onlineMeetingUrl": "string",
+  "parentId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "isPracticeAvailable": true
+}
+getall
 [
-  {
-    "name": "زبان برنامه نویسی",
-    "subCategories": [
-      {
-        "name": "Python",
-        "subCategories": null,
-        "id": "aebabbb9-9274-4404-a6ad-04f2219e3906"
-      },
-      {
-        "name": "12",
-        "subCategories": null,
-        "id": "28950379-63ef-43bd-9a80-731b9355922a"
-      }
-    ],
-    "id": "ac4b0599-ceca-418b-a700-d5b55d300d17"
-  }
+{
+  "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "name": "string",
+  "description": "string",
+  "index": 0,
+  "occurrenceTime": "2025-10-25T21:25:24.722Z",
+  "practiceDueTime": "2025-10-25T21:25:24.722Z",
+  "videoUrl": "string",
+  "fileUrl": "string",
+  "onlineMeetingUrl": "string",
+  "parentId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "isPracticeAvailable": true
+}
 ]
-flat map the subCategories with id and label name
+
+
+and some of sessions maybe have an other parent id
+and it just in 2 layer for example
+
+1 - front end -> html , css ,js
+2 - backend -> express mongo
+
+and this why parent id exist
+
+and use the same design logic as Faq
+ask if you have question
+
+we dont have tree it is just one more layer like i saied
+
+the main button on top parent id is null and the each child can have a parent id from the parent
+like all normal session courses
+ask if you have question
