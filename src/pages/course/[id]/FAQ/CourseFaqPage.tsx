@@ -1,7 +1,7 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import { Card, Empty } from 'antd';
-import { MessageCircleQuestion } from 'lucide-react';
+import { Card, Empty, Button } from 'antd';
+import { MessageCircleQuestion, Plus } from 'lucide-react';
 import {useGetCourseById} from "@/hooks";
 
 export const CourseFaqPage: React.FC = () => {
@@ -11,9 +11,32 @@ export const CourseFaqPage: React.FC = () => {
 
     console.log(courseData)
 
+  const handleAddFaq = () => {
+    // TODO: Open modal or navigate to add FAQ form
+    console.log('Add FAQ clicked');
+  };
+
   return (
     <div>
-      <Card className="shadow-sm">
+      <Card
+        className="shadow-sm"
+        extra={
+          <Button
+            type="primary"
+            icon={<Plus size={18} />}
+            onClick={handleAddFaq}
+            className="shadow-md hover:shadow-lg transition-all"
+          >
+            افزودن سوال جدید
+          </Button>
+        }
+        title={
+          <div className="flex items-center gap-2">
+            <MessageCircleQuestion size={20} className="text-blue-500" />
+            <span>سوالات متداول دوره</span>
+          </div>
+        }
+      >
         <div className="flex flex-col items-center justify-center py-12">
           <MessageCircleQuestion size={64} className="text-gray-400 mb-4" />
             {!courseData?.faq &&
