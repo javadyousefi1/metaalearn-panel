@@ -18,24 +18,40 @@ export interface CourseGalleryItem {
   category: number;
 }
 
+export interface CourseFaq {
+  index: number;
+  question: string;
+  answer: string;
+}
+
 export interface Course {
   id: string;
-  category: CourseCategory;
+  categoryId?: string;
+  category?: CourseCategory;
   name: string;
   type: number;
   status: number;
   paymentMethod: number;
   price: number;
   isCertificateAvailable: boolean;
+  isDraft?: boolean;
+  isActive?: boolean;
   preRequisites: string;
   shortText: string;
+  fullText?: string;
   intervalTime: string;
   durationTime: string;
   daysOfWeeks: number[];
-  enrollmentCount: number;
-  favoriteCount: number;
-  instructors: CourseInstructor[];
-  gallery: CourseGalleryItem[];
+  progressPercentage?: number;
+  installmentCount?: number;
+  minimumInstallmentCount?: number;
+  discountPercentage?: number;
+  enrollmentCount?: number;
+  favoriteCount?: number;
+  instructors?: CourseInstructor[];
+  instructorIds?: string[];
+  gallery?: CourseGalleryItem[];
+  faqs?: CourseFaq[];
 }
 
 export interface CourseListParams {
@@ -76,11 +92,12 @@ export interface UpdateCoursePayload {
   price: number;
   isCertificateAvailable: boolean;
   preRequisites: string;
-  intervalTime: string;
-  durationTime: string;
-  daysOfWeeks: number[];
-  progressPercentage: number;
-  installmentCount: number;
-  minimumInstallmentCount: number;
-  discountPercentage: number;
+  intervalTime?: string;
+  durationTime?: string;
+  daysOfWeeks?: number[];
+  progressPercentage?: number;
+  installmentCount?: number;
+  minimumInstallmentCount?: number;
+  discountPercentage?: number;
+  faqs?: CourseFaq[];
 }
