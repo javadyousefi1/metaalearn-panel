@@ -16,14 +16,11 @@ export const CourseSessionsPage: React.FC = () => {
   const { data: allSessions = [], refetch, isLoading } = useGetAllSessions();
   const { createSession, updateSession, deleteSession, isCreating, isUpdating, isDeleting } = useCourseSessions();
 
-  // Filter parent sessions for this course (API already provides subSessions nested)
+  // API already filters sessions for current course and provides subSessions nested
   const parentSessions = useMemo(() => {
-    // Filter sessions that belong to this course (only top-level, API includes subSessions)
-    const courseSessions = (allSessions as CourseSession[]).filter((s: CourseSession) => s.course?.id === id);
-
-    // Sort by index
-    return courseSessions.sort((a: CourseSession, b: CourseSession) => a.index - b.index);
-  }, [allSessions, id]);
+    // Sort by index (API returns only sessions for this course)
+    return (allSessions as CourseSession[]).sort((a: CourseSession, b: CourseSession) => a.index - b.index);
+  }, [allSessions]);
 
   const handleAddParentSession = () => {
     setEditingSession(null);
