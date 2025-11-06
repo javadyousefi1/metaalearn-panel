@@ -42,7 +42,6 @@ export const CourseIntroductionPage: React.FC = () => {
         fullText: fullTextValue,
       });
 
-      message.success('معرفی دوره با موفقیت به‌روزرسانی شد');
       await refetch();
     } catch (error) {
       message.error('خطا در به‌روزرسانی معرفی دوره');
@@ -155,8 +154,8 @@ export const CourseIntroductionPage: React.FC = () => {
             label="متن کوتاه (خلاصه)"
             rules={[
               { required: true, message: 'لطفاً متن کوتاه را وارد کنید' },
-              { min: 10, message: 'متن کوتاه باید حداقل ۱۰ کاراکتر باشد' },
-              { max: 500, message: 'متن کوتاه نباید بیش از ۵۰۰ کاراکتر باشد' },
+              { min: 10, message: 'متن کوتاه باید حداقل 10 کاراکتر باشد' },
+              { max: 3000, message: 'متن کوتاه نباید بیش از 3000 کاراکتر باشد' },
             ]}
             extra="این متن به عنوان خلاصه‌ای از دوره نمایش داده می‌شود"
           >

@@ -6,3 +6,4 @@ export * from './common.types';
 export * from './category.types';
 export * from './course.types';
 export * from './session.types';
+export * from './courseSchedule.types';

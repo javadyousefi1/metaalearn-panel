@@ -5,7 +5,7 @@ import { LoginPage } from '@/pages/auth';
 import { DashboardPage } from '@/pages/dashboard';
 import { UsersPage } from '@/pages/users';
 import { CoursesPage, CourseListPage } from '@/pages/courses';
-import { CourseDetailPage, CourseFaqPage, CourseSessionsPage, CourseIntroductionPage } from '@/pages/course';
+import { CourseDetailPage, CourseFaqPage, CourseSessionsPage, CourseIntroductionPage, CourseSchedulePage } from '@/pages/course';
 import { CategoriesPage, SubCategoriesPage } from '@/pages/categories';
 import { SettingsPage } from '@/pages/settings';
 import { ROUTES } from '@/constants';
@@ -97,6 +97,10 @@ export const router = createBrowserRouter([
           {
             path: ROUTES.COURSE.SESSIONS_PATH,
             element: <CourseSessionsPage />,
+          },
+          {
+            path: ROUTES.COURSE.SCHEDULES_PATH,
+            element: <CourseSchedulePage />,
           },
         ],
       },

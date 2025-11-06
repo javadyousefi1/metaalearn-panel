@@ -21,6 +21,9 @@ export const CourseDetailPage: React.FC = () => {
     if (location.pathname.endsWith('/sessions')) {
       return 'sessions';
     }
+    if (location.pathname.endsWith('/schedules')) {
+      return 'schedules';
+    }
     // Default to Introduction when on the base course detail page
     return 'introduction';
   };
@@ -51,6 +54,9 @@ export const CourseDetailPage: React.FC = () => {
         break;
       case 'sessions':
         navigate(ROUTES.COURSE.SESSIONS(id));
+        break;
+      case 'schedules':
+        navigate(ROUTES.COURSE.SCHEDULES(id));
         break;
       default:
         navigate(ROUTES.COURSE.INTRODUCTION(id));
@@ -95,6 +101,10 @@ export const CourseDetailPage: React.FC = () => {
                   {
                       label: 'جلسات',
                       value: 'sessions',
+                  },
+                  {
+                      label: 'گروه‌بندی',
+                      value: 'schedules',
                   },
               ]}
               size="large"

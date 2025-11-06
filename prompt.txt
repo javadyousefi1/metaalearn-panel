@@ -1,12 +1,76 @@
-we want add new section named معرفی دوره  and itr is new segment in course like fgaq and session
-in updater course backenbd added 2 feileds
-  "shortText": "string",
-  "fullText": "string",
+every thing is ok but seprate the useGetUsersByRole to other file for user custom hook for ex useUser some thing like that
 
- it should be 2 input
- first the antd input
- the second should be richtexteditor
- beacouse user can write and image for intrtuce the course
 
- we have course update custom hook and have getby id custom hook the default value shorttext and full text is init
- ask quertystion if you have
+new task :
+create new page for users list in sidebar (it is abios seprate from coruse)
+this is api
+http://94.101.186.126:5000/User/GetAll?IncludeProfile=false&IncludeIdentity=false&PageIndex=1&PageSize=10
+and this is repsonse
+{
+  "items": [
+    {
+      "fullNameFa": "Super Admin",
+      "phoneNumber": "09149212400",
+      "username": null,
+      "imageUrl": null,
+      "referralId": "meta-60B29DEA",
+      "isActive": true,
+      "profile": null,
+      "identity": null,
+      "roles": [
+        "super-admin"
+      ],
+      "createdTime": "2025-09-15T20:05:26.800569Z",
+      "updatedTime": "2025-09-15T20:06:55.723939Z",
+      "id": "1378c315-5a6a-40e9-add2-f0e1abe06ec8"
+    },
+    {
+      "fullNameFa": "یصثیصثیصث یصثیصثی",
+      "phoneNumber": "09126868504",
+      "username": "dewedewdwe",
+      "imageUrl": null,
+      "referralId": "meta-96D56CD8",
+      "isActive": true,
+      "profile": null,
+      "identity": null,
+      "roles": [
+        "super-admin",
+        "teacher"
+      ],
+      "createdTime": "2025-09-15T20:05:27.67363Z",
+      "updatedTime": "2025-10-12T11:10:25.890691Z",
+      "id": "5716487f-06d2-4bf6-a978-492bfc2b36e9"
+    },
+    {
+      "fullNameFa": " ",
+      "phoneNumber": "09212127986",
+      "username": null,
+      "imageUrl": null,
+      "referralId": "meta-8432F122",
+      "isActive": true,
+      "profile": null,
+      "identity": null,
+      "roles": [],
+      "createdTime": "2025-09-26T00:07:28.658434Z",
+      "updatedTime": "2025-09-28T07:31:20.781189Z",
+      "id": "eb6c0994-2510-4b43-bb35-ef8dd027aa06"
+    },
+    {
+      "fullNameFa": " ",
+      "phoneNumber": "09212127897",
+      "username": null,
+      "imageUrl": null,
+      "referralId": "meta-33F85C02",
+      "isActive": true,
+      "profile": null,
+      "identity": null,
+      "roles": [],
+      "createdTime": "2025-09-27T12:05:11.989049Z",
+      "updatedTime": null,
+      "id": "43e4c079-8a51-4f9b-8643-bb7781314c37"
+    }
+  ],
+  "totalCount": 4
+}
+
+and show users in table same is courses table with same structrue
