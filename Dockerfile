@@ -10,7 +10,7 @@ COPY package.json package-lock.json* ./
 # Install dependencies
 RUN npm ci --legacy-peer-deps
 
-# Copy all source files
+# Copy all source files (including .env for build-time variables)
 COPY . .
 
 # Build the application

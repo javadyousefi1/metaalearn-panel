@@ -68,16 +68,40 @@ ports:
 
 ### Environment Variables
 
-If you need to pass environment variables at build time, edit the `Dockerfile`:
+**IMPORTANT**: The API URL must be set at **build time** because Vite bakes environment variables into the bundle.
 
-```dockerfile
-# Add build args
-ARG VITE_API_URL
-ENV VITE_API_URL=$VITE_API_URL
+#### Option 1: Edit docker-compose.yml (Recommended)
 
-# Pass during build
-docker-compose build --build-arg VITE_API_URL=https://api.example.com
+Edit the `VITE_API_BASE_URL` in docker-compose.yml:
+
+```yaml
+services:
+  web-panel:
+    build:
+      args:
+        VITE_API_BASE_URL: http://your-api-server:5000  # Change this!
 ```
+
+#### Option 2: Use .env.production file
+
+Edit `.env.production` with your API URL, then rebuild:
+
+```bash
+docker-compose build --no-cache
+docker-compose up -d
+```
+
+#### Option 3: Pass as build argument
+
+```bash
+docker-compose build --build-arg VITE_API_BASE_URL=http://your-api:5000
+docker-compose up -d
+```
+
+**Common API URLs:**
+- Local API: `http://localhost:5000`
+- Server API: `http://94.101.186.126:5000`
+- Domain API: `https://api.metaalearn.com`
 
 ### Health Check
 

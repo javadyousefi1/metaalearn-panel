@@ -7,9 +7,9 @@ dist
 build
 
 # Environment files
-.env
 .env.local
 .env.*.local
+# Note: .env is included for build-time variables
 
 # Git
 .git
