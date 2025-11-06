@@ -24,7 +24,7 @@ export const categoryService = {
    * Get single category by ID
    */
   getById: async (id: string): Promise<Category> => {
-    const response = await httpService.get<Category>(`/CourseCategory/Get?id=${id}`);
+    const response = await httpService.get<Category>(`/CourseCategory/Get/${id}`);
     return response.data;
   },
 

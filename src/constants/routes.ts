@@ -51,6 +51,8 @@ export const ROUTES = {
     SESSIONS_PATH: '/course/:id/sessions',
     SCHEDULES: (id: string) => `/course/${id}/schedules`,
     SCHEDULES_PATH: '/course/:id/schedules',
+    GALLERY: (id: string) => `/course/${id}/gallery`,
+    GALLERY_PATH: '/course/:id/gallery',
   },
 
 
@@ -95,6 +97,7 @@ export const PAGE_TITLES: Record<string, string> = {
   [ROUTES.COURSE.INTRODUCTION_PATH]: 'معرفی دوره',
   [ROUTES.COURSE.FAQ_PATH]: 'سوالات متداول',
   [ROUTES.COURSE.SCHEDULES_PATH]: 'گروه‌بندی',
+  [ROUTES.COURSE.GALLERY_PATH]: 'گالری دوره',
   [ROUTES.SETTINGS.PROFILE]: 'Profile Settings',
   [ROUTES.SETTINGS.ACCOUNT]: 'Account Settings',
   [ROUTES.SETTINGS.SECURITY]: 'Security Settings',

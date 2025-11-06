@@ -4,5 +4,6 @@ export * from './useCategories';
 export * from './useCourses';
 export * from './useCourseSessions';
 export * from './useCourseSchedules';
+export * from './useCourseGallery';
 export * from './useUsers';
 export * from './useTable';

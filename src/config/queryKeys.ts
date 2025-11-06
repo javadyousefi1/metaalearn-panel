@@ -45,4 +45,11 @@ export const queryKeys = {
       [...queryKeys.users.lists(), { ...filters }] as const,
     byRole: (role: string) => [...queryKeys.users.all, 'role', role] as const,
   },
+  gallery: {
+    all: ['gallery'] as const,
+    lists: () => [...queryKeys.gallery.all, 'list'] as const,
+    list: (filters?: Record<string, unknown>) =>
+      [...queryKeys.gallery.lists(), { ...filters }] as const,
+    byCourse: (courseId: string) => [...queryKeys.gallery.all, 'course', courseId] as const,
+  },
 } as const;

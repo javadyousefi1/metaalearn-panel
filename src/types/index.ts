@@ -7,3 +7,19 @@ export * from './category.types';
 export * from './course.types';
 export * from './session.types';
 export * from './courseSchedule.types';
+// Selective export to avoid CourseGalleryItem conflict with course.types
+export {
+  GalleryType,
+  GalleryCategory,
+  UploadCourseGalleryRequestType,
+} from './courseGallery.types';
+export type {
+  CourseGalleryListParams,
+  CourseGalleryListResponse,
+  UploadCourseGalleryPayload,
+} from './courseGallery.types';
+export {
+  getGalleryTypeName,
+  getGalleryCategoryName,
+  getGalleryCategoryColor,
+} from './courseGallery.types';
