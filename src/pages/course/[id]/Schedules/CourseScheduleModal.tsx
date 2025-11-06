@@ -24,7 +24,7 @@ export const CourseScheduleModal: React.FC<CourseScheduleModalProps> = ({
 
   // Fetch users by different roles
   const { data: instructors = [] } = useGetUsersByRole({
-    role: 'instructor',
+    role: '1',
     PageIndex: 1,
     PageSize: 1000,
     IncludeProfile: false,
@@ -32,7 +32,7 @@ export const CourseScheduleModal: React.FC<CourseScheduleModalProps> = ({
   });
 
   const { data: operators = [] } = useGetUsersByRole({
-    role: 'operator',
+    role: '2',
     PageIndex: 1,
     PageSize: 1000,
     IncludeProfile: false,
@@ -40,7 +40,7 @@ export const CourseScheduleModal: React.FC<CourseScheduleModalProps> = ({
   });
 
   const { data: students = [] } = useGetUsersByRole({
-    role: 'student',
+    role: '3',
     PageIndex: 1,
     PageSize: 1000,
     IncludeProfile: false,
@@ -86,7 +86,7 @@ export const CourseScheduleModal: React.FC<CourseScheduleModalProps> = ({
     <Modal
       title={
         <div className="flex items-center gap-2">
-          <Users size={20} className="text-blue-500" />
+          <Users size={20} className="text-primary" />
           <span className="text-xl font-bold">
             {schedule ? 'ویرایش گروه‌بندی' : 'افزودن گروه‌بندی جدید'}
           </span>
@@ -137,12 +137,13 @@ export const CourseScheduleModal: React.FC<CourseScheduleModalProps> = ({
             />
           </Form.Item>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* IsVisible */}
             <Form.Item
               name="isVisible"
               label="قابل مشاهده"
               valuePropName="checked"
+              className="mb-0"
             >
               <Switch checkedChildren="بله" unCheckedChildren="خیر" />
             </Form.Item>
@@ -154,6 +155,7 @@ export const CourseScheduleModal: React.FC<CourseScheduleModalProps> = ({
               rules={[
                 { required: true, message: 'لطفاً وضعیت را انتخاب کنید' },
               ]}
+              className="mb-0"
             >
               <InputNumber
                 min={0}
@@ -167,9 +169,9 @@ export const CourseScheduleModal: React.FC<CourseScheduleModalProps> = ({
           <Form.Item
             name="instructorIds"
             label="اساتید"
-            rules={[
-              { required: true, message: 'لطفاً حداقل یک استاد را انتخاب کنید' },
-            ]}
+            // rules={[
+            //   { required: true, message: 'لطفاً حداقل یک استاد را انتخاب کنید' },
+            // ]}
             extra={`${instructors.length} استاد در دسترس`}
           >
             <Select
@@ -210,9 +212,9 @@ export const CourseScheduleModal: React.FC<CourseScheduleModalProps> = ({
           <Form.Item
             name="studentIds"
             label="دانشجویان"
-            rules={[
-              { required: true, message: 'لطفاً حداقل یک دانشجو را انتخاب کنید' },
-            ]}
+            // rules={[
+            //   { required: true, message: 'لطفاً حداقل یک دانشجو را انتخاب کنید' },
+            // ]}
             extra={`${students.length} دانشجو در دسترس`}
           >
             <Select

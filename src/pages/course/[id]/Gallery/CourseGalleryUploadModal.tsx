@@ -121,7 +121,7 @@ export const CourseGalleryUploadModal: React.FC<CourseGalleryUploadModalProps> =
     <Modal
       title={
         <div className="flex items-center gap-2">
-          <UploadIcon size={20} className="text-blue-500" />
+          <UploadIcon size={20} className="text-primary" />
           <span className="text-xl font-bold">
             {editingItem ? 'جایگزینی فایل' : 'افزودن فایل جدید'}
           </span>
@@ -169,7 +169,7 @@ export const CourseGalleryUploadModal: React.FC<CourseGalleryUploadModalProps> =
               accept="image/*,video/*"
             >
               <p className="ant-upload-drag-icon">
-                <UploadIcon size={48} className="mx-auto text-blue-500" />
+                <UploadIcon size={48} className="mx-auto text-primary" />
               </p>
               <p className="ant-upload-text">فایل را بکشید و اینجا رها کنید</p>
               <p className="ant-upload-hint">یا کلیک کنید تا فایل را انتخاب کنید</p>

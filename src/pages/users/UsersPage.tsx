@@ -39,7 +39,7 @@ export const UsersPage: React.FC = () => {
           {record.imageUrl ? (
             <Avatar size={40} src={record.imageUrl} />
           ) : (
-            <Avatar size={40} icon={<UserCircle />} style={{ backgroundColor: '#1890ff' }} />
+            <Avatar size={40} icon={<UserCircle />} style={{ backgroundColor: '#4B26AD' }} />
           )}
           <div>
             <div className="font-semibold">{record.fullNameFa || 'بدون نام'}</div>

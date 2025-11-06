@@ -166,7 +166,7 @@ export const CourseGalleryPage: React.FC = () => {
         }
         title={
           <div className="flex items-center gap-2">
-            <ImageIcon size={20} className="text-blue-500" />
+            <ImageIcon size={20} className="text-primary" />
             <span>گالری دوره</span>
           </div>
         }

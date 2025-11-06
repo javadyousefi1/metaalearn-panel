@@ -86,7 +86,7 @@ export const CourseSchedulePage: React.FC = () => {
             {user.imageUrl ? (
               <Avatar size="small" src={user.imageUrl} />
             ) : (
-              <Avatar size="small" style={{ backgroundColor: '#1890ff' }}>
+              <Avatar size="small" style={{ backgroundColor: '#4B26AD' }}>
                 {user.fullNameFa?.charAt(0) || '؟'}
               </Avatar>
             )}
@@ -108,7 +108,7 @@ export const CourseSchedulePage: React.FC = () => {
           {schedule.description || 'بدون توضیحات'}
         </Descriptions.Item>
         <Descriptions.Item label="وضعیت">
-          <Space>
+          <Space direction="horizontal" size="small">
             {schedule.isVisible ? (
               <Tag icon={<Eye size={14} />} color="green">قابل مشاهده</Tag>
             ) : (
@@ -124,7 +124,7 @@ export const CourseSchedulePage: React.FC = () => {
       <div className="space-y-3 pt-4 border-t">
         <div>
           <h4 className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-            <Users size={16} className="text-blue-500" />
+            <Users size={16} className="text-primary" />
             اساتید ({schedule.instructors?.length || 0})
           </h4>
           {renderUserList(schedule.instructors, 'استادی تعیین نشده است')}

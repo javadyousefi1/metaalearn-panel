@@ -1,17 +1,17 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
-import { Card, Form, Input, Button, message, Skeleton, Modal } from 'antd';
-import { BookOpen, Save, Image as ImageIcon } from 'lucide-react';
+import { Card, Form, Input, Button, message, Skeleton } from 'antd';
+import { BookOpen, Save } from 'lucide-react';
 import { useGetCourseById, useCourses } from "@/hooks";
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import { CourseGallerySelectModal } from './CourseGallerySelectModal';
 
 export const CourseIntroductionPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [form] = Form.useForm();
   const [fullTextValue, setFullTextValue] = useState('');
-  const [imageModalOpen, setImageModalOpen] = useState(false);
-  const [imageUrl, setImageUrl] = useState('');
+  const [galleryModalOpen, setGalleryModalOpen] = useState(false);
   const quillRef = useRef<ReactQuill>(null);
 
   const { data: courseData, isLoading, refetch } = useGetCourseById(id || '');
@@ -49,38 +49,21 @@ export const CourseIntroductionPage: React.FC = () => {
     }
   };
 
-  // Custom image handler
+  // Custom image handler - Opens gallery modal
   const imageHandler = () => {
-    setImageUrl('');
-    setImageModalOpen(true);
+    setGalleryModalOpen(true);
   };
 
-  // Insert image into editor
-  const handleInsertImage = () => {
-    if (!imageUrl.trim()) {
-      message.error('لطفاً آدرس تصویر را وارد کنید');
-      return;
-    }
-
-    // Validate URL format
-    try {
-      new URL(imageUrl);
-    } catch {
-      message.error('آدرس تصویر نامعتبر است');
-      return;
-    }
-
+  // Insert selected image from gallery into editor
+  const handleSelectImage = (imageUrl: string) => {
     const quill = quillRef.current?.getEditor();
     if (quill) {
       const range = quill.getSelection();
       const position = range ? range.index : 0;
       quill.insertEmbed(position, 'image', imageUrl);
       quill.setSelection(position + 1, 0);
+      message.success('تصویر با موفقیت درج شد');
     }
-
-    setImageModalOpen(false);
-    setImageUrl('');
-    message.success('تصویر با موفقیت درج شد');
   };
 
   // Quill editor modules configuration with custom image handler
@@ -126,7 +109,7 @@ export const CourseIntroductionPage: React.FC = () => {
         className="shadow-sm"
         title={
           <div className="flex items-center gap-2">
-            <BookOpen size={20} className="text-blue-500" />
+            <BookOpen size={20} className="text-primary" />
             <span>معرفی دوره</span>
           </div>
         }
@@ -193,57 +176,13 @@ export const CourseIntroductionPage: React.FC = () => {
         </Form>
       </Card>
 
-      {/* Image URL Modal */}
-      <Modal
-        title={
-          <div className="flex items-center gap-2">
-            <ImageIcon size={20} className="text-blue-500" />
-            <span>درج تصویر از لینک</span>
-          </div>
-        }
-        open={imageModalOpen}
-        onOk={handleInsertImage}
-        onCancel={() => setImageModalOpen(false)}
-        okText="درج تصویر"
-        cancelText="انصراف"
-        centered
-        destroyOnClose
-      >
-        <div className="py-4">
-          <Form.Item
-
-            label="آدرس تصویر (URL)"
-          >
-            <Input
-              placeholder="https://example.com/image.jpg"
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
-              onPressEnter={handleInsertImage}
-              size="large"
-              prefix={<ImageIcon size={16} className="text-gray-400" />}
-            />
-          </Form.Item>
-
-          {imageUrl && (
-            <div className="mt-4">
-              <p className="text-sm text-gray-600 mb-2">پیش‌نمایش:</p>
-              <div className="border rounded-lg p-2 bg-gray-50">
-                <img
-                  src={imageUrl}
-                  alt="Preview"
-                  className="max-w-full h-auto max-h-48 mx-auto"
-                  onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                  }}
-                  onLoad={(e) => {
-                    e.currentTarget.style.display = 'block';
-                  }}
-                />
-              </div>
-            </div>
-          )}
-        </div>
-      </Modal>
+      {/* Gallery Selection Modal */}
+      <CourseGallerySelectModal
+        open={galleryModalOpen}
+        onClose={() => setGalleryModalOpen(false)}
+        onSelect={handleSelectImage}
+        courseId={id || ''}
+      />
     </div>
   );
 };
