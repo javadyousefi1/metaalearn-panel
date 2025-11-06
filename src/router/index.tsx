@@ -50,11 +50,7 @@ export const router = createBrowserRouter([
       // Users Management
       {
         path: ROUTES.USERS.ROOT,
-        element: (
-          <ProtectedRoute permissions={[Permission.USER_VIEW]}>
-            <UsersPage />
-          </ProtectedRoute>
-        ),
+        element: <UsersPage />,
       },
 
       // Courses Management

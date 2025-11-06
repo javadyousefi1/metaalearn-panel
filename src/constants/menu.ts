@@ -30,19 +30,12 @@ export const MENU_ITEMS: MenuItemConfig[] = [
     //   icon: BarChart3,
     //   permissions: [Permission.ANALYTICS_VIEW],
     // },
-    // {
-    //   key: 'divider-1',
-    //   path: '',
-    //   label: '',
-    //   divider: true,
-    // },
-    // {
-    //   key: 'users',
-    //   path: ROUTES.USERS.ROOT,
-    //   label: 'Users',
-    //   icon: Users,
-    //   permissions: [Permission.USER_VIEW],
-    // },
+    {
+      key: 'users',
+      path: ROUTES.USERS.ROOT,
+      label: 'کاربران',
+      icon: Users,
+    },
     {
         key: 'courses',
         path: ROUTES.COURSES.ROOT,

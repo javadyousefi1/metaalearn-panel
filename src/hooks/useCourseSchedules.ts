@@ -1,12 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { message } from 'antd';
-import { courseScheduleService, userService } from '@/services';
+import { courseScheduleService } from '@/services';
 import { queryKeys } from '@/config';
 import {
   CreateCourseSchedulePayload,
   UpdateCourseSchedulePayload,
   CourseScheduleListParams,
-  UserListParams
 } from '@/types';
 
 /**
@@ -88,19 +87,5 @@ export const useGetScheduleById = (id: string, enabled = true) => {
     queryKey: queryKeys.schedules.detail(id),
     queryFn: () => courseScheduleService.getById(id),
     enabled: !!id && enabled,
-  });
-};
-
-/**
- * Custom hook for getting users by role
- * @param params - Query parameters (role, PageIndex, PageSize)
- * @param enabled - Whether the query should run (optional, defaults to true)
- */
-export const useGetUsersByRole = (params: UserListParams, enabled = true) => {
-  return useQuery({
-    queryKey: queryKeys.users.byRole(params.role),
-    queryFn: () => userService.getAllByRole(params),
-    enabled,
-    select: (data) => data?.items || []
   });
 };

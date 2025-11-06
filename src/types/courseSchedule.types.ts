@@ -72,7 +72,7 @@ export interface UserListParams {
   IncludeIdentity?: boolean;
   PageIndex: number;
   PageSize: number;
-  role: 'teacher' | 'student' | 'operator';
+  role: 'instructor' | 'student' | 'operator';
 }
 
 export interface UserListResponse {

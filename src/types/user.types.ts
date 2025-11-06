@@ -38,3 +38,31 @@ export interface CreateUserPayload {
   role: UserRole;
   permissions?: Permission[];
 }
+
+// User list types for the users management page
+export interface UserListItem {
+  id: string;
+  fullNameFa: string;
+  phoneNumber: string;
+  username: string | null;
+  imageUrl: string | null;
+  referralId: string;
+  isActive: boolean;
+  profile: any;
+  identity: any;
+  roles: string[];
+  createdTime: string;
+  updatedTime: string | null;
+}
+
+export interface GetAllUsersParams {
+  PageIndex: number;
+  PageSize: number;
+  IncludeProfile?: boolean;
+  IncludeIdentity?: boolean;
+}
+
+export interface AllUsersResponse {
+  items: UserListItem[];
+  totalCount: number;
+}

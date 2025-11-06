@@ -213,12 +213,7 @@ export const CourseSchedulePage: React.FC = () => {
             افزودن گروه‌بندی جدید
           </Button>
         }
-        title={
-          <div className="flex items-center gap-2">
-            <Users size={20} className="text-blue-500" />
-            <span>گروه‌بندی دوره</span>
-          </div>
-        }
+        title={"گروه بندی دوره"}
         loading={isLoading}
       >
         {schedules.length > 0 ? (
@@ -228,7 +223,6 @@ export const CourseSchedulePage: React.FC = () => {
           />
         ) : (
           <div className="flex flex-col items-center justify-center py-12">
-            <Users size={64} className="text-gray-400 mb-4" />
             <Empty
               description={
                 <div>

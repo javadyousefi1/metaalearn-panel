@@ -23,8 +23,8 @@ export const CourseScheduleModal: React.FC<CourseScheduleModalProps> = ({
   const [form] = Form.useForm();
 
   // Fetch users by different roles
-  const { data: teachers = [] } = useGetUsersByRole({
-    role: 'teacher',
+  const { data: instructors = [] } = useGetUsersByRole({
+    role: 'instructor',
     PageIndex: 1,
     PageSize: 1000,
     IncludeProfile: false,
@@ -170,7 +170,7 @@ export const CourseScheduleModal: React.FC<CourseScheduleModalProps> = ({
             rules={[
               { required: true, message: 'لطفاً حداقل یک استاد را انتخاب کنید' },
             ]}
-            extra={`${teachers.length} استاد در دسترس`}
+            extra={`${instructors.length} استاد در دسترس`}
           >
             <Select
               mode="multiple"
@@ -179,9 +179,9 @@ export const CourseScheduleModal: React.FC<CourseScheduleModalProps> = ({
               filterOption={(input, option) =>
                 (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
               }
-              options={teachers.map(teacher => ({
-                label: teacher.fullNameFa,
-                value: teacher.id,
+              options={instructors.map(instructor => ({
+                label: instructor.fullNameFa,
+                value: instructor.id,
               }))}
             />
           </Form.Item>
