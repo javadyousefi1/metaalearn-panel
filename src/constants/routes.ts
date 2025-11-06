@@ -43,6 +43,8 @@ export const ROUTES = {
   COURSE: {
     ROOT: (id: string) => `/course/${id}`,
     DETAIL: '/course/:id',
+    INTRODUCTION: (id: string) => `/course/${id}/introduction`,
+    INTRODUCTION_PATH: '/course/:id/introduction',
     FAQ: (id: string) => `/course/${id}/faq`,
     FAQ_PATH: '/course/:id/faq',
     SESSIONS: (id: string) => `/course/${id}/sessions`,
@@ -88,6 +90,7 @@ export const PAGE_TITLES: Record<string, string> = {
   [ROUTES.COURSES.COURSE_LIST]: 'لیست دوره‌ها',
   [ROUTES.COURSES.CATEGORIES.ROOT]: 'مدیریت دسته‌بندی‌ها',
   [ROUTES.COURSE.DETAIL]: 'جزئیات دوره',
+  [ROUTES.COURSE.INTRODUCTION_PATH]: 'معرفی دوره',
   [ROUTES.COURSE.FAQ_PATH]: 'سوالات متداول',
   [ROUTES.SETTINGS.PROFILE]: 'Profile Settings',
   [ROUTES.SETTINGS.ACCOUNT]: 'Account Settings',

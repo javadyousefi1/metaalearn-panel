@@ -8,7 +8,9 @@
       "Bash(timeout /t 5)",
       "Bash(ping:*)",
       "Bash(find:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "WebSearch",
+      "Bash(npm install:*)"
     ],
     "deny": [],
     "ask": []

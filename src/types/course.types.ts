@@ -84,14 +84,16 @@ export interface CreateCoursePayload {
 
 export interface UpdateCoursePayload {
   id: string;
-  categoryId: string;
-  name: string;
-  type: number;
-  status: number;
-  paymentMethod: number;
-  price: number;
-  isCertificateAvailable: boolean;
-  preRequisites: string;
+  categoryId?: string;
+  name?: string;
+  type?: number;
+  status?: number;
+  paymentMethod?: number;
+  price?: number;
+  isCertificateAvailable?: boolean;
+  preRequisites?: string;
+  shortText?: string;
+  fullText?: string;
   intervalTime?: string;
   durationTime?: string;
   daysOfWeeks?: number[];

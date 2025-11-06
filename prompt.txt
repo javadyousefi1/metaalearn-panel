@@ -1,74 +1,12 @@
-in course session page
-we need new coursesesson.service in services
-and new custom hook
+we want add new section named معرفی دوره  and itr is new segment in course like fgaq and session
+in updater course backenbd added 2 feileds
+  "shortText": "string",
+  "fullText": "string",
 
-/CourseSession/Update
-/CourseSession/Create
-/CourseSession/Delete/{id}
-/CourseSession/Get/{id}
-/CourseSession/GetAll
+ it should be 2 input
+ first the antd input
+ the second should be richtexteditor
+ beacouse user can write and image for intrtuce the course
 
-handle these in custom hook like course
-
-and this is the dto
-udpate
-{
-  "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-  "name": "string",
-  "description": "string",
-  "index": 0,
-  "occurrenceTime": "2025-10-25T21:25:24.722Z",
-  "practiceDueTime": "2025-10-25T21:25:24.722Z",
-  "videoUrl": "string",
-  "fileUrl": "string",
-  "onlineMeetingUrl": "string",
-  "parentId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-  "isPracticeAvailable": true
-}
-create
-{
-  "name": "string",
-  "description": "string",
-  "index": 0,
-  "occurrenceTime": "2025-10-25T21:25:24.722Z",
-  "practiceDueTime": "2025-10-25T21:25:24.722Z",
-  "videoUrl": "string",
-  "fileUrl": "string",
-  "onlineMeetingUrl": "string",
-  "parentId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-  "isPracticeAvailable": true
-}
-getall
-[
-{
-  "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-  "name": "string",
-  "description": "string",
-  "index": 0,
-  "occurrenceTime": "2025-10-25T21:25:24.722Z",
-  "practiceDueTime": "2025-10-25T21:25:24.722Z",
-  "videoUrl": "string",
-  "fileUrl": "string",
-  "onlineMeetingUrl": "string",
-  "parentId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-  "isPracticeAvailable": true
-}
-]
-
-
-and some of sessions maybe have an other parent id
-and it just in 2 layer for example
-
-1 - front end -> html , css ,js
-2 - backend -> express mongo
-
-and this why parent id exist
-
-and use the same design logic as Faq
-ask if you have question
-
-we dont have tree it is just one more layer like i saied
-
-the main button on top parent id is null and the each child can have a parent id from the parent
-like all normal session courses
-ask if you have question
+ we have course update custom hook and have getby id custom hook the default value shorttext and full text is init
+ ask quertystion if you have
