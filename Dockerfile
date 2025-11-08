@@ -1,26 +1,32 @@
 # Stage 1: Build the React application
 FROM node:20-alpine AS builder
 
+# Enable corepack and prepare pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
 # Set working directory
 WORKDIR /app
 
 # Copy package files
-COPY package.json package-lock.json* ./
+COPY package.json pnpm-lock.yaml* ./
 
 # Install dependencies
-RUN npm ci --legacy-peer-deps
+RUN pnpm install --frozen-lockfile
 
 # Copy all source files (including .env for build-time variables)
 COPY . .
 
 # Build the application
-RUN npm run build
+RUN pnpm run build
 
 # Stage 2: Serve the built application
 FROM node:20-alpine
 
+# Enable corepack and prepare pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
 # Install serve globally to serve static files
-RUN npm install -g serve
+RUN pnpm add -g serve
 
 # Set working directory
 WORKDIR /app
