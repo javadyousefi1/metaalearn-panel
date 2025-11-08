@@ -71,7 +71,7 @@ export const LoginPage: React.FC = () => {
       </h2>
 
       {otpSent && (
-        <div className="mb-4 p-3 bg-blue-50 rounded-md text-center">
+        <div className="mb-4 p-3 bg-primary-50 rounded-md text-center">
           <p className="text-sm text-gray-600">
             کد برای <strong>{userPhone}</strong> ارسال شد
           </p>

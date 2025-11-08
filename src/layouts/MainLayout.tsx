@@ -99,10 +99,20 @@ export const MainLayout: React.FC = () => {
         width={250}
         style={{ position: 'fixed', height: '100vh', right: 0, top: 0 }}
       >
-        <div className="h-16 flex items-center justify-center border-b border-gray-200">
-          <h1 className="text-xl font-bold text-primary-600">
-            {collapsed ? 'ML' : 'MetaaLearn'}
-          </h1>
+        <div className="h-16 flex items-center justify-center border-b border-gray-200 px-4">
+          {collapsed ? (
+            <img
+              src="/images/metaaLearn-logo.png"
+              alt="MetaaLearn"
+              className="h-10 w-auto"
+            />
+          ) : (
+            <img
+              src="/images/metaaLearn-logo.png"
+              alt="MetaaLearn"
+              className="h-12 w-auto"
+            />
+          )}
         </div>
         <Menu
           mode="inline"

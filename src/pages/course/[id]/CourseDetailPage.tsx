@@ -12,14 +12,23 @@ export const CourseDetailPage: React.FC = () => {
 
   // Determine active tab based on current path
   const getActiveTab = () => {
+    if (location.pathname.endsWith('/introduction')) {
+      return 'introduction';
+    }
     if (location.pathname.endsWith('/faq')) {
       return 'faq';
     }
     if (location.pathname.endsWith('/sessions')) {
       return 'sessions';
     }
-    // Default to FAQ when on the base course detail page
-    return 'faq';
+    if (location.pathname.endsWith('/schedules')) {
+      return 'schedules';
+    }
+    if (location.pathname.endsWith('/gallery')) {
+      return 'gallery';
+    }
+    // Default to Introduction when on the base course detail page
+    return 'introduction';
   };
 
   const [activeTab, setActiveTab] = useState<string>(getActiveTab());
@@ -32,7 +41,7 @@ export const CourseDetailPage: React.FC = () => {
   // Navigate on first load if on base path
   useEffect(() => {
     if (id && location.pathname === `/course/${id}`) {
-      navigate(ROUTES.COURSE.FAQ(id), { replace: true });
+      navigate(ROUTES.COURSE.INTRODUCTION(id), { replace: true });
     }
   }, [id, location.pathname, navigate]);
 
@@ -40,14 +49,23 @@ export const CourseDetailPage: React.FC = () => {
     if (!id) return;
 
     switch (value) {
+      case 'introduction':
+        navigate(ROUTES.COURSE.INTRODUCTION(id));
+        break;
       case 'faq':
         navigate(ROUTES.COURSE.FAQ(id));
         break;
       case 'sessions':
         navigate(ROUTES.COURSE.SESSIONS(id));
         break;
+      case 'schedules':
+        navigate(ROUTES.COURSE.SCHEDULES(id));
+        break;
+      case 'gallery':
+        navigate(ROUTES.COURSE.GALLERY(id));
+        break;
       default:
-        navigate(ROUTES.COURSE.FAQ(id));
+        navigate(ROUTES.COURSE.INTRODUCTION(id));
     }
   };
 
@@ -79,12 +97,24 @@ export const CourseDetailPage: React.FC = () => {
               onChange={handleSegmentChange}
               options={[
                   {
+                      label: 'معرفی دوره',
+                      value: 'introduction',
+                  },
+                  {
                       label: 'سوالات متداول',
                       value: 'faq',
                   },
                   {
                       label: 'جلسات',
                       value: 'sessions',
+                  },
+                  {
+                      label: 'گروه‌بندی',
+                      value: 'schedules',
+                  },
+                  {
+                      label: 'گالری',
+                      value: 'gallery',
                   },
               ]}
               size="large"

@@ -13,8 +13,12 @@ export const AuthLayout: React.FC = () => {
       <Content className="flex items-center justify-center p-6">
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-primary-600 mb-2">MetaaLearn</h1>
-            <p className="text-gray-600">Admin Panel</p>
+            <img
+              src="/images/metaaLearn-logo.png"
+              alt="MetaaLearn Logo"
+              className="h-20 mx-auto mb-4"
+            />
+            <p className="text-gray-600 text-lg font-medium">پنل مدیریت متالرن</p>
           </div>
           <Outlet />
         </div>

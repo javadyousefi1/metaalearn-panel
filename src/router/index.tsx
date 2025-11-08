@@ -5,7 +5,7 @@ import { LoginPage } from '@/pages/auth';
 import { DashboardPage } from '@/pages/dashboard';
 import { UsersPage } from '@/pages/users';
 import { CoursesPage, CourseListPage } from '@/pages/courses';
-import { CourseDetailPage, CourseFaqPage, CourseSessionsPage } from '@/pages/course';
+import { CourseDetailPage, CourseFaqPage, CourseSessionsPage, CourseIntroductionPage, CourseSchedulePage, CourseGalleryPage } from '@/pages/course';
 import { CategoriesPage, SubCategoriesPage } from '@/pages/categories';
 import { SettingsPage } from '@/pages/settings';
 import { ROUTES } from '@/constants';
@@ -50,11 +50,7 @@ export const router = createBrowserRouter([
       // Users Management
       {
         path: ROUTES.USERS.ROOT,
-        element: (
-          <ProtectedRoute permissions={[Permission.USER_VIEW]}>
-            <UsersPage />
-          </ProtectedRoute>
-        ),
+        element: <UsersPage />,
       },
 
       // Courses Management
@@ -87,12 +83,24 @@ export const router = createBrowserRouter([
         element: <CourseDetailPage />,
         children: [
           {
+            path: ROUTES.COURSE.INTRODUCTION_PATH,
+            element: <CourseIntroductionPage />,
+          },
+          {
             path: ROUTES.COURSE.FAQ_PATH,
             element: <CourseFaqPage />,
           },
           {
             path: ROUTES.COURSE.SESSIONS_PATH,
             element: <CourseSessionsPage />,
+          },
+          {
+            path: ROUTES.COURSE.SCHEDULES_PATH,
+            element: <CourseSchedulePage />,
+          },
+          {
+            path: ROUTES.COURSE.GALLERY_PATH,
+            element: <CourseGalleryPage />,
           },
         ],
       },

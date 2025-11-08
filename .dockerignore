@@ -1,0 +1,42 @@
+# Node modules
+node_modules
+npm-debug.log
+
+# Build output
+dist
+build
+
+# Environment files
+.env.local
+.env.*.local
+# Note: .env is included for build-time variables
+
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+DEPLOYMENT.md
+
+# Testing
+coverage
+.nyc_output
+
+# Misc
+*.log
+*.md
+LICENSE

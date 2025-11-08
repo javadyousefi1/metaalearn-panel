@@ -30,4 +30,26 @@ export const queryKeys = {
     details: () => [...queryKeys.sessions.all, 'detail'] as const,
     detail: (id: string) => [...queryKeys.sessions.details(), id] as const,
   },
+  schedules: {
+    all: ['schedules'] as const,
+    lists: () => [...queryKeys.schedules.all, 'list'] as const,
+    list: (filters?: Record<string, unknown>) =>
+      [...queryKeys.schedules.lists(), { ...filters }] as const,
+    details: () => [...queryKeys.schedules.all, 'detail'] as const,
+    detail: (id: string) => [...queryKeys.schedules.details(), id] as const,
+  },
+  users: {
+    all: ['users'] as const,
+    lists: () => [...queryKeys.users.all, 'list'] as const,
+    list: (filters?: Record<string, unknown>) =>
+      [...queryKeys.users.lists(), { ...filters }] as const,
+    byRole: (role: string) => [...queryKeys.users.all, 'role', role] as const,
+  },
+  gallery: {
+    all: ['gallery'] as const,
+    lists: () => [...queryKeys.gallery.all, 'list'] as const,
+    list: (filters?: Record<string, unknown>) =>
+      [...queryKeys.gallery.lists(), { ...filters }] as const,
+    byCourse: (courseId: string) => [...queryKeys.gallery.all, 'course', courseId] as const,
+  },
 } as const;

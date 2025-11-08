@@ -16,7 +16,7 @@ function App() {
         direction="rtl"
         theme={{
           token: {
-            colorPrimary: '#0ea5e9',
+            colorPrimary: '#4B26AD',
             borderRadius: 8,
             fontFamily: 'Vazirmatn, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial',
           },

@@ -119,7 +119,7 @@ export const CourseFaqPage: React.FC = () => {
         }
         title={
           <div className="flex items-center gap-2">
-            <MessageCircleQuestion size={20} className="text-blue-500" />
+            <MessageCircleQuestion size={20} className="text-primary" />
             <span>سوالات متداول دوره</span>
           </div>
         }

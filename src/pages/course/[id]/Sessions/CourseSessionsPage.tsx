@@ -126,7 +126,7 @@ export const CourseSessionsPage: React.FC = () => {
         </Descriptions.Item>
         {session.videoUrl && (
           <Descriptions.Item label="ویدیو">
-            <a href={session.videoUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+            <a href={session.videoUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
               <Space>
                 <Video size={16} />
                 مشاهده ویدیو
@@ -136,7 +136,7 @@ export const CourseSessionsPage: React.FC = () => {
         )}
         {session.fileUrl && (
           <Descriptions.Item label="فایل">
-            <a href={session.fileUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+            <a href={session.fileUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
               <Space>
                 <FileText size={16} />
                 دانلود فایل
@@ -146,7 +146,7 @@ export const CourseSessionsPage: React.FC = () => {
         )}
         {session.onlineMeetingUrl && (
           <Descriptions.Item label="جلسه آنلاین">
-            <a href={session.onlineMeetingUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+            <a href={session.onlineMeetingUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
               <Space>
                 <LinkIcon size={16} />
                 ورود به جلسه
@@ -229,7 +229,7 @@ export const CourseSessionsPage: React.FC = () => {
 
           {/* Child sessions */}
           {children.length > 0 && (
-            <div className="mt-6 border-r-4 border-blue-300 pr-4">
+            <div className="mt-6 border-r-4 border-primary-300 pr-4">
               <h4 className="font-semibold text-gray-700 mb-4">زیر-جلسات:</h4>
               <Collapse
                 items={children.map((child: CourseSession) => ({
@@ -268,7 +268,7 @@ export const CourseSessionsPage: React.FC = () => {
         }
         title={
           <div className="flex items-center gap-2">
-            <Calendar size={20} className="text-blue-500" />
+            <Calendar size={20} className="text-primary" />
             <span>جلسات دوره</span>
           </div>
         }

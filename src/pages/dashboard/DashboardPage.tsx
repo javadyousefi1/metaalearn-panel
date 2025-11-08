@@ -18,7 +18,7 @@ export const DashboardPage: React.FC = () => {
               <Statistic
                 title="Total Users"
                 value={1234}
-                prefix={<Users className="text-primary-500" size={24} />}
+                prefix={<Users className="text-primary" size={24} />}
                 valueStyle={{ color: '#0ea5e9' }}
               />
             </Card>
@@ -57,8 +57,8 @@ export const DashboardPage: React.FC = () => {
               title="Revenue"
               value={45678}
               prefix="$"
-              suffix={<TrendingUp className="text-blue-500 ml-2" size={20} />}
-              valueStyle={{ color: '#3b82f6' }}
+              suffix={<TrendingUp className="text-primary ml-2" size={20} />}
+              valueStyle={{ color: '#4B26AD' }}
             />
           </Card>
         </Col>

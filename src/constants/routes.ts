@@ -43,10 +43,16 @@ export const ROUTES = {
   COURSE: {
     ROOT: (id: string) => `/course/${id}`,
     DETAIL: '/course/:id',
+    INTRODUCTION: (id: string) => `/course/${id}/introduction`,
+    INTRODUCTION_PATH: '/course/:id/introduction',
     FAQ: (id: string) => `/course/${id}/faq`,
     FAQ_PATH: '/course/:id/faq',
     SESSIONS: (id: string) => `/course/${id}/sessions`,
     SESSIONS_PATH: '/course/:id/sessions',
+    SCHEDULES: (id: string) => `/course/${id}/schedules`,
+    SCHEDULES_PATH: '/course/:id/schedules',
+    GALLERY: (id: string) => `/course/${id}/gallery`,
+    GALLERY_PATH: '/course/:id/gallery',
   },
 
 
@@ -88,7 +94,10 @@ export const PAGE_TITLES: Record<string, string> = {
   [ROUTES.COURSES.COURSE_LIST]: 'لیست دوره‌ها',
   [ROUTES.COURSES.CATEGORIES.ROOT]: 'مدیریت دسته‌بندی‌ها',
   [ROUTES.COURSE.DETAIL]: 'جزئیات دوره',
+  [ROUTES.COURSE.INTRODUCTION_PATH]: 'معرفی دوره',
   [ROUTES.COURSE.FAQ_PATH]: 'سوالات متداول',
+  [ROUTES.COURSE.SCHEDULES_PATH]: 'گروه‌بندی',
+  [ROUTES.COURSE.GALLERY_PATH]: 'گالری دوره',
   [ROUTES.SETTINGS.PROFILE]: 'Profile Settings',
   [ROUTES.SETTINGS.ACCOUNT]: 'Account Settings',
   [ROUTES.SETTINGS.SECURITY]: 'Security Settings',

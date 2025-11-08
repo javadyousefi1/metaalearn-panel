@@ -8,7 +8,11 @@
       "Bash(timeout /t 5)",
       "Bash(ping:*)",
       "Bash(find:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "WebSearch",
+      "Bash(npm install:*)",
+      "Bash(dir \"C:\\Users\\Javad\\Desktop\\metaalearn-panel\")",
+      "Bash(findstr:*)"
     ],
     "deny": [],
     "ask": []
