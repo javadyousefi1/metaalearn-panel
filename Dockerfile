@@ -22,11 +22,8 @@ RUN pnpm run build
 # Stage 2: Serve the built application
 FROM node:20-alpine
 
-# Enable corepack and prepare pnpm
-RUN corepack enable && corepack prepare pnpm@latest --activate
-
 # Install serve globally to serve static files
-RUN pnpm add -g serve
+RUN npm install -g serve
 
 # Set working directory
 WORKDIR /app
