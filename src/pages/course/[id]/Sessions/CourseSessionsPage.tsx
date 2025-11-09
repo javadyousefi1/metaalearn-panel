@@ -13,7 +13,7 @@ export const CourseSessionsPage: React.FC = () => {
   const [editingSession, setEditingSession] = useState<CourseSession | null>(null);
   const [selectedParentId, setSelectedParentId] = useState<string | null>(null);
 
-  const { data: allSessions = [], refetch, isLoading } = useGetAllSessions();
+  const { data: allSessions = [], refetch, isLoading } = useGetAllSessions(true,id);
   const { createSession, updateSession, deleteSession, isCreating, isUpdating, isDeleting } = useCourseSessions();
 
   // API already filters sessions for current course and provides subSessions nested
