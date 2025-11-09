@@ -1,6 +1,6 @@
 import { httpService } from './http.service';
 import { UserListResponse, UserListParams } from '@/types/courseSchedule.types';
-import { GetAllUsersParams, AllUsersResponse } from '@/types/user.types';
+import { GetAllUsersParams, AllUsersResponse, UpdateUserIdentityPayload, RoleManagementPayload } from '@/types/user.types';
 
 /**
  * User Service
@@ -32,5 +32,23 @@ export const userService = {
       { params }
     );
     return response.data;
+  },
+
+  /**
+   * Update user identity status
+   * @param payload - Identity update data (actionType, userId, message)
+   * @returns Promise<void>
+   */
+  updateIdentity: async (payload: UpdateUserIdentityPayload): Promise<void> => {
+    await httpService.put('/User/Identity', payload);
+  },
+
+  /**
+   * Manage user roles (assign or unassign)
+   * @param payload - Role management data (userId, roleType, isAssign)
+   * @returns Promise<void>
+   */
+  manageRole: async (payload: RoleManagementPayload): Promise<void> => {
+    await httpService.post('/User/RoleManagement', payload);
   },
 };

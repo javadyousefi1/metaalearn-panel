@@ -1,17 +1,24 @@
-import React from 'react';
-import { Tag, Avatar } from 'antd';
-import { Home, UserCircle } from 'lucide-react';
+import React, { useState } from 'react';
+import {Tag, Avatar, Button, Tooltip} from 'antd';
+import { Home, UserCircle, ShieldCheck, UserCog } from 'lucide-react';
 import type { ColumnsType } from 'antd/es/table';
 import { PageHeader, DataTable } from '@/components/common';
 import { useTable } from '@/hooks';
 import { userService } from '@/services';
-import { UserListItem } from '@/types/user.types';
+import { UserListItem, getIdentityStatusName, getIdentityStatusColor, IdentityStatusType } from '@/types/user.types';
+import { UserIdentityModal } from './UserIdentityModal';
+import { RoleManagementModal } from './RoleManagementModal';
 import dayjs from 'dayjs';
+import {formatDate} from "@/utils";
 
 /**
  * UsersPage Component - Display all users in a table
  */
 export const UsersPage: React.FC = () => {
+  const [identityModalOpen, setIdentityModalOpen] = useState(false);
+  const [roleModalOpen, setRoleModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<{ id: string; name: string; roles?: string[] } | null>(null);
+
   const {
     data: users,
     totalCount,
@@ -28,6 +35,26 @@ export const UsersPage: React.FC = () => {
     initialPageSize: 10,
     initialPageIndex: 1,
   });
+
+  const handleOpenIdentityModal = (user: UserListItem) => {
+    setSelectedUser({ id: user.id, name: user.fullNameFa || 'بدون نام', roles: user.roles });
+    setIdentityModalOpen(true);
+  };
+
+  const handleCloseIdentityModal = () => {
+    setIdentityModalOpen(false);
+    setSelectedUser(null);
+  };
+
+  const handleOpenRoleModal = (user: UserListItem) => {
+    setSelectedUser({ id: user.id, name: user.fullNameFa || 'بدون نام', roles: user.roles });
+    setRoleModalOpen(true);
+  };
+
+  const handleCloseRoleModal = () => {
+    setRoleModalOpen(false);
+    setSelectedUser(null);
+  };
 
   const columns: ColumnsType<UserListItem> = [
     {
@@ -48,37 +75,24 @@ export const UsersPage: React.FC = () => {
         </div>
       ),
     },
-    {
-      title: 'نام کاربری',
-      dataIndex: 'username',
-      key: 'username',
-      render: (username: string | null) => username || <span className="text-gray-400">-</span>,
-    },
-    {
-      title: 'کد معرف',
-      dataIndex: 'referralId',
-      key: 'referralId',
-      render: (referralId: string) => (
-        <code className="bg-gray-100 px-2 py-1 rounded text-xs">{referralId}</code>
-      ),
-    },
-    {
-      title: 'نقش‌ها',
-      dataIndex: 'roles',
-      key: 'roles',
-      render: (roles: string[]) => (
-        <div className="flex flex-wrap gap-1">
-          {roles && roles.length > 0 ? (
-            roles.map((role) => (
-              <Tag key={role} color="blue">
-                {role}
-              </Tag>
-            ))
-          ) : (
-            <Tag>بدون نقش</Tag>
-          )}
-        </div>
-      ),
+      {
+          title: 'نقش‌ها',
+          dataIndex: 'roles',
+          key: 'roles',
+          render: (roles: string[]) =>{
+              if (roles?.length === 5) return <Tag>تمام نقش‌ها</Tag>
+              return <div className="flex flex-wrap gap-2">
+                  {roles && roles.length > 0 ? (
+                      roles.map((role) => (
+                          <Tag key={role} color="blue">
+                              {role}
+                          </Tag>
+                      ))
+                  ) : (
+                      <Tag>بدون نقش</Tag>
+                  )}
+              </div>
+      },
     },
     {
       title: 'وضعیت',
@@ -92,23 +106,52 @@ export const UsersPage: React.FC = () => {
       ),
     },
     {
+      title: 'وضعیت هویت',
+      dataIndex: 'identity',
+      key: 'identity',
+      align: 'center',
+      render: (identity: any) => {
+        const statusType = identity?.statusType ?? IdentityStatusType.None;
+        return (
+          <Tag color={getIdentityStatusColor(statusType)}>
+            {getIdentityStatusName(statusType)}
+          </Tag>
+        );
+      },
+    },
+    {
       title: 'تاریخ ایجاد',
       dataIndex: 'createdTime',
       key: 'createdTime',
       render: (createdTime: string) => (
-        <span className="text-sm">{dayjs(createdTime).format('YYYY/MM/DD')}</span>
+        <span className="text-sm">{formatDate(createdTime)}</span>
       ),
     },
     {
-      title: 'آخرین به‌روزرسانی',
-      dataIndex: 'updatedTime',
-      key: 'updatedTime',
-      render: (updatedTime: string | null) =>
-        updatedTime ? (
-          <span className="text-sm">{dayjs(updatedTime).format('YYYY/MM/DD')}</span>
-        ) : (
-          <span className="text-gray-400">-</span>
-        ),
+      title: 'عملیات',
+      key: 'actions',
+      align: 'center',
+      width: 150,
+      render: (_: any, record: UserListItem) => (
+        <div className="flex items-center justify-center gap-3">
+          <Tooltip title="احراز هویت">
+            <button
+              onClick={() => handleOpenIdentityModal(record)}
+              className="hover:text-blue-600 transition-colors"
+            >
+              <ShieldCheck size={20} />
+            </button>
+          </Tooltip>
+          <Tooltip title="مدیریت نقش‌ها">
+            <button
+              onClick={() => handleOpenRoleModal(record)}
+              className="hover:text-purple-600 transition-colors"
+            >
+              <UserCog size={20} />
+            </button>
+          </Tooltip>
+        </div>
+      ),
     },
   ];
 
@@ -142,6 +185,24 @@ export const UsersPage: React.FC = () => {
         emptyText="هیچ کاربری یافت نشد"
         itemName="کاربر"
       />
+
+      {selectedUser && (
+        <>
+          <UserIdentityModal
+            open={identityModalOpen}
+            onClose={handleCloseIdentityModal}
+            userId={selectedUser.id}
+            userName={selectedUser.name}
+          />
+          <RoleManagementModal
+            open={roleModalOpen}
+            onClose={handleCloseRoleModal}
+            userId={selectedUser.id}
+            userName={selectedUser.name}
+            currentRoles={selectedUser.roles || []}
+          />
+        </>
+      )}
     </div>
   );
 };
