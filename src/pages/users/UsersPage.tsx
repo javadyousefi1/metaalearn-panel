@@ -22,8 +22,8 @@ export const UsersPage: React.FC = () => {
     fetchFn: (params) => userService.getAll({
       PageIndex: params.PageIndex,
       PageSize: params.PageSize,
-      IncludeProfile: false,
-      IncludeIdentity: false,
+      IncludeProfile: true,
+      IncludeIdentity: true,
     }),
     initialPageSize: 10,
     initialPageIndex: 1,

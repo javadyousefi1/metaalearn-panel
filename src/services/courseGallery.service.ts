@@ -26,20 +26,27 @@ export const courseGalleryService = {
 
   /**
    * Upload (create or update) a gallery item
-   * @param payload - Upload data including file, courseId, type, category, requestType
+   * @param payload - Upload data including file, courseId, type, category, requestType, and optional id for updates
    * @returns Promise<void>
    */
   upload: async (payload: UploadCourseGalleryPayload): Promise<void> => {
     const formData = new FormData();
     formData.append('file', payload.file);
 
+    const params: Record<string, any> = {
+      courseId: payload.courseId,
+      type: payload.type,
+      category: payload.category,
+      requestType: payload.requestType,
+    };
+
+    // Add ID parameter for update operations
+    if (payload.id) {
+      params.id = payload.id;
+    }
+
     await httpService.post('/CourseGallery/Upload', formData, {
-      params: {
-        courseId: payload.courseId,
-        type: payload.type,
-        category: payload.category,
-        requestType: payload.requestType,
-      },
+      params,
       headers: {
         'Content-Type': 'multipart/form-data',
       },
