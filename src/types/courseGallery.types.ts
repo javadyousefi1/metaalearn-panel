@@ -40,6 +40,7 @@ export interface UploadCourseGalleryPayload {
   category: GalleryCategory;
   requestType: UploadCourseGalleryRequestType;
   file: File;
+  id?: string; // Optional: Gallery item ID for update operations
 }
 
 // Helper functions for display

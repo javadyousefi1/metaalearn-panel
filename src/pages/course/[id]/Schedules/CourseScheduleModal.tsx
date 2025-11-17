@@ -102,7 +102,7 @@ export const CourseScheduleModal: React.FC<CourseScheduleModalProps> = ({
       centered
       destroyOnClose
     >
-      <div className="py-4">
+      <div className="py-4 max-h-[70svh] overflow-y-auto">
         <Form
           form={form}
           layout="vertical"

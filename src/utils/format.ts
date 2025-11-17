@@ -1,15 +1,17 @@
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
+// Extend dayjs with plugins
 dayjs.extend(relativeTime);
 
 /**
- * Format date to readable string
+ * Format date to a simple readable format
  */
 export const formatDate = (
   date: string | Date,
-  format = 'YYYY-MM-DD HH:mm:ss'
+  format = 'YYYY/MM/DD'
 ): string => {
+  if (!date) return '';
   return dayjs(date).format(format);
 };
 

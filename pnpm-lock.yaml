@@ -23,6 +23,9 @@ importers:
       dayjs:
         specifier: ^1.11.10
         version: 1.11.18
+      jalali-dayjs:
+        specifier: ^0.0.1
+        version: 0.0.1
       lucide-react:
         specifier: ^0.314.0
         version: 0.314.0(react@18.3.1)
@@ -1230,6 +1233,12 @@ packages:
 
   jackspeak@3.4.3:
     resolution: {integrity: sha512-OGlZQpz2yfahA/Rd1Y8Cd9SIEsqvXkLVoSw/cgwhnhFMDbsQFeZYoJJ7bIZBS9BcamUW96asq/npPWugM+RQBw==}
+
+  jalaali-js@1.2.8:
+    resolution: {integrity: sha512-Jl/EwY84JwjW2wsWqeU4pNd22VNQ7EkjI36bDuLw31wH98WQW4fPjD0+mG7cdCK+Y8D6s9R3zLiQ3LaKu6bD8A==}
+
+  jalali-dayjs@0.0.1:
+    resolution: {integrity: sha512-GL7ZY6e1E5DkCYmj9eB1PJVm6A9TSi5pcqMRR1yx/i/qmucOcCt6R8BScajJuui/mB1b6qSm5/oo8kCG3LjHiA==}
 
   jiti@1.21.7:
     resolution: {integrity: sha512-/imKNG4EbWNrVjoNC/1H5/9GFy+tqjGBHCaSsN+P2RnPqjsLmv6UD3Ej+Kj8nBWaRAwyk7kK5ZUc+OEatnTR3A==}
@@ -3256,6 +3265,12 @@ snapshots:
       '@isaacs/cliui': 8.0.2
     optionalDependencies:
       '@pkgjs/parseargs': 0.11.0
+
+  jalaali-js@1.2.8: {}
+
+  jalali-dayjs@0.0.1:
+    dependencies:
+      jalaali-js: 1.2.8
 
   jiti@1.21.7: {}
 

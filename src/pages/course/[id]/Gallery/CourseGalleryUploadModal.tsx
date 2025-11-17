@@ -82,6 +82,7 @@ export const CourseGalleryUploadModal: React.FC<CourseGalleryUploadModalProps> =
           ? UploadCourseGalleryRequestType.Update
           : UploadCourseGalleryRequestType.Create,
         file,
+        ...(editingItem && { id: editingItem.id }), // Include ID for update operations
       });
 
       await onSuccess();
@@ -137,7 +138,7 @@ export const CourseGalleryUploadModal: React.FC<CourseGalleryUploadModalProps> =
       centered
       destroyOnClose
     >
-      <div className="py-4">
+      <div className="py-4 overflow-y-auto !max-h-[70svh]">
         {editingItem && (
           <Alert
             message="حالت جایگزینی"

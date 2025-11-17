@@ -46,6 +46,6 @@ export const categoryService = {
    * Delete category
    */
   delete: async (id: string): Promise<void> => {
-    await httpService.delete(`/CourseCategory/Delete?id=${id}`);
+    await httpService.delete(`/CourseCategory/Delete/${id}`);
   },
 };
