@@ -7,13 +7,25 @@ dayjs.extend(relativeTime);
 /**
  * Format date to a simple readable format
  */
-export const formatDate = (
-  date: string | Date,
-  format = 'YYYY/MM/DD'
-): string => {
-  if (!date) return '';
-  return dayjs(date).format(format);
+export const formatDate = (dateString: string, showTime: boolean = false) => {
+  if (!dateString) return '';
+
+  const date = new Date(dateString);
+
+  const options: Intl.DateTimeFormatOptions = {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  };
+
+  if (showTime) {
+    options.hour = '2-digit';
+    options.minute = '2-digit';
+  }
+
+  return new Intl.DateTimeFormat('fa-IR', options).format(date);
 };
+
 
 /**
  * Format date to relative time (e.g., "2 hours ago")

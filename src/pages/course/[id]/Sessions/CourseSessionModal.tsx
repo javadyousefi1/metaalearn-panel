@@ -3,6 +3,7 @@ import { Modal, Form, Input, Switch } from "antd";
 import DatePicker from "@/components/datePicker/DatePicker";
 import dayjs from "dayjs";
 import type { CourseSession } from "@/types/session.types";
+import moment from 'moment-jalaali';
 
 interface CourseSessionModalProps {
   open: boolean;
@@ -31,10 +32,10 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
       form.setFieldsValue({
         ...session,
         occurrenceTime: session.occurrenceTime
-          ? dayjs(session.occurrenceTime)
+          ? moment(session.occurrenceTime)
           : null,
         practiceDueTime: session.practiceDueTime
-          ? dayjs(session.practiceDueTime)
+          ? moment(session.practiceDueTime)
           : null,
       });
     } else if (open) {
@@ -52,10 +53,10 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
     const formattedValues = {
       ...values,
       occurrenceTime: values.occurrenceTime
-        ? values.occurrenceTime.toISOString()
+        ? moment(values.occurrenceTime).toISOString()
         : "",
       practiceDueTime: values.practiceDueTime
-        ? values.practiceDueTime.toISOString()
+        ? moment(values.practiceDueTime).toISOString()
         : "",
       parentId: parentId || values.parentId || "",
       index: values.index ?? nextIndex,

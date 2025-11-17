@@ -6,6 +6,7 @@ import { useGetAllSessions, useCourseSessions } from '@/hooks';
 import { CourseSessionModal } from './CourseSessionModal';
 import type { CourseSession } from '@/types/session.types';
 import dayjs from 'dayjs';
+import { formatDate } from '@/utils';
 
 export const CourseSessionsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -115,13 +116,13 @@ export const CourseSessionsPage: React.FC = () => {
         <Descriptions.Item label="زمان برگزاری">
           <Space>
             <Clock size={16} />
-            {dayjs(session.occurrenceTime).format('YYYY/MM/DD - HH:mm')}
+            {formatDate(session.occurrenceTime)}
           </Space>
         </Descriptions.Item>
         <Descriptions.Item label="مهلت تمرین">
           <Space>
             <Clock size={16} />
-            {dayjs(session.practiceDueTime).format('YYYY/MM/DD - HH:mm')}
+            {formatDate(session.practiceDueTime)}
           </Space>
         </Descriptions.Item>
         {session.videoUrl && (
