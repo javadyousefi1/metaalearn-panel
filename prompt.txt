@@ -29,7 +29,7 @@ public enum GalleryCategory
 }
 
 and this is gallery list
-http://94.101.186.126:5000/CourseGallery/GetAll?CourseId=d5c8341c-d3f3-4fdb-8f07-1c8d1b352ca2&PageIndex=1&PageSize=199999
+http://185.79.97.146:5000/CourseGallery/GetAll?CourseId=d5c8341c-d3f3-4fdb-8f07-1c8d1b352ca2&PageIndex=1&PageSize=199999
 {
   "items": [
     {
@@ -46,6 +46,6 @@ it hgave pagination but we dont neeed it get all with hardcode page size
 
 
 and this is delete methiod
-http://94.101.186.126:5000/CourseGallery/Delete/{id}
+http://185.79.97.146:5000/CourseGallery/Delete/{id}
 
 ask if you have any question

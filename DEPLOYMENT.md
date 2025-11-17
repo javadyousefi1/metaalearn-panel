@@ -100,7 +100,7 @@ docker-compose up -d
 
 **Common API URLs:**
 - Local API: `http://localhost:5000`
-- Server API: `http://94.101.186.126:5000`
+- Server API: `http://185.79.97.146:5000`
 - Domain API: `https://api.metaalearn.com`
 
 ### Health Check
