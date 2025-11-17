@@ -62,6 +62,7 @@ export const CourseCreateModal: React.FC<CourseCreateModalProps> = ({
         paymentMethod: course.paymentMethod,
         price: course.price,
         isCertificateAvailable: course.isCertificateAvailable,
+        isDraft: course.isDraft ?? false,
         preRequisites: course.preRequisites,
         intervalTime: course.intervalTime,
         durationTime: course.durationTime,
@@ -90,6 +91,7 @@ export const CourseCreateModal: React.FC<CourseCreateModalProps> = ({
           paymentMethod: values.paymentMethod,
           price: values.price,
           isCertificateAvailable: values.isCertificateAvailable,
+          isDraft: values.isDraft ?? false,
           preRequisites: values.preRequisites,
           intervalTime: values.intervalTime,
           durationTime: values.durationTime,
@@ -109,6 +111,7 @@ export const CourseCreateModal: React.FC<CourseCreateModalProps> = ({
           paymentMethod: values.paymentMethod,
           price: values.price || 0,
           isCertificateAvailable: values.isCertificateAvailable ?? false,
+          isDraft: values.isDraft ?? false,
           preRequisites: values.preRequisites || '',
           intervalTime: values.intervalTime || '',
           durationTime: values.durationTime || '',
@@ -167,6 +170,7 @@ export const CourseCreateModal: React.FC<CourseCreateModalProps> = ({
             status: 0,
             paymentMethod: 0,
             isCertificateAvailable: false,
+            isDraft: false,
             price: 0,
             progressPercentage: 0,
             installmentCount: 0,
@@ -263,6 +267,15 @@ export const CourseCreateModal: React.FC<CourseCreateModalProps> = ({
               valuePropName="checked"
             >
               <Switch checkedChildren="دارد" unCheckedChildren="ندارد" />
+            </Form.Item>
+
+            {/* Is Draft */}
+            <Form.Item
+              name="isDraft"
+              label="پیش‌نویس"
+              valuePropName="checked"
+            >
+              <Switch checkedChildren="بله" unCheckedChildren="خیر" />
             </Form.Item>
 
             {/* Days of Week */}
