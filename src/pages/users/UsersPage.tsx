@@ -22,8 +22,8 @@ export const UsersPage: React.FC = () => {
   // Initialize filters
   const {
     filters,
-    setFilter,
     clearFilters,
+    handleTableChange,
   } = useTableFilters();
 
   const {
@@ -34,18 +34,13 @@ export const UsersPage: React.FC = () => {
   } = useTable<UserListItem>({
     queryKey: 'users',
     fetchFn: (params) => userService.getAll({
-      PageIndex: params.PageIndex,
-      PageSize: params.PageSize,
+      ...params,
       IncludeProfile: true,
       IncludeIdentity: true,
-      IdentityStatus: params.IdentityStatus,
-      PhoneNumber: params.PhoneNumber,
-      FullNameFa: params.FullNameFa,
-      Role: params.Role,
     }),
     initialPageSize: 10,
     initialPageIndex: 1,
-    filters, // Pass filters to the hook
+    filters,
   });
 
   const handleOpenIdentityModal = (user: UserListItem) => {
@@ -70,14 +65,15 @@ export const UsersPage: React.FC = () => {
 
   const columns: ColumnsType<UserListItem> = [
     {
-      title: 'کاربر',
-      key: 'user',
-      width: 250,
+      title: 'نام کاربر',
+      dataIndex: 'fullNameFa',
+      key: 'fullName',
+      width: 200,
       // Text search filter
       filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
         <div style={{ padding: 8 }}>
           <Input
-            placeholder="جستجوی نام یا شماره تلفن"
+            placeholder="جستجوی نام"
             value={selectedKeys[0]}
             onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
             onPressEnter={() => confirm()}
@@ -96,24 +92,52 @@ export const UsersPage: React.FC = () => {
       filterIcon: (filtered) => <SearchOutlined style={{ color: filtered ? '#4B26AD' : undefined }} />,
       filteredValue: filters.FullNameFa ? [filters.FullNameFa as string] : null,
       render: (_: any, record: UserListItem) => (
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           {record.imageUrl ? (
-            <Avatar size={40} src={record.imageUrl} />
+            <Avatar size={32} src={record.imageUrl} />
           ) : (
-            <Avatar size={40} icon={<UserCircle />} style={{ backgroundColor: '#4B26AD' }} />
+            <Avatar size={32} icon={<UserCircle />} style={{ backgroundColor: '#4B26AD' }} />
           )}
-          <div>
-            <div className="font-semibold">{record.fullNameFa || 'بدون نام'}</div>
-            <div className="text-xs text-gray-500">{record.phoneNumber}</div>
+          <span className="font-medium">{record.fullNameFa || 'بدون نام'}</span>
+        </div>
+      ),
+    },
+    {
+      title: 'شماره تلفن',
+      dataIndex: 'phoneNumber',
+      key: 'phone',
+      width: 150,
+      // Text search filter
+      filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+        <div style={{ padding: 8 }}>
+          <Input
+            placeholder="جستجوی شماره"
+            value={selectedKeys[0]}
+            onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+            onPressEnter={() => confirm()}
+            style={{ marginBottom: 8, display: 'block' }}
+          />
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Button type="primary" onClick={() => confirm()} icon={<SearchOutlined />} size="small" style={{ width: 90 }}>
+              جستجو
+            </Button>
+            <Button onClick={() => clearFilters && clearFilters()} size="small" style={{ width: 90 }}>
+              پاک کردن
+            </Button>
           </div>
         </div>
+      ),
+      filterIcon: (filtered) => <SearchOutlined style={{ color: filtered ? '#4B26AD' : undefined }} />,
+      filteredValue: filters.PhoneNumber ? [filters.PhoneNumber as string] : null,
+      render: (phoneNumber: string) => (
+        <span className="text-sm text-gray-700">{phoneNumber}</span>
       ),
     },
     {
       title: 'نقش‌ها',
       dataIndex: 'roles',
       key: 'roles',
-      // Select filter
+      // Select filter with radio buttons (single selection)
       filters: [
         { text: getRoleTypeName(RoleType.SuperAdmin), value: RoleType.SuperAdmin },
         { text: getRoleTypeName(RoleType.Instructor), value: RoleType.Instructor },
@@ -121,6 +145,7 @@ export const UsersPage: React.FC = () => {
         { text: getRoleTypeName(RoleType.Operator), value: RoleType.Operator },
         { text: getRoleTypeName(RoleType.OperatorAdmin), value: RoleType.OperatorAdmin },
       ],
+      filterMultiple: false, // Radio buttons (single selection)
       filteredValue: filters.Role !== null && filters.Role !== undefined ? [filters.Role as number] : null,
       render: (roles: string[]) =>{
         if (roles?.length === 5) return <Tag>تمام نقش‌ها</Tag>
@@ -153,7 +178,7 @@ export const UsersPage: React.FC = () => {
       dataIndex: 'identity',
       key: 'identity',
       align: 'center',
-      // Select filter
+      // Select filter with radio buttons (single selection)
       filters: [
         { text: getIdentityStatusName(IdentityStatusType.None), value: IdentityStatusType.None },
         { text: getIdentityStatusName(IdentityStatusType.Requested), value: IdentityStatusType.Requested },
@@ -162,6 +187,7 @@ export const UsersPage: React.FC = () => {
         { text: getIdentityStatusName(IdentityStatusType.Rejected), value: IdentityStatusType.Rejected },
         { text: getIdentityStatusName(IdentityStatusType.Revoked), value: IdentityStatusType.Revoked },
       ],
+      filterMultiple: false, // Radio buttons (single selection)
       filteredValue: filters.IdentityStatus !== null && filters.IdentityStatus !== undefined ? [filters.IdentityStatus as number] : null,
       render: (identity: any) => {
         const statusType = identity?.statusType ?? IdentityStatusType.None;
@@ -173,7 +199,7 @@ export const UsersPage: React.FC = () => {
       },
     },
     {
-      title: 'تاریخ ایجاد',
+      title: 'تاریخ ثبت نام',
       dataIndex: 'createdTime',
       key: 'createdTime',
       render: (createdTime: string) => (
@@ -238,12 +264,12 @@ export const UsersPage: React.FC = () => {
         emptyText="هیچ کاربری یافت نشد"
         itemName="کاربر"
         tableProps={{
-          onChange: (_, tableFilters) => {
-            // Sync table filters with state
-            setFilter('FullNameFa', tableFilters.user?.[0] || null);
-            setFilter('Role', tableFilters.roles?.[0] || null);
-            setFilter('IdentityStatus', tableFilters.identity?.[0] || null);
-          },
+          onChange: handleTableChange({
+            fullName: 'FullNameFa',
+            phone: 'PhoneNumber',
+            roles: 'Role',
+            identity: 'IdentityStatus',
+          }),
         }}
       />
 

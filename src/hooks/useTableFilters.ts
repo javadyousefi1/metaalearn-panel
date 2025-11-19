@@ -22,6 +22,7 @@ export interface UseTableFiltersReturn {
   clearFilters: () => void;
   hasActiveFilters: boolean;
   activeFilterCount: number;
+  handleTableChange: (filterMap: Record<string, string>) => (pagination: any, tableFilters: any) => void;
 }
 
 /**
@@ -87,6 +88,19 @@ export function useTableFilters(initialFilters: FilterState = {}): UseTableFilte
   }, []);
 
   /**
+   * Create a table onChange handler
+   * Maps column keys to filter parameter names
+   */
+  const handleTableChange = useCallback((filterMap: Record<string, string>) => {
+    return (_pagination: any, tableFilters: any) => {
+      Object.entries(filterMap).forEach(([columnKey, filterKey]) => {
+        const value = tableFilters[columnKey];
+        setFilter(filterKey, value && value.length > 0 ? value[0] : null);
+      });
+    };
+  }, [setFilter]);
+
+  /**
    * Check if there are any active filters
    */
   const hasActiveFilters = Object.keys(filters).length > 0;
@@ -103,5 +117,6 @@ export function useTableFilters(initialFilters: FilterState = {}): UseTableFilte
     clearFilters,
     hasActiveFilters,
     activeFilterCount,
+    handleTableChange,
   };
 }
