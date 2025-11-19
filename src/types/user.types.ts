@@ -60,6 +60,7 @@ export interface GetAllUsersParams {
   PageSize: number;
   IncludeProfile?: boolean;
   IncludeIdentity?: boolean;
+  IdentityStatus?: IdentityStatusType; // Filter by identity status
 }
 
 export interface AllUsersResponse {

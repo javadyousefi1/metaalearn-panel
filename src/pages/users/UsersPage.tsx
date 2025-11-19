@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import {Tag, Avatar, Button, Tooltip} from 'antd';
 import { Home, UserCircle, ShieldCheck, UserCog } from 'lucide-react';
 import type { ColumnsType } from 'antd/es/table';
-import { PageHeader, DataTable } from '@/components/common';
-import { useTable } from '@/hooks';
+import { PageHeader, DataTable, FilterBar, IdentityStatusFilter } from '@/components/common';
+import { useTable, useTableFilters } from '@/hooks';
 import { userService } from '@/services';
 import { UserListItem, getIdentityStatusName, getIdentityStatusColor, IdentityStatusType } from '@/types/user.types';
 import { UserIdentityModal } from './UserIdentityModal';
@@ -19,6 +19,15 @@ export const UsersPage: React.FC = () => {
   const [roleModalOpen, setRoleModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<{ id: string; name: string; roles?: string[] } | null>(null);
 
+  // Initialize filters
+  const {
+    filters,
+    setFilter,
+    clearFilters,
+    hasActiveFilters,
+    activeFilterCount,
+  } = useTableFilters();
+
   const {
     data: users,
     totalCount,
@@ -31,9 +40,11 @@ export const UsersPage: React.FC = () => {
       PageSize: params.PageSize,
       IncludeProfile: true,
       IncludeIdentity: true,
+      IdentityStatus: params.IdentityStatus,
     }),
     initialPageSize: 10,
     initialPageIndex: 1,
+    filters, // Pass filters to the hook
   });
 
   const handleOpenIdentityModal = (user: UserListItem) => {
@@ -174,6 +185,18 @@ export const UsersPage: React.FC = () => {
           },
         ]}
       />
+
+      {/* Filter Bar */}
+      <FilterBar
+        activeFilterCount={activeFilterCount}
+        onClearAll={clearFilters}
+      >
+        <IdentityStatusFilter
+          value={filters.IdentityStatus as IdentityStatusType | null}
+          onChange={(value) => setFilter('IdentityStatus', value)}
+          label="وضعیت هویت"
+        />
+      </FilterBar>
 
       <DataTable<UserListItem>
         columns={columns}

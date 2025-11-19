@@ -1,51 +1,7 @@
-we want add new section named category gallery and its like strcutre sessiona and schdule with seprate custom hook
-
-
-
-(formData) post
-/CourseGallery/Upload
-courseId
-type
-category
-requestType
-file
-
-public enum UploadCourseGalleryRqType
-{
-    Create=0,
-    Update=1,
-}
-public enum GalleryType
-{
-    Image = 0,
-    Video = 1
-}
-
-public enum GalleryCategory
-{
-    Cover = 0,
-    Content = 1,
-    Thumbnail = 2
-}
-
-and this is gallery list
-http://185.79.97.146:5000/CourseGallery/GetAll?CourseId=d5c8341c-d3f3-4fdb-8f07-1c8d1b352ca2&PageIndex=1&PageSize=199999
-{
-  "items": [
-    {
-      "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-      "shareableUrl": "string",
-      "type": 0,
-      "category": 0
-    }
-  ],
-  "totalCount": 0
-}
-
-it hgave pagination but we dont neeed it get all with hardcode page size
-
-
-and this is delete methiod
-http://185.79.97.146:5000/CourseGallery/Delete/{id}
-
-ask if you have any question
+in page http://185.79.97.146:3000/users
+we have a table with clean code and custom hook
+now i want add filter option to this table too
+i want it be very dynamic and clean and pay attention to sepration of concern in filter table
+for now i want add filter on IdentityStatus user can chooes the type of IdentityStatus then make request to backend
+develop this for now to see how you want handle it
+ask if you have question

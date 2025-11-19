@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { FilterState } from './useTableFilters';
 
 // Generic pagination params interface
 export interface TablePaginationParams {
   PageIndex: number;
   PageSize: number;
+  [key: string]: any; // Allow additional filter parameters
 }
 
 // Generic paginated response interface (matches API structure)
@@ -20,6 +22,7 @@ export interface UseTableParams<T> {
   initialPageIndex?: number;
   initialPageSize?: number;
   enabled?: boolean;
+  filters?: FilterState; // Optional filter state
 }
 
 // Return type for the hook
@@ -65,9 +68,17 @@ export function useTable<T>({
   initialPageIndex = 1,
   initialPageSize = 10,
   enabled = true,
+  filters = {},
 }: UseTableParams<T>): UseTableReturn<T> {
   const [pageIndex, setPageIndex] = useState(initialPageIndex);
   const [pageSize, setPageSize] = useState(initialPageSize);
+
+  // Build fetch params with pagination and filters
+  const fetchParams: TablePaginationParams = {
+    PageIndex: pageIndex,
+    PageSize: pageSize,
+    ...filters, // Spread filters into params
+  };
 
   // Fetch data using React Query
   const {
@@ -78,9 +89,9 @@ export function useTable<T>({
     refetch,
   } = useQuery({
     queryKey: Array.isArray(queryKey)
-      ? [...queryKey, pageIndex, pageSize]
-      : [queryKey, pageIndex, pageSize],
-    queryFn: () => fetchFn({ PageIndex: pageIndex, PageSize: pageSize }),
+      ? [...queryKey, pageIndex, pageSize, filters]
+      : [queryKey, pageIndex, pageSize, filters],
+    queryFn: () => fetchFn(fetchParams),
     enabled,
     staleTime: 0, // Always refetch on mount
     refetchOnWindowFocus: false,
