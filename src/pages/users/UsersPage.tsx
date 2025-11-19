@@ -1,15 +1,15 @@
-import React, { useState, useMemo } from 'react';
-import {Tag, Avatar, Button, Tooltip} from 'antd';
-import { Home, UserCircle, ShieldCheck, UserCog, User, Phone } from 'lucide-react';
+import React, { useState } from 'react';
+import {Tag, Avatar, Tooltip, Input, Button} from 'antd';
+import { Home, UserCircle, ShieldCheck, UserCog } from 'lucide-react';
+import { SearchOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
-import { PageHeader, DataTable, DynamicFilterBar, FilterConfig } from '@/components/common';
+import { PageHeader, DataTable } from '@/components/common';
 import { useTable, useTableFilters } from '@/hooks';
 import { userService } from '@/services';
 import { UserListItem, getIdentityStatusName, getIdentityStatusColor, IdentityStatusType, RoleType, getRoleTypeName } from '@/types/user.types';
 import { UserIdentityModal } from './UserIdentityModal';
 import { RoleManagementModal } from './RoleManagementModal';
-import dayjs from 'dayjs';
-import {formatDate} from "@/utils";
+import { formatDate } from "@/utils";
 
 /**
  * UsersPage Component - Display all users in a table
@@ -24,61 +24,7 @@ export const UsersPage: React.FC = () => {
     filters,
     setFilter,
     clearFilters,
-    hasActiveFilters,
-    activeFilterCount,
   } = useTableFilters();
-
-  // Define filter configurations
-  const filterConfigs: FilterConfig[] = useMemo(() => [
-    {
-      type: 'text',
-      key: 'FullNameFa',
-      label: 'نام کاربر',
-      icon: User,
-      placeholder: 'جستجوی نام کاربر',
-      width: 240,
-    },
-    {
-      type: 'text',
-      key: 'PhoneNumber',
-      label: 'شماره تلفن',
-      icon: Phone,
-      placeholder: 'جستجوی شماره تلفن',
-      width: 240,
-    },
-    {
-      type: 'select',
-      key: 'IdentityStatus',
-      label: 'وضعیت هویت',
-      icon: ShieldCheck,
-      placeholder: 'همه وضعیت‌ها',
-      width: 240,
-      options: [
-        { value: IdentityStatusType.None, label: getIdentityStatusName(IdentityStatusType.None) },
-        { value: IdentityStatusType.Requested, label: getIdentityStatusName(IdentityStatusType.Requested) },
-        { value: IdentityStatusType.Pending, label: getIdentityStatusName(IdentityStatusType.Pending) },
-        { value: IdentityStatusType.Verified, label: getIdentityStatusName(IdentityStatusType.Verified) },
-        { value: IdentityStatusType.Rejected, label: getIdentityStatusName(IdentityStatusType.Rejected) },
-        { value: IdentityStatusType.Revoked, label: getIdentityStatusName(IdentityStatusType.Revoked) },
-      ],
-      getColor: getIdentityStatusColor,
-    },
-    {
-      type: 'select',
-      key: 'Role',
-      label: 'نقش کاربر',
-      icon: UserCog,
-      placeholder: 'همه نقش‌ها',
-      width: 240,
-      options: [
-        { value: RoleType.SuperAdmin, label: getRoleTypeName(RoleType.SuperAdmin), color: 'red' },
-        { value: RoleType.Instructor, label: getRoleTypeName(RoleType.Instructor), color: 'blue' },
-        { value: RoleType.Student, label: getRoleTypeName(RoleType.Student), color: 'green' },
-        { value: RoleType.Operator, label: getRoleTypeName(RoleType.Operator), color: 'orange' },
-        { value: RoleType.OperatorAdmin, label: getRoleTypeName(RoleType.OperatorAdmin), color: 'purple' },
-      ],
-    },
-  ], []);
 
   const {
     data: users,
@@ -127,6 +73,28 @@ export const UsersPage: React.FC = () => {
       title: 'کاربر',
       key: 'user',
       width: 250,
+      // Text search filter
+      filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+        <div style={{ padding: 8 }}>
+          <Input
+            placeholder="جستجوی نام یا شماره تلفن"
+            value={selectedKeys[0]}
+            onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+            onPressEnter={() => confirm()}
+            style={{ marginBottom: 8, display: 'block' }}
+          />
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Button type="primary" onClick={() => confirm()} icon={<SearchOutlined />} size="small" style={{ width: 90 }}>
+              جستجو
+            </Button>
+            <Button onClick={() => clearFilters && clearFilters()} size="small" style={{ width: 90 }}>
+              پاک کردن
+            </Button>
+          </div>
+        </div>
+      ),
+      filterIcon: (filtered) => <SearchOutlined style={{ color: filtered ? '#4B26AD' : undefined }} />,
+      filteredValue: filters.FullNameFa ? [filters.FullNameFa as string] : null,
       render: (_: any, record: UserListItem) => (
         <div className="flex items-center gap-3">
           {record.imageUrl ? (
@@ -141,23 +109,32 @@ export const UsersPage: React.FC = () => {
         </div>
       ),
     },
-      {
-          title: 'نقش‌ها',
-          dataIndex: 'roles',
-          key: 'roles',
-          render: (roles: string[]) =>{
-              if (roles?.length === 5) return <Tag>تمام نقش‌ها</Tag>
-              return <div className="flex flex-wrap gap-2">
-                  {roles && roles.length > 0 ? (
-                      roles.map((role) => (
-                          <Tag key={role} color="blue">
-                              {role}
-                          </Tag>
-                      ))
-                  ) : (
-                      <Tag>بدون نقش</Tag>
-                  )}
-              </div>
+    {
+      title: 'نقش‌ها',
+      dataIndex: 'roles',
+      key: 'roles',
+      // Select filter
+      filters: [
+        { text: getRoleTypeName(RoleType.SuperAdmin), value: RoleType.SuperAdmin },
+        { text: getRoleTypeName(RoleType.Instructor), value: RoleType.Instructor },
+        { text: getRoleTypeName(RoleType.Student), value: RoleType.Student },
+        { text: getRoleTypeName(RoleType.Operator), value: RoleType.Operator },
+        { text: getRoleTypeName(RoleType.OperatorAdmin), value: RoleType.OperatorAdmin },
+      ],
+      filteredValue: filters.Role !== null && filters.Role !== undefined ? [filters.Role as number] : null,
+      render: (roles: string[]) =>{
+        if (roles?.length === 5) return <Tag>تمام نقش‌ها</Tag>
+        return <div className="flex flex-wrap gap-2">
+          {roles && roles.length > 0 ? (
+            roles.map((role) => (
+              <Tag key={role} color="blue">
+                {role}
+              </Tag>
+            ))
+          ) : (
+            <Tag>بدون نقش</Tag>
+          )}
+        </div>
       },
     },
     {
@@ -176,6 +153,16 @@ export const UsersPage: React.FC = () => {
       dataIndex: 'identity',
       key: 'identity',
       align: 'center',
+      // Select filter
+      filters: [
+        { text: getIdentityStatusName(IdentityStatusType.None), value: IdentityStatusType.None },
+        { text: getIdentityStatusName(IdentityStatusType.Requested), value: IdentityStatusType.Requested },
+        { text: getIdentityStatusName(IdentityStatusType.Pending), value: IdentityStatusType.Pending },
+        { text: getIdentityStatusName(IdentityStatusType.Verified), value: IdentityStatusType.Verified },
+        { text: getIdentityStatusName(IdentityStatusType.Rejected), value: IdentityStatusType.Rejected },
+        { text: getIdentityStatusName(IdentityStatusType.Revoked), value: IdentityStatusType.Revoked },
+      ],
+      filteredValue: filters.IdentityStatus !== null && filters.IdentityStatus !== undefined ? [filters.IdentityStatus as number] : null,
       render: (identity: any) => {
         const statusType = identity?.statusType ?? IdentityStatusType.None;
         return (
@@ -241,14 +228,6 @@ export const UsersPage: React.FC = () => {
         ]}
       />
 
-      {/* Dynamic Filter Bar */}
-      <DynamicFilterBar
-        filters={filterConfigs}
-        values={filters}
-        onChange={setFilter}
-        onClearAll={clearFilters}
-      />
-
       <DataTable<UserListItem>
         columns={columns}
         dataSource={users}
@@ -258,6 +237,14 @@ export const UsersPage: React.FC = () => {
         pagination={pagination}
         emptyText="هیچ کاربری یافت نشد"
         itemName="کاربر"
+        tableProps={{
+          onChange: (_, tableFilters) => {
+            // Sync table filters with state
+            setFilter('FullNameFa', tableFilters.user?.[0] || null);
+            setFilter('Role', tableFilters.roles?.[0] || null);
+            setFilter('IdentityStatus', tableFilters.identity?.[0] || null);
+          },
+        }}
       />
 
       {selectedUser && (
