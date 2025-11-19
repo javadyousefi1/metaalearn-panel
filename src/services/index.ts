@@ -6,3 +6,4 @@ export * from './coursesession.service';
 export * from './courseSchedule.service';
 export * from './courseGallery.service';
 export * from './user.service';
+export * from './ticket.service';

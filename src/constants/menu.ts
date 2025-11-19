@@ -5,6 +5,7 @@ import {
     Settings,
     BarChart3,
     FolderTree,
+    Ticket,
     LucideIcon,
 } from 'lucide-react';
 import { ROUTES } from './routes';
@@ -35,6 +36,12 @@ export const MENU_ITEMS: MenuItemConfig[] = [
       path: ROUTES.USERS.ROOT,
       label: 'کاربران',
       icon: Users,
+    },
+    {
+      key: 'tickets',
+      path: ROUTES.TICKETS.ROOT,
+      label: 'تیکت‌ها',
+      icon: Ticket,
     },
     {
         key: 'courses',

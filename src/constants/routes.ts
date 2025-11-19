@@ -56,6 +56,12 @@ export const ROUTES = {
   },
 
 
+  // Tickets Routes
+  TICKETS: {
+    ROOT: '/tickets',
+    LIST: '/tickets',
+  },
+
   // Settings Routes
   SETTINGS: {
     ROOT: '/settings',
@@ -91,6 +97,7 @@ export const PAGE_TITLES: Record<string, string> = {
   [ROUTES.USERS.CREATE]: 'Create User',
   [ROUTES.USERS.EDIT]: 'Edit User',
   [ROUTES.USERS.VIEW]: 'User Details',
+  [ROUTES.TICKETS.LIST]: 'تیکت‌ها',
   [ROUTES.COURSES.COURSE_LIST]: 'لیست دوره‌ها',
   [ROUTES.COURSES.CATEGORIES.ROOT]: 'مدیریت دسته‌بندی‌ها',
   [ROUTES.COURSE.DETAIL]: 'جزئیات دوره',
