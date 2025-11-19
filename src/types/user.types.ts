@@ -61,6 +61,9 @@ export interface GetAllUsersParams {
   IncludeProfile?: boolean;
   IncludeIdentity?: boolean;
   IdentityStatus?: IdentityStatusType; // Filter by identity status
+  PhoneNumber?: string; // Filter by phone number
+  FullNameFa?: string; // Filter by full name (Persian)
+  Role?: RoleType; // Filter by role
 }
 
 export interface AllUsersResponse {

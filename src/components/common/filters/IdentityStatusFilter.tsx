@@ -1,5 +1,6 @@
 import React from 'react';
 import { Select, Tag } from 'antd';
+import { ShieldCheck } from 'lucide-react';
 import { IdentityStatusType, getIdentityStatusName, getIdentityStatusColor } from '@/types/user.types';
 
 export interface IdentityStatusFilterProps {
@@ -44,9 +45,9 @@ export interface IdentityStatusFilterProps {
 export const IdentityStatusFilter: React.FC<IdentityStatusFilterProps> = ({
   value,
   onChange,
-  placeholder = 'انتخاب وضعیت هویت',
-  label,
-  width = 220,
+  placeholder = 'همه وضعیت‌ها',
+  label = 'وضعیت هویت',
+  width = 240,
 }) => {
   // All available identity status options
   const statusOptions = [
@@ -59,24 +60,30 @@ export const IdentityStatusFilter: React.FC<IdentityStatusFilterProps> = ({
   ];
 
   return (
-    <div className="flex flex-col gap-1">
-      {label && (
-        <span className="text-sm font-medium text-gray-700">{label}</span>
-      )}
+    <div className="flex flex-col gap-2">
+      <div className="flex items-center gap-2">
+        <ShieldCheck size={16} style={{ color: '#4B26AD' }} />
+        <span className="text-sm font-semibold text-gray-700">{label}</span>
+      </div>
       <Select
         value={value}
         onChange={onChange}
         placeholder={placeholder}
         allowClear
+        size="large"
         style={{ width }}
+        className="shadow-sm"
         options={statusOptions.map((option) => ({
           value: option.value,
-          label: (
-            <Tag color={getIdentityStatusColor(option.value)}>
+          label: option.label,
+        }))}
+        optionRender={(option) => (
+          <div className="flex items-center gap-2 py-1">
+            <Tag color={getIdentityStatusColor(option.value as IdentityStatusType)} className="m-0">
               {option.label}
             </Tag>
-          ),
-        }))}
+          </div>
+        )}
         tagRender={(props) => {
           const status = props.value as IdentityStatusType;
           return (
@@ -84,7 +91,7 @@ export const IdentityStatusFilter: React.FC<IdentityStatusFilterProps> = ({
               color={getIdentityStatusColor(status)}
               closable={props.closable}
               onClose={props.onClose}
-              style={{ marginRight: 3 }}
+              className="m-0 px-3 py-1 text-sm font-medium"
             >
               {getIdentityStatusName(status)}
             </Tag>

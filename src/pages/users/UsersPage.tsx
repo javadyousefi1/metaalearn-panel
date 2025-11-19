@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import {Tag, Avatar, Button, Tooltip} from 'antd';
 import { Home, UserCircle, ShieldCheck, UserCog } from 'lucide-react';
 import type { ColumnsType } from 'antd/es/table';
-import { PageHeader, DataTable, FilterBar, IdentityStatusFilter } from '@/components/common';
+import { PageHeader, DataTable, FilterBar, IdentityStatusFilter, PhoneNumberFilter, FullNameFaFilter, RoleFilter } from '@/components/common';
 import { useTable, useTableFilters } from '@/hooks';
 import { userService } from '@/services';
-import { UserListItem, getIdentityStatusName, getIdentityStatusColor, IdentityStatusType } from '@/types/user.types';
+import { UserListItem, getIdentityStatusName, getIdentityStatusColor, IdentityStatusType, RoleType } from '@/types/user.types';
 import { UserIdentityModal } from './UserIdentityModal';
 import { RoleManagementModal } from './RoleManagementModal';
 import dayjs from 'dayjs';
@@ -41,6 +41,9 @@ export const UsersPage: React.FC = () => {
       IncludeProfile: true,
       IncludeIdentity: true,
       IdentityStatus: params.IdentityStatus,
+      PhoneNumber: params.PhoneNumber,
+      FullNameFa: params.FullNameFa,
+      Role: params.Role,
     }),
     initialPageSize: 10,
     initialPageIndex: 1,
@@ -191,10 +194,21 @@ export const UsersPage: React.FC = () => {
         activeFilterCount={activeFilterCount}
         onClearAll={clearFilters}
       >
+        <FullNameFaFilter
+          value={filters.FullNameFa as string | null}
+          onChange={(value) => setFilter('FullNameFa', value)}
+        />
+        <PhoneNumberFilter
+          value={filters.PhoneNumber as string | null}
+          onChange={(value) => setFilter('PhoneNumber', value)}
+        />
         <IdentityStatusFilter
           value={filters.IdentityStatus as IdentityStatusType | null}
           onChange={(value) => setFilter('IdentityStatus', value)}
-          label="وضعیت هویت"
+        />
+        <RoleFilter
+          value={filters.Role as RoleType | null}
+          onChange={(value) => setFilter('Role', value)}
         />
       </FilterBar>
 

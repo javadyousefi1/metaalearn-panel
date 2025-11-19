@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Button, Space, Badge } from 'antd';
+import { Button, Space } from 'antd';
 import { FilterOutlined, ClearOutlined } from '@ant-design/icons';
 
 export interface FilterBarProps {
@@ -52,38 +52,46 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   className = '',
 }) => {
   return (
-    <Card
-      className={`mb-4 ${className}`}
-      bodyStyle={{ padding: '16px' }}
-    >
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <FilterOutlined className="text-lg" />
-          <span className="font-semibold text-base">{title}</span>
-          {activeFilterCount > 0 && (
-            <Badge
-              count={activeFilterCount}
-              style={{ backgroundColor: '#4B26AD' }}
-            />
-          )}
+    <div className={`mb-5 ${className}`}>
+      <div className="bg-purple-50 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
+        <div className="p-4">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-lg flex items-center justify-center shadow-sm" style={{ backgroundColor: '#4B26AD' }}>
+                <FilterOutlined className="text-white text-base" />
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-gray-800 text-base">{title}</span>
+                {activeFilterCount > 0 && (
+                  <div className="px-2.5 py-0.5 text-white text-xs font-bold rounded-full shadow-sm" style={{ backgroundColor: '#4B26AD' }}>
+                    {activeFilterCount}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {activeFilterCount > 0 && onClearAll && (
+              <Button
+                type="text"
+                size="middle"
+                icon={<ClearOutlined />}
+                onClick={onClearAll}
+                className="text-gray-600 hover:text-red-500 hover:bg-red-50 font-medium transition-all duration-200"
+              >
+                پاک کردن فیلترها
+              </Button>
+            )}
+          </div>
+
+          {/* Filters */}
+          <div className="bg-white rounded-lg p-4 border border-gray-100">
+            <Space wrap size={[16, 16]} className="w-full">
+              {children}
+            </Space>
+          </div>
         </div>
-
-        {activeFilterCount > 0 && onClearAll && (
-          <Button
-            type="link"
-            size="small"
-            icon={<ClearOutlined />}
-            onClick={onClearAll}
-            className="text-gray-500 hover:text-red-500"
-          >
-            پاک کردن همه
-          </Button>
-        )}
       </div>
-
-      <Space wrap size="middle" className="w-full">
-        {children}
-      </Space>
-    </Card>
+    </div>
   );
 };
