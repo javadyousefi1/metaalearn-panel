@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {Tag, Avatar, Button, Tooltip} from 'antd';
-import { Home, UserCircle, ShieldCheck, UserCog } from 'lucide-react';
+import { Home, UserCircle, ShieldCheck, UserCog, User, Phone } from 'lucide-react';
 import type { ColumnsType } from 'antd/es/table';
-import { PageHeader, DataTable, FilterBar, IdentityStatusFilter, PhoneNumberFilter, FullNameFaFilter, RoleFilter } from '@/components/common';
+import { PageHeader, DataTable, DynamicFilterBar, FilterConfig } from '@/components/common';
 import { useTable, useTableFilters } from '@/hooks';
 import { userService } from '@/services';
-import { UserListItem, getIdentityStatusName, getIdentityStatusColor, IdentityStatusType, RoleType } from '@/types/user.types';
+import { UserListItem, getIdentityStatusName, getIdentityStatusColor, IdentityStatusType, RoleType, getRoleTypeName } from '@/types/user.types';
 import { UserIdentityModal } from './UserIdentityModal';
 import { RoleManagementModal } from './RoleManagementModal';
 import dayjs from 'dayjs';
@@ -27,6 +27,58 @@ export const UsersPage: React.FC = () => {
     hasActiveFilters,
     activeFilterCount,
   } = useTableFilters();
+
+  // Define filter configurations
+  const filterConfigs: FilterConfig[] = useMemo(() => [
+    {
+      type: 'text',
+      key: 'FullNameFa',
+      label: 'نام کاربر',
+      icon: User,
+      placeholder: 'جستجوی نام کاربر',
+      width: 240,
+    },
+    {
+      type: 'text',
+      key: 'PhoneNumber',
+      label: 'شماره تلفن',
+      icon: Phone,
+      placeholder: 'جستجوی شماره تلفن',
+      width: 240,
+    },
+    {
+      type: 'select',
+      key: 'IdentityStatus',
+      label: 'وضعیت هویت',
+      icon: ShieldCheck,
+      placeholder: 'همه وضعیت‌ها',
+      width: 240,
+      options: [
+        { value: IdentityStatusType.None, label: getIdentityStatusName(IdentityStatusType.None) },
+        { value: IdentityStatusType.Requested, label: getIdentityStatusName(IdentityStatusType.Requested) },
+        { value: IdentityStatusType.Pending, label: getIdentityStatusName(IdentityStatusType.Pending) },
+        { value: IdentityStatusType.Verified, label: getIdentityStatusName(IdentityStatusType.Verified) },
+        { value: IdentityStatusType.Rejected, label: getIdentityStatusName(IdentityStatusType.Rejected) },
+        { value: IdentityStatusType.Revoked, label: getIdentityStatusName(IdentityStatusType.Revoked) },
+      ],
+      getColor: getIdentityStatusColor,
+    },
+    {
+      type: 'select',
+      key: 'Role',
+      label: 'نقش کاربر',
+      icon: UserCog,
+      placeholder: 'همه نقش‌ها',
+      width: 240,
+      options: [
+        { value: RoleType.SuperAdmin, label: getRoleTypeName(RoleType.SuperAdmin), color: 'red' },
+        { value: RoleType.Instructor, label: getRoleTypeName(RoleType.Instructor), color: 'blue' },
+        { value: RoleType.Student, label: getRoleTypeName(RoleType.Student), color: 'green' },
+        { value: RoleType.Operator, label: getRoleTypeName(RoleType.Operator), color: 'orange' },
+        { value: RoleType.OperatorAdmin, label: getRoleTypeName(RoleType.OperatorAdmin), color: 'purple' },
+      ],
+    },
+  ], []);
 
   const {
     data: users,
@@ -189,28 +241,13 @@ export const UsersPage: React.FC = () => {
         ]}
       />
 
-      {/* Filter Bar */}
-      <FilterBar
-        activeFilterCount={activeFilterCount}
+      {/* Dynamic Filter Bar */}
+      <DynamicFilterBar
+        filters={filterConfigs}
+        values={filters}
+        onChange={setFilter}
         onClearAll={clearFilters}
-      >
-        <FullNameFaFilter
-          value={filters.FullNameFa as string | null}
-          onChange={(value) => setFilter('FullNameFa', value)}
-        />
-        <PhoneNumberFilter
-          value={filters.PhoneNumber as string | null}
-          onChange={(value) => setFilter('PhoneNumber', value)}
-        />
-        <IdentityStatusFilter
-          value={filters.IdentityStatus as IdentityStatusType | null}
-          onChange={(value) => setFilter('IdentityStatus', value)}
-        />
-        <RoleFilter
-          value={filters.Role as RoleType | null}
-          onChange={(value) => setFilter('Role', value)}
-        />
-      </FilterBar>
+      />
 
       <DataTable<UserListItem>
         columns={columns}
