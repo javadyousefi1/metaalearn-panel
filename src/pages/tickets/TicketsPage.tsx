@@ -1,8 +1,9 @@
 import React from "react";
 import { Tag, Avatar, Input, Button } from "antd";
-import { Home, UserCircle, Ticket } from "lucide-react";
+import { Home, UserCircle, Ticket, MessageSquare } from "lucide-react";
 import { SearchOutlined } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
+import { useNavigate } from "react-router-dom";
 import { PageHeader, DataTable } from "@/components/common";
 import { useTable, useTableFilters } from "@/hooks";
 import { ticketService } from "@/services";
@@ -21,6 +22,8 @@ import { formatDate } from "@/utils";
  * TicketsPage Component - Display all tickets in a table
  */
 export const TicketsPage: React.FC = () => {
+  const navigate = useNavigate();
+
   // Initialize filters
   const { filters, handleTableChange } = useTableFilters();
 
@@ -208,6 +211,22 @@ export const TicketsPage: React.FC = () => {
       width: 150,
       render: (createdTime: string) => (
         <span className="text-sm">{formatDate(createdTime)}</span>
+      ),
+    },
+    {
+      title: "عملیات",
+      key: "actions",
+      width: 120,
+      align: "center",
+      render: (_, record: TicketListItem) => (
+        <Button
+          type="primary"
+          size="small"
+          icon={<MessageSquare size={16} />}
+          onClick={() => navigate(`/tickets/${record.id}`)}
+        >
+          مشاهده
+        </Button>
       ),
     },
   ];

@@ -1,5 +1,11 @@
 import { httpService } from './http.service';
-import type { GetAllTicketsParams, AllTicketsResponse } from '@/types/ticket.types';
+import type {
+  GetAllTicketsParams,
+  AllTicketsResponse,
+  GetAllTicketMessagesParams,
+  AllTicketMessagesResponse,
+  CreateTicketMessagePayload,
+} from '@/types/ticket.types';
 
 /**
  * Ticket Service
@@ -13,5 +19,34 @@ export const ticketService = {
   async getAll(params: GetAllTicketsParams): Promise<AllTicketsResponse> {
     const resposne = await httpService.get<AllTicketsResponse>('/Ticket/GetAll', { params });
     return resposne.data
+  },
+
+  /**
+   * Get all messages for a specific ticket
+   */
+  async getAllMessages(params: GetAllTicketMessagesParams): Promise<AllTicketMessagesResponse> {
+    const response = await httpService.get<AllTicketMessagesResponse>('/TicketMessage/GetAll', { params });
+    return response.data;
+  },
+
+  /**
+   * Create a new ticket message
+   */
+  async createMessage(payload: CreateTicketMessagePayload): Promise<void> {
+    const formData = new FormData();
+    formData.append('ticketId', payload.ticketId);
+    formData.append('content', payload.content);
+
+    if (payload.files && payload.files.length > 0) {
+      payload.files.forEach((file) => {
+        formData.append('files', file);
+      });
+    }
+
+    await httpService.post('/TicketMessage/Create', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
   },
 };

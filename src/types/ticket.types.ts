@@ -216,3 +216,45 @@ export const getTicketPriorityColor = (priority: TicketPriority): string => {
       return 'default';
   }
 };
+
+// Ticket Message Types
+export interface TicketMessageUserInfo {
+  fullNameFa: string;
+  imageUrl: string;
+  id: string;
+}
+
+export interface TicketMessageAttachment {
+  url: string;
+  type: TicketAttachmentType;
+  id: string;
+}
+
+export interface TicketMessage {
+  ticketId: string;
+  content: string;
+  userInfo: TicketMessageUserInfo;
+  isOperator: boolean;
+  attachments: TicketMessageAttachment[];
+  createdTime: string;
+  updatedTime: string | null;
+  id: string;
+}
+
+export interface GetAllTicketMessagesParams {
+  TicketId: string;
+  PageIndex: number;
+  PageSize: number;
+}
+
+export interface AllTicketMessagesResponse {
+  items: TicketMessage[];
+  totalCount: number;
+}
+
+// Create Ticket Message Types
+export interface CreateTicketMessagePayload {
+  ticketId: string;
+  content: string;
+  files?: File[];
+}

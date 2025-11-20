@@ -8,3 +8,4 @@ export * from './useCourseGallery';
 export * from './useUsers';
 export * from './useTable';
 export * from './useTableFilters';
+export * from './useTicketMessages';

@@ -4,7 +4,7 @@ import { ProtectedRoute } from '@/components/common';
 import { LoginPage } from '@/pages/auth';
 import { DashboardPage } from '@/pages/dashboard';
 import { UsersPage } from '@/pages/users';
-import { TicketsPage } from '@/pages/tickets';
+import { TicketsPage, TicketDetailPage } from '@/pages/tickets';
 import { CoursesPage, CourseListPage } from '@/pages/courses';
 import { CourseDetailPage, CourseFaqPage, CourseSessionsPage, CourseIntroductionPage, CourseSchedulePage, CourseGalleryPage } from '@/pages/course';
 import { CategoriesPage, SubCategoriesPage } from '@/pages/categories';
@@ -58,6 +58,10 @@ export const router = createBrowserRouter([
       {
         path: ROUTES.TICKETS.ROOT,
         element: <TicketsPage />,
+      },
+      {
+        path: ROUTES.TICKETS.DETAIL_PATH,
+        element: <TicketDetailPage />,
       },
 
       // Courses Management

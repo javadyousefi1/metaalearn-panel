@@ -149,7 +149,7 @@ export const MainLayout: React.FC = () => {
             </div>
           </Dropdown>
         </Header>
-        <Content className="p-6 overflow-auto min-h-screen" style={{ marginTop: 64 }}>
+        <Content className="p-6 overflow-auto" style={{ marginTop: 64 , minHeight:"calc(100svh-900px)" }}>
           <div
             style={{
               background: colorBgContainer,

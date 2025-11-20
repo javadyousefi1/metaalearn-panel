@@ -60,6 +60,8 @@ export const ROUTES = {
   TICKETS: {
     ROOT: '/tickets',
     LIST: '/tickets',
+    DETAIL: (id: string) => `/tickets/${id}`,
+    DETAIL_PATH: '/tickets/:id',
   },
 
   // Settings Routes
