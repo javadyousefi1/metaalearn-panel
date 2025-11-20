@@ -18,7 +18,7 @@ function App() {
           token: {
             colorPrimary: '#4B26AD',
             borderRadius: 8,
-            fontFamily: 'Vazirmatn, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial',
+            fontFamily: 'IRANYekanX, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial',
           },
         }}
       >
