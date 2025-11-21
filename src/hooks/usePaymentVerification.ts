@@ -16,9 +16,6 @@ export const usePaymentVerification = () => {
       // Invalidate payments queries to refresh the table
       queryClient.invalidateQueries({ queryKey: ['payments'] });
     },
-    onError: () => {
-      message.error('خطا در تایید پرداخت');
-    },
   });
 
   return {

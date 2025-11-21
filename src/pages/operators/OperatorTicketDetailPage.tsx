@@ -208,12 +208,12 @@ export const OperatorTicketDetailPage: React.FC = () => {
                 <div
                   key={msg.id}
                   className={`flex ${
-                    !msg.isOperator ? "justify-end" : "justify-start"
+                    !msg.isOperator ? "justify-start" : "justify-end"
                   }`}
                 >
                   <div
                     className={`flex gap-3 max-w-[70%] ${
-                      !msg.isOperator ? "flex-row-reverse" : "flex-row"
+                      !msg.isOperator ? "flex-row" : "flex-row-reverse"
                     }`}
                   >
                     {/* User Avatar */}
@@ -235,11 +235,7 @@ export const OperatorTicketDetailPage: React.FC = () => {
 
                     {/* Message Content */}
                     <div className="flex-1">
-                      <div
-                        className={`mb-1 text-xs text-gray-500 ${
-                          !msg.isOperator ? "text-right" : "text-left"
-                        }`}
-                      >
+                      <div className="mb-1 text-xs text-gray-500 text-right">
                         <span className="font-medium">
                           {msg.userInfo.fullNameFa || "بدون نام"}
                         </span>
@@ -249,10 +245,10 @@ export const OperatorTicketDetailPage: React.FC = () => {
                       </div>
 
                       <div
-                        className={`p-3 rounded-lg shadow-sm ${
+                        className={`p-3 rounded-lg shadow-sm text-right ${
                           !msg.isOperator
-                            ? "bg-purple-100 text-right"
-                            : "bg-gray-100 text-left"
+                            ? "bg-purple-100"
+                            : "bg-gray-100"
                         }`}
                       >
                         <p className="text-sm whitespace-pre-wrap">
@@ -277,11 +273,7 @@ export const OperatorTicketDetailPage: React.FC = () => {
                         )}
 
                         <div className="flex items-center justify-between mt-2">
-                          <div
-                            className={`text-xs text-gray-400 ${
-                              !msg.isOperator ? "text-right" : "text-left"
-                            }`}
-                          >
+                          <div className="text-xs text-gray-400 text-right">
                             {formatDate(msg.createdTime)}
                           </div>
 

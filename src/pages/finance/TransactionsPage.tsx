@@ -6,15 +6,15 @@ import { PageHeader, DataTable } from '@/components/common';
 import { useTable, useTableFilters, usePaymentVerification } from '@/hooks';
 import { paymentService } from '@/services';
 import {
-  PaymentListItem,
-  PaymentStatus,
-  getPaymentMethodName,
-  getPaymentMethodColor,
-  getPaymentStatusName,
-  getPaymentStatusColor,
-  getPaymentTypeName,
-  getPaymentTypeColor,
-  formatAmount,
+    PaymentListItem,
+    PaymentStatus,
+    getPaymentMethodName,
+    getPaymentMethodColor,
+    getPaymentStatusName,
+    getPaymentStatusColor,
+    getPaymentTypeName,
+    getPaymentTypeColor,
+    formatAmount, PaymentType, PaymentMethod,
 } from '@/types/payment.types';
 import { formatDate } from '@/utils';
 
@@ -157,9 +157,10 @@ export const TransactionsPage: React.FC = () => {
       fixed: 'right',
       render: (_: any, payment: PaymentListItem) => {
         // Only show verify button for pending payments
-        // if (payment.status !== PaymentStatus.Pending) {
-        //   return <span className="text-gray-400 text-xs">-</span>;
-        // }
+          console.log(payment ,"payment")
+        if (payment.method !== PaymentMethod.CardToCard || payment.status === PaymentStatus.Paid) {
+          return <span className="text-gray-400 text-xs">-</span>;
+        }
 
         return (
           <div className="flex items-center justify-center gap-3">
