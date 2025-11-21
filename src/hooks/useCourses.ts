@@ -29,9 +29,6 @@ export const useCourses = () => {
       message.success('دوره با موفقیت به‌روزرسانی شد');
       queryClient.invalidateQueries({ queryKey: queryKeys.courses.all });
     },
-    onError: () => {
-      message.error('خطا در به‌روزرسانی دوره');
-    },
   });
 
   return {

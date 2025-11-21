@@ -6,6 +6,8 @@ import {
     BarChart3,
     FolderTree,
     Ticket,
+    Wallet,
+    CreditCard,
     LucideIcon,
 } from 'lucide-react';
 import { ROUTES } from './routes';
@@ -59,6 +61,20 @@ export const MENU_ITEMS: MenuItemConfig[] = [
                 path: ROUTES.COURSES.CATEGORIES.ROOT,
                 label: 'دسته‌بندی‌ها',
                 icon: FolderTree,
+            },
+        ],
+    },
+    {
+        key: 'finance',
+        path: ROUTES.FINANCE.ROOT,
+        label: 'مالی',
+        icon: Wallet,
+        children: [
+            {
+                key: 'credit-cards',
+                path: ROUTES.FINANCE.CREDIT_CARDS,
+                label: 'کارت‌های بانکی',
+                icon: CreditCard,
             },
         ],
     },

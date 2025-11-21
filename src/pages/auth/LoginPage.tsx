@@ -104,13 +104,6 @@ export const LoginPage: React.FC = () => {
                 ارسال کد
               </Button>
             </Form.Item>
-
-            <div className="text-center text-gray-600">
-              حساب کاربری ندارید؟{' '}
-              <Link to={ROUTES.AUTH.REGISTER} className="text-primary-600 hover:text-primary-700 font-medium">
-                ثبت نام
-              </Link>
-            </div>
           </>
         ) : (
           <>

@@ -121,13 +121,21 @@ export const CourseListPage: React.FC = () => {
     },
     {
       title: 'روش پرداخت',
-      dataIndex: 'paymentMethod',
-      key: 'paymentMethod',
+      dataIndex: 'paymentTypes',
+      key: 'paymentTypes',
       align: 'center',
-      render: (coursePaymentType: number) => (
-        <Tag color={getPaymentMethodColor(coursePaymentType)}>
-          {CoursePaymentType[coursePaymentType as keyof typeof CoursePaymentType]}
-        </Tag>
+      render: (paymentTypes: number[]) => (
+        <div className="flex flex-wrap gap-1 justify-center">
+          {paymentTypes && paymentTypes.length > 0 ? (
+            paymentTypes.map((type) => (
+              <Tag key={type} color={getPaymentMethodColor(type)}>
+                {CoursePaymentType[type as keyof typeof CoursePaymentType]}
+              </Tag>
+            ))
+          ) : (
+            <Tag color="default">تعیین نشده</Tag>
+          )}
+        </div>
       ),
     },
     {

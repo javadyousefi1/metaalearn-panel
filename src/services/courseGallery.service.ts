@@ -32,21 +32,17 @@ export const courseGalleryService = {
   upload: async (payload: UploadCourseGalleryPayload): Promise<void> => {
     const formData = new FormData();
     formData.append('file', payload.file);
-
-    const params: Record<string, any> = {
-      courseId: payload.courseId,
-      type: payload.type,
-      category: payload.category,
-      requestType: payload.requestType,
-    };
+    formData.append('courseId', payload.courseId);
+    formData.append('type', payload.type);
+    formData.append('category', payload.category);
+    formData.append('requestType', payload.requestType);
 
     // Add ID parameter for update operations
     if (payload.id) {
-      params.id = payload.id;
+      formData.append('id', payload.id);
     }
 
     await httpService.post('/CourseGallery/Upload', formData, {
-      params,
       headers: {
         'Content-Type': 'multipart/form-data',
       },

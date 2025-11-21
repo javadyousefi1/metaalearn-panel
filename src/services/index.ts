@@ -7,3 +7,4 @@ export * from './courseSchedule.service';
 export * from './courseGallery.service';
 export * from './user.service';
 export * from './ticket.service';
+export * from './creditCard.service';

@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { Card, Empty, Button, Collapse, Popconfirm, Space, Tag, Avatar, Descriptions } from 'antd';
 import { Users, Plus, Trash2, Edit, Eye, EyeOff } from 'lucide-react';
 import { useGetAllSchedules, useCourseSchedules } from '@/hooks';
+import { CourseScheduleStatus } from '@/enums';
 import { CourseScheduleModal } from './CourseScheduleModal';
 import type { CourseSchedule } from '@/types';
 
@@ -114,8 +115,8 @@ export const CourseSchedulePage: React.FC = () => {
             ) : (
               <Tag icon={<EyeOff size={14} />} color="default">مخفی</Tag>
             )}
-            <Tag color={schedule.status === 0 ? 'blue' : 'orange'}>
-              {schedule.status === 0 ? 'فعال' : `وضعیت ${schedule.status}`}
+            <Tag color={schedule.status === 0 ? 'blue' : schedule.status === 1 ? 'orange' : 'green'}>
+              {CourseScheduleStatus[schedule.status as keyof typeof CourseScheduleStatus] || `وضعیت ${schedule.status}`}
             </Tag>
           </Space>
         </Descriptions.Item>

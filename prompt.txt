@@ -1,14 +1,72 @@
-so this is curl for sending message
-curl -X 'POST' \
-  'http://185.79.97.146:5000/TicketMessage/Create' \
-  -H 'accept: application/json' \
-  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJhY2NvdW50IiwiaXNzIjoibWV0YWxlYXJuLWJhY2tlbmQiLCJleHAiOjE3NjM5OTExMTAsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWVpZGVudGlmaWVyIjoiYTQ4ZmNhZjItZDE2Mi00MTcxLTg2YjgtYzY1NDZiN2ViM2Q3IiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvbW9iaWxlcGhvbmUiOiIwOTEyNjg2ODUwNCIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6WyJvcGVyYXRvci1hZG1pbiIsInN1cGVyLWFkbWluIiwiaW5zdHJ1Y3RvciIsInN0dWRlbnQiLCJvcGVyYXRvciJdLCJpYXQiOjE3NjM2MzExMTAsIm5iZiI6MTc2MzYzMTExMH0.-XI3tEyTA1RPWlvqcL6gMW-HJJywUGplVrqe-kDoumQ' \
-  -H 'Content-Type: multipart/form-data' \
-  -F 'ticketId=87e66d7b-9af4-4394-934c-fb84b334d347' \
-  -F 'content=string' \
-  -F 'files=@ca8b28cb1e6e37ce2cb2bd8c491c8829.jpg;type=image/jpeg'
+Create a clean Farsi UI for the “Create Course” form with the following updated logic:
 
-file is optinal and should be image type or zip file
+1. paymentTypes (Multi-Select)
 
-add this to ticket message page like chat
-use custom hook for ticekt to pattern in persious hook exsit for it
+paymentTypes is now an array and user can select multiple payment types.
+
+If the user selects option 2 = "قسطی", then additional installment fields must appear.
+
+2. installmentType (Enum Select)
+
+Show a dropdown for:
+
+InstallmentType:
+0 = None
+1 = Auto
+2 = Custom
+
+
+Trigger the following rules:
+
+If installmentType = 2 (Custom / سفارشی):
+
+Show fields:
+
+minimumInstallmentToPay (int, always visible in installment mode)
+
+installmentCount (int)
+
+A dynamic list for installments with exactly installmentCount items:
+
+{
+  step: number,
+  amount: number,
+  dueTime: datetime
+}
+
+
+The user must be able to add/edit/remove items.
+
+If installmentType = 1 (Auto / خودکار):
+
+Show:
+
+minimumInstallmentToPay
+
+installmentInterval (per day)
+
+installmentCount
+
+Auto mode means the system will calculate installment dueTime automatically.
+
+If installmentType = 0 (None):
+
+Hide all installment-related fields.
+
+3. RequiresIdentityVerification
+
+Add the boolean field requiresIdentityVerification to UI if it doesn't exist.
+
+4. Keep Everything Clean
+
+Keep spacing minimal
+
+Align fields clearly
+
+Use consistent layout with other form sections
+
+Output labels & UI text in Farsi only
+
+Avoid unnecessary elements
+
+ask if you have question

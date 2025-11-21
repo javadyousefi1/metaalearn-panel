@@ -5,7 +5,6 @@ import { Calendar, Plus, Trash2, Edit, Clock, FileText, Video, Link as LinkIcon 
 import { useGetAllSessions, useCourseSessions } from '@/hooks';
 import { CourseSessionModal } from './CourseSessionModal';
 import type { CourseSession } from '@/types/session.types';
-import dayjs from 'dayjs';
 import { formatDate } from '@/utils';
 
 export const CourseSessionsPage: React.FC = () => {
@@ -13,9 +12,27 @@ export const CourseSessionsPage: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingSession, setEditingSession] = useState<CourseSession | null>(null);
   const [selectedParentId, setSelectedParentId] = useState<string | null>(null);
+  const [selectedLevel1ParentId, setSelectedLevel1ParentId] = useState<string | null>(null);
 
   const { data: allSessions = [], refetch, isLoading } = useGetAllSessions(true,id);
   const { createSession, updateSession, deleteSession, isCreating, isUpdating, isDeleting } = useCourseSessions();
+
+  // Flatten all sessions for easier lookup
+  const flatSessions = useMemo(() => {
+    const flat: CourseSession[] = [];
+    (allSessions as CourseSession[]).forEach(parent => {
+      flat.push(parent);
+      if (parent.subSessions) {
+        parent.subSessions.forEach(child => {
+          flat.push(child);
+          if (child.subSessions) {
+            flat.push(...child.subSessions);
+          }
+        });
+      }
+    });
+    return flat;
+  }, [allSessions]);
 
   // API already filters sessions for current course and provides subSessions nested
   const parentSessions = useMemo(() => {
@@ -26,18 +43,21 @@ export const CourseSessionsPage: React.FC = () => {
   const handleAddParentSession = () => {
     setEditingSession(null);
     setSelectedParentId(null);
+    setSelectedLevel1ParentId(null);
     setModalOpen(true);
   };
 
-  const handleAddChildSession = (parentId: string) => {
+  const handleAddChildSession = (parentId: string, level1ParentId?: string) => {
     setEditingSession(null);
     setSelectedParentId(parentId);
+    setSelectedLevel1ParentId(level1ParentId || null);
     setModalOpen(true);
   };
 
   const handleEditSession = (session: CourseSession) => {
     setEditingSession(session);
     setSelectedParentId(null);
+    setSelectedLevel1ParentId(null);
     setModalOpen(true);
   };
 
@@ -45,6 +65,7 @@ export const CourseSessionsPage: React.FC = () => {
     setModalOpen(false);
     setEditingSession(null);
     setSelectedParentId(null);
+    setSelectedLevel1ParentId(null);
   };
 
   const handleSubmitSession = async (values: Partial<CourseSession>) => {
@@ -68,17 +89,16 @@ export const CourseSessionsPage: React.FC = () => {
       });
     } else {
       // Create new session
-      // If selectedParentId is set, this is a child session; otherwise, it's a parent session
-      const targetParentId = selectedParentId || null;
+      const targetParentId = values.parentId || null;
 
-      // Calculate next index
+      // Calculate next index based on parent
       let nextIndex = 0;
-      if (selectedParentId) {
-        // Find parent session and count its children
-        const parentSession = parentSessions.find(p => p.id === selectedParentId);
+      if (targetParentId) {
+        // Find parent in flat sessions
+        const parentSession = flatSessions.find(s => s.id === targetParentId);
         nextIndex = parentSession?.subSessions?.length || 0;
       } else {
-        // Count parent sessions
+        // Count level 1 sessions
         nextIndex = parentSessions.length;
       }
 
@@ -107,7 +127,7 @@ export const CourseSessionsPage: React.FC = () => {
   };
 
   // Render session details
-  const renderSessionDetails = (session: CourseSession, isChild: boolean = false) => (
+  const renderSessionDetails = (session: CourseSession, level: 1 | 2 | 3, level1ParentId?: string) => (
     <div className="space-y-4">
       <Descriptions column={1} size="small">
         <Descriptions.Item label="توضیحات">
@@ -165,18 +185,28 @@ export const CourseSessionsPage: React.FC = () => {
       </Descriptions>
 
       <div className="flex justify-between items-center pt-2 border-t">
-        <div>
-          {!isChild && (
+        <Space>
+          {level === 1 && (
             <Button
               type="dashed"
               icon={<Plus size={16} />}
               onClick={() => handleAddChildSession(session.id)}
               loading={isCreating}
             >
-              افزودن زیر-جلسه
+              افزودن زیر فصل
             </Button>
           )}
-        </div>
+          {level === 2 && (
+            <Button
+              type="dashed"
+              icon={<Plus size={16} />}
+              onClick={() => handleAddChildSession(session.id, level1ParentId)}
+              loading={isCreating}
+            >
+              افزودن مبحث
+            </Button>
+          )}
+        </Space>
         <Space>
           <Button
             type="text"
@@ -209,40 +239,72 @@ export const CourseSessionsPage: React.FC = () => {
   );
 
   // Create collapse items for parent sessions with nested children
-  const collapseItems = parentSessions.map((parent: CourseSession) => {
-    const children = parent.subSessions || [];
+  const collapseItems = parentSessions.map((level1: CourseSession) => {
+    const level2Sessions = level1.subSessions || [];
 
     return {
-      key: parent.id,
+      key: level1.id,
       label: (
         <div className="flex items-center justify-between w-full pr-2">
           <Space>
-            <span className="font-medium text-lg">{parent.name}</span>
-            {children.length > 0 && (
-              <Tag color="blue">{children.length} زیر-جلسه</Tag>
+            <Tag color="purple">فصل</Tag>
+            <span className="font-medium text-lg">{level1.name}</span>
+            {level2Sessions.length > 0 && (
+              <Tag color="blue">{level2Sessions.length} زیر فصل</Tag>
             )}
           </Space>
         </div>
       ),
       children: (
         <div className="space-y-4">
-          {renderSessionDetails(parent, false)}
+          {renderSessionDetails(level1, 1)}
 
-          {/* Child sessions */}
-          {children.length > 0 && (
-            <div className="mt-6 border-r-4 border-primary-300 pr-4">
-              <h4 className="font-semibold text-gray-700 mb-4">زیر-جلسات:</h4>
+          {/* Level 2 sessions (زیر فصل) */}
+          {level2Sessions.length > 0 && (
+            <div className="mt-6 border-r-4 border-blue-300 pr-4">
+              <h4 className="font-semibold text-gray-700 mb-4">زیر فصل‌ها:</h4>
               <Collapse
-                items={children.map((child: CourseSession) => ({
-                  key: child.id,
-                  label: (
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">{child.name}</span>
-                      <Tag color="cyan" className="text-xs">زیر-جلسه</Tag>
-                    </div>
-                  ),
-                  children: renderSessionDetails(child, true),
-                }))}
+                items={level2Sessions.map((level2: CourseSession) => {
+                  const level3Sessions = level2.subSessions || [];
+
+                  return {
+                    key: level2.id,
+                    label: (
+                      <div className="flex items-center gap-2">
+                        <Tag color="cyan">زیر فصل</Tag>
+                        <span className="font-medium">{level2.name}</span>
+                        {level3Sessions.length > 0 && (
+                          <Tag color="green" className="text-xs">{level3Sessions.length} مبحث</Tag>
+                        )}
+                      </div>
+                    ),
+                    children: (
+                      <div className="space-y-4">
+                        {renderSessionDetails(level2, 2, level1.id)}
+
+                        {/* Level 3 sessions (مبحث) */}
+                        {level3Sessions.length > 0 && (
+                          <div className="mt-4 border-r-4 border-green-300 pr-4">
+                            <h4 className="font-semibold text-gray-700 mb-3">مباحث:</h4>
+                            <Collapse
+                              items={level3Sessions.map((level3: CourseSession) => ({
+                                key: level3.id,
+                                label: (
+                                  <div className="flex items-center gap-2">
+                                    <Tag color="green" className="text-xs">مبحث</Tag>
+                                    <span className="font-medium text-sm">{level3.name}</span>
+                                  </div>
+                                ),
+                                children: renderSessionDetails(level3, 3),
+                              }))}
+                              size="small"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    ),
+                  };
+                })}
                 size="small"
               />
             </div>
@@ -264,7 +326,7 @@ export const CourseSessionsPage: React.FC = () => {
             className="shadow-md hover:shadow-lg transition-all"
             loading={isCreating}
           >
-            افزودن جلسه جدید
+            افزودن فصل جدید
           </Button>
         }
         title={
@@ -309,9 +371,11 @@ export const CourseSessionsPage: React.FC = () => {
         loading={isCreating || isUpdating}
         session={editingSession}
         parentId={selectedParentId}
+        level1ParentId={selectedLevel1ParentId}
+        allSessions={flatSessions}
         nextIndex={
           selectedParentId
-            ? (parentSessions.find(p => p.id === selectedParentId)?.subSessions?.length || 0)
+            ? (flatSessions.find(s => s.id === selectedParentId)?.subSessions?.length || 0)
             : parentSessions.length
         }
       />

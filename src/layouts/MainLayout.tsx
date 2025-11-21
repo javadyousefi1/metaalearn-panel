@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import { Layout, Menu, Avatar, Dropdown, theme } from 'antd';
+import { useState, useEffect } from 'react';
+import { Layout, Menu, Avatar, Dropdown, Drawer, theme } from 'antd';
 import type { MenuProps } from 'antd';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { LogOut, User, Settings, ChevronLeft, ChevronRight } from 'lucide-react';
+import { LogOut, User, Settings, ChevronLeft, ChevronRight, Menu as MenuIcon, X } from 'lucide-react';
 import { useAuth } from '@/hooks';
 import { MENU_ITEMS } from '@/constants';
 import { getInitials, getFullName } from '@/utils';
@@ -10,17 +10,44 @@ import { getInitials, getFullName } from '@/utils';
 const { Header, Sider, Content } = Layout;
 
 /**
+ * Custom hook for detecting mobile screen
+ */
+const useIsMobile = (breakpoint = 768) => {
+  const [isMobile, setIsMobile] = useState(window.innerWidth < breakpoint);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < breakpoint);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [breakpoint]);
+
+  return isMobile;
+};
+
+/**
  * MainLayout Component
  * Main application layout with sidebar navigation
  */
 export const MainLayout: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const isMobile = useIsMobile();
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuth();
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
+
+  // Close drawer when route changes on mobile
+  useEffect(() => {
+    if (isMobile) {
+      setDrawerOpen(false);
+    }
+  }, [location.pathname, isMobile]);
 
   // Map menu items without permission filtering
   const menuItems = MENU_ITEMS.map((item) => {
@@ -89,30 +116,63 @@ export const MainLayout: React.FC = () => {
     return false;
   })?.key || '';
 
+  // Menu content (shared between Sider and Drawer)
+  const menuContent = (
+    <>
+      <div className="h-16 flex items-center justify-center border-b border-gray-200 px-4">
+        <img
+          src="/images/metaaLearn-logo.png"
+          alt="MetaaLearn"
+          className="h-10 w-auto"
+        />
+      </div>
+      <Menu
+        mode="inline"
+        selectedKeys={[selectedKey]}
+        items={menuItems}
+        className="border-r-0"
+      />
+    </>
+  );
+
   return (
     <Layout className="min-h-screen">
-      <Sider
-        trigger={null}
-        collapsible
-        collapsed={collapsed}
-        className="!bg-white border-l border-gray-200 !fixed !right-0 !top-0 !bottom-0 !h-screen overflow-auto"
-        width={250}
-        style={{ position: 'fixed', height: '100vh', right: 0, top: 0 }}
+      {/* Desktop Sidebar */}
+      {!isMobile && (
+        <Sider
+          trigger={null}
+          collapsible
+          collapsed={collapsed}
+          className="!bg-white border-l border-gray-200 !fixed !right-0 !top-0 !bottom-0 !h-screen overflow-auto"
+          width={250}
+          style={{ position: 'fixed', height: '100vh', right: 0, top: 0 }}
+        >
+          {menuContent}
+        </Sider>
+      )}
+
+      {/* Mobile Drawer */}
+      <Drawer
+        placement="right"
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        width={280}
+        styles={{ body: { padding: 0 } }}
+        closable={false}
+        className="md:hidden"
       >
-        <div className="h-16 flex items-center justify-center border-b border-gray-200 px-4">
-          {collapsed ? (
-            <img
-              src="/images/metaaLearn-logo.png"
-              alt="MetaaLearn"
-              className="h-10 w-auto"
-            />
-          ) : (
-            <img
-              src="/images/metaaLearn-logo.png"
-              alt="MetaaLearn"
-              className="h-12 w-auto"
-            />
-          )}
+        <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200">
+          <img
+            src="/images/metaaLearn-logo.png"
+            alt="MetaaLearn"
+            className="h-10 w-auto"
+          />
+          <button
+            onClick={() => setDrawerOpen(false)}
+            className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-gray-100 transition-colors"
+          >
+            <X size={20} />
+          </button>
         </div>
         <Menu
           mode="inline"
@@ -120,42 +180,69 @@ export const MainLayout: React.FC = () => {
           items={menuItems}
           className="border-r-0"
         />
-      </Sider>
-      <Layout style={{ marginRight: collapsed ? 80 : 250, transition: 'margin-right 0.2s' }}>
-        <Header
-          style={{ background: colorBgContainer, position: 'fixed', top: 0, right: collapsed ? 80 : 250, left: 0, zIndex: 999, transition: 'right 0.2s' }}
-          className="flex items-center justify-between px-6 border-b border-gray-200 !h-16"
-        >
-          <button
-            onClick={() => setCollapsed(!collapsed)}
-            className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-gray-100 transition-colors"
-          >
-            {collapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
-          </button>
+      </Drawer>
 
-          <div id="breadcrumb-portal" className="flex-1 px-6 items-center flex" />
+      <Layout
+        style={{
+          marginRight: isMobile ? 0 : (collapsed ? 80 : 250),
+          transition: 'margin-right 0.2s'
+        }}
+      >
+        <Header
+          style={{
+            background: colorBgContainer,
+            position: 'fixed',
+            top: 0,
+            right: isMobile ? 0 : (collapsed ? 80 : 250),
+            left: 0,
+            zIndex: 999,
+            transition: 'right 0.2s'
+          }}
+          className="flex items-center justify-between px-3 md:px-6 border-b border-gray-200 !h-16"
+        >
+          {/* Mobile menu button */}
+          {isMobile ? (
+            <button
+              onClick={() => setDrawerOpen(true)}
+              className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              <MenuIcon size={20} />
+            </button>
+          ) : (
+            <button
+              onClick={() => setCollapsed(!collapsed)}
+              className="flex items-center justify-center w-10 h-10 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              {collapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+            </button>
+          )}
+
+          <div id="breadcrumb-portal" className="flex-1 px-2 md:px-6 items-center flex hidden md:flex" />
 
           <Dropdown menu={{ items: userMenuItems }} placement="bottomRight" arrow>
-            <div className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 px-3 py-2 rounded-lg transition-colors">
-              <div className="text-right">
+            <div className="flex items-center gap-2 md:gap-3 cursor-pointer hover:bg-gray-50 px-2 md:px-3 py-2 rounded-lg transition-colors">
+              <div className="text-right hidden sm:block">
                 <div className="text-sm font-medium text-gray-900">
                   {user ? getFullName(user.firstName, user.lastName) : 'User'}
                 </div>
                 <div className="text-xs text-gray-500">{user?.role || 'Role'}</div>
               </div>
-              <Avatar size={40} className="bg-primary-500">
+              <Avatar size={36} className="bg-primary-500">
                 {user ? getInitials(getFullName(user.firstName, user.lastName)) : 'U'}
               </Avatar>
             </div>
           </Dropdown>
         </Header>
-        <Content className="p-6 overflow-auto" style={{ marginTop: 64 , minHeight:"calc(100svh-900px)" }}>
+        <Content
+          className="p-3 md:p-6 overflow-x-hidden"
+          style={{ marginTop: 64, minHeight: "calc(100svh - 64px)" }}
+        >
           <div
             style={{
               background: colorBgContainer,
               borderRadius: borderRadiusLG,
             }}
-            className="p-6 min-h-full"
+            className="p-3 md:p-6 min-h-full overflow-x-auto"
           >
             <Outlet />
           </div>

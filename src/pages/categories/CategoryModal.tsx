@@ -57,7 +57,6 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({
           parentId: values.parentId,
         });
       } else {
-          alert("dfhwdwj")
         await createCategory({
           name: values.name,
           parentId: parentId,

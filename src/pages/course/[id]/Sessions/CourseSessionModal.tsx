@@ -1,7 +1,6 @@
-import React, { useEffect } from "react";
-import { Modal, Form, Input, Switch } from "antd";
+import React, { useEffect, useState } from "react";
+import { Modal, Form, Input, Switch, Select, Space, Alert } from "antd";
 import DatePicker from "@/components/datePicker/DatePicker";
-import dayjs from "dayjs";
 import type { CourseSession } from "@/types/session.types";
 import moment from 'moment-jalaali';
 
@@ -12,7 +11,9 @@ interface CourseSessionModalProps {
   loading?: boolean;
   session?: CourseSession | null;
   parentId?: string | null;
+  level1ParentId?: string | null; // For level 3 sessions
   nextIndex?: number;
+  allSessions?: CourseSession[]; // All sessions to build hierarchy
 }
 
 export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
@@ -22,15 +23,46 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
   loading = false,
   session = null,
   parentId = null,
+  level1ParentId = null,
   nextIndex = 0,
+  allSessions = [],
 }) => {
   const [form] = Form.useForm();
+  const [sessionLevel, setSessionLevel] = useState<1 | 2 | 3>(1);
+  const [selectedLevel1, setSelectedLevel1] = useState<string | null>(null);
+  const [selectedLevel2, setSelectedLevel2] = useState<string | null>(null);
+
+  // Get hierarchy information for existing session
+  const getSessionLevel = (session: CourseSession | null): 1 | 2 | 3 => {
+    if (!session || !session.parentId) return 1;
+
+    // Check if parent has a parent (meaning this is level 3)
+    const parent = allSessions.find(s => s.id === session.parentId);
+    if (parent?.parentId) return 3;
+
+    return 2;
+  };
 
   // Initialize form with session data when editing
   useEffect(() => {
     if (open && session) {
+      const level = getSessionLevel(session);
+      setSessionLevel(level);
+
+      // Find parent hierarchy for level 3
+      if (level === 3 && session.parentId) {
+        const level2Parent = allSessions.find(s => s.id === session.parentId);
+        if (level2Parent) {
+          setSelectedLevel1(level2Parent.parentId);
+          setSelectedLevel2(level2Parent.id);
+        }
+      } else if (level === 2 && session.parentId) {
+        setSelectedLevel1(session.parentId);
+      }
+
       form.setFieldsValue({
         ...session,
+        sessionLevel: level,
         occurrenceTime: session.occurrenceTime
           ? moment(session.occurrenceTime)
           : null,
@@ -39,15 +71,42 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
           : null,
       });
     } else if (open) {
+      // Determine level based on provided parentId
+      let level: 1 | 2 | 3 = 1;
+      if (parentId) {
+        const parent = allSessions.find(s => s.id === parentId);
+        if (parent?.parentId) {
+          level = 3;
+          setSelectedLevel1(parent.parentId);
+          setSelectedLevel2(parentId);
+        } else {
+          level = 2;
+          setSelectedLevel1(parentId);
+        }
+      } else if (level1ParentId) {
+        level = 3;
+        setSelectedLevel1(level1ParentId);
+      }
+
+      setSessionLevel(level);
       form.setFieldsValue({
+        sessionLevel: level,
         index: nextIndex,
         isPracticeAvailable: false,
       });
     }
-  }, [open, session, form, nextIndex]);
+  }, [open, session, form, nextIndex, parentId, level1ParentId, allSessions]);
 
   const handleSubmit = async () => {
     const values = await form.validateFields();
+
+    // Determine correct parentId based on session level
+    let finalParentId: string | null = null;
+    if (sessionLevel === 2) {
+      finalParentId = selectedLevel1;
+    } else if (sessionLevel === 3) {
+      finalParentId = selectedLevel2;
+    }
 
     // Format dates to ISO string
     const formattedValues = {
@@ -58,17 +117,40 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
       practiceDueTime: values.practiceDueTime
         ? moment(values.practiceDueTime).toISOString()
         : "",
-      parentId: parentId || values.parentId || "",
+      parentId: finalParentId,
       index: values.index ?? nextIndex,
     };
 
     await onSubmit(formattedValues);
     form.resetFields();
+    setSessionLevel(1);
+    setSelectedLevel1(null);
+    setSelectedLevel2(null);
   };
 
   const handleCancel = () => {
     form.resetFields();
+    setSessionLevel(1);
+    setSelectedLevel1(null);
+    setSelectedLevel2(null);
     onClose();
+  };
+
+  // Get level 1 sessions (parentId = null)
+  const level1Sessions = allSessions.filter(s => !s.parentId);
+
+  // Get level 2 sessions for selected level 1
+  const level2Sessions = selectedLevel1
+    ? allSessions.filter(s => s.parentId === selectedLevel1)
+    : [];
+
+  // Get level label
+  const getLevelLabel = (level: 1 | 2 | 3): string => {
+    switch (level) {
+      case 1: return 'فصل اصلی';
+      case 2: return 'زیر فصل';
+      case 3: return 'مبحث';
+    }
   };
 
   return (
@@ -96,6 +178,96 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
           requiredMark={false}
           disabled={loading}
         >
+          {/* Level Selector - Only for new sessions */}
+          {!session && (
+            <>
+              <Alert
+                message={`در حال ایجاد: ${getLevelLabel(sessionLevel)}`}
+                type="info"
+                showIcon
+                className="mb-4"
+              />
+              <Form.Item
+                name="sessionLevel"
+                label="سطح جلسه"
+                rules={[{ required: true, message: "لطفاً سطح جلسه را انتخاب کنید" }]}
+              >
+                <Select
+                  value={sessionLevel}
+                  onChange={(value) => {
+                    setSessionLevel(value);
+                    setSelectedLevel1(null);
+                    setSelectedLevel2(null);
+                  }}
+                  placeholder="سطح جلسه را انتخاب کنید"
+                  disabled={!!parentId || !!level1ParentId}
+                >
+                  <Select.Option value={1}>سطح ۱ - فصل اصلی</Select.Option>
+                  <Select.Option value={2}>سطح ۲ - زیر فصل</Select.Option>
+                  <Select.Option value={3}>سطح ۳ - مبحث</Select.Option>
+                </Select>
+              </Form.Item>
+
+              {/* Parent Selectors */}
+              {sessionLevel === 2 && (
+                <Form.Item
+                  label="انتخاب فصل اصلی"
+                  rules={[{ required: true, message: "لطفاً فصل اصلی را انتخاب کنید" }]}
+                >
+                  <Select
+                    value={selectedLevel1}
+                    onChange={setSelectedLevel1}
+                    placeholder="فصل اصلی را انتخاب کنید"
+                    disabled={!!parentId}
+                  >
+                    {level1Sessions.map(s => (
+                      <Select.Option key={s.id} value={s.id}>{s.name}</Select.Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              )}
+
+              {sessionLevel === 3 && (
+                <Space direction="vertical" className="w-full">
+                  <Form.Item
+                    label="انتخاب فصل اصلی"
+                    rules={[{ required: true, message: "لطفاً فصل اصلی را انتخاب کنید" }]}
+                  >
+                    <Select
+                      value={selectedLevel1}
+                      onChange={(value) => {
+                        setSelectedLevel1(value);
+                        setSelectedLevel2(null);
+                      }}
+                      placeholder="فصل اصلی را انتخاب کنید"
+                      disabled={!!level1ParentId}
+                    >
+                      {level1Sessions.map(s => (
+                        <Select.Option key={s.id} value={s.id}>{s.name}</Select.Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+
+                  <Form.Item
+                    label="انتخاب زیر فصل"
+                    rules={[{ required: true, message: "لطفاً زیر فصل را انتخاب کنید" }]}
+                  >
+                    <Select
+                      value={selectedLevel2}
+                      onChange={setSelectedLevel2}
+                      placeholder="ابتدا فصل اصلی را انتخاب کنید"
+                      disabled={!selectedLevel1 || !!parentId}
+                    >
+                      {level2Sessions.map(s => (
+                        <Select.Option key={s.id} value={s.id}>{s.name}</Select.Option>
+                      ))}
+                    </Select>
+                  </Form.Item>
+                </Space>
+              )}
+            </>
+          )}
+
           {/* Session Name */}
           <Form.Item
             name="name"
@@ -135,7 +307,6 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
           <DatePicker
             className="w-full"
             placeholder="زمان برگزاری را انتخاب کنید"
-            type="birth-date"
             format="jYYYY/jMM/jDD"
             label={"زمان برگزاری"}
             isFormItem
@@ -149,7 +320,6 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
             showTime
             className="w-full"
             placeholder="زمان برگزاری را انتخاب کنید"
-            type="birth-date"
             format="jYYYY/jMM/jDD"
             label="مهلت تمرین"
             isFormItem

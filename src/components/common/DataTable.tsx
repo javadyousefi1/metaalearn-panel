@@ -50,14 +50,18 @@ export function DataTable<T extends object>({
   const defaultShowTotal = (total: number, range: [number, number]) =>
     `${range[0]}-${range[1]} از ${total} ${itemName}`;
 
+  // Default scroll for mobile responsiveness
+  const defaultScroll = { x: 'max-content' as const };
+  const tableScroll = scroll ?? defaultScroll;
+
   return (
-    <div className="min-h-[400px]">
+    <div className="min-h-[400px] overflow-x-auto">
       <Table<T>
         columns={columns}
         dataSource={dataSource}
         rowKey={rowKey}
         loading={loading}
-        scroll={scroll}
+        scroll={tableScroll}
         pagination={{
           current: pagination.pageIndex,
           pageSize: pagination.pageSize,

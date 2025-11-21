@@ -24,6 +24,12 @@ export interface CourseFaq {
   answer: string;
 }
 
+export interface CourseInstallment {
+  step: number;
+  amount: number;
+  dueTime: string; // ISO datetime string
+}
+
 export interface Course {
   id: string;
   categoryId?: string;
@@ -31,7 +37,7 @@ export interface Course {
   name: string;
   type: number;
   status: number;
-  paymentMethod: number;
+  paymentTypes: number[]; // Multi-select payment types
   price: number;
   isCertificateAvailable: boolean;
   isDraft?: boolean;
@@ -43,9 +49,15 @@ export interface Course {
   durationTime: string;
   daysOfWeeks: number[];
   progressPercentage?: number;
+  // Installment fields
+  supportsInstallment?: boolean;
+  installmentType?: number; // 0=None, 1=Auto, 2=Custom
   installmentCount?: number;
-  minimumInstallmentCount?: number;
+  minimumInstallmentToPay?: number;
+  installmentInterval?: number; // Per day (for Auto mode)
+  installments?: CourseInstallment[]; // For Custom mode
   discountPercentage?: number;
+  requiresIdentityVerification?: boolean;
   enrollmentCount?: number;
   favoriteCount?: number;
   instructors?: CourseInstructor[];
@@ -69,17 +81,23 @@ export interface CreateCoursePayload {
   name: string;
   type: number;
   status: number;
-  paymentMethod: number;
+  paymentTypes: number[];
   price: number;
   isCertificateAvailable: boolean;
+  isDraft?: boolean;
   preRequisites: string;
   intervalTime: string;
   durationTime: string;
   daysOfWeeks: number[];
   progressPercentage: number;
-  installmentCount: number;
-  minimumInstallmentCount: number;
+  // Installment fields
+  installmentType?: number;
+  installmentCount?: number;
+  minimumInstallmentToPay?: number;
+  installmentInterval?: number;
+  installments?: CourseInstallment[];
   discountPercentage: number;
+  requiresIdentityVerification?: boolean;
 }
 
 export interface UpdateCoursePayload {
@@ -88,9 +106,10 @@ export interface UpdateCoursePayload {
   name?: string;
   type?: number;
   status?: number;
-  paymentMethod?: number;
+  paymentTypes?: number[];
   price?: number;
   isCertificateAvailable?: boolean;
+  isDraft?: boolean;
   preRequisites?: string;
   shortText?: string;
   fullText?: string;
@@ -98,8 +117,13 @@ export interface UpdateCoursePayload {
   durationTime?: string;
   daysOfWeeks?: number[];
   progressPercentage?: number;
+  // Installment fields
+  installmentType?: number;
   installmentCount?: number;
-  minimumInstallmentCount?: number;
+  minimumInstallmentToPay?: number;
+  installmentInterval?: number;
+  installments?: CourseInstallment[];
   discountPercentage?: number;
+  requiresIdentityVerification?: boolean;
   faqs?: CourseFaq[];
 }

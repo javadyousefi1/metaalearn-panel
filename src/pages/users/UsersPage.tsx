@@ -17,7 +17,8 @@ import { formatDate } from "@/utils";
 export const UsersPage: React.FC = () => {
   const [identityModalOpen, setIdentityModalOpen] = useState(false);
   const [roleModalOpen, setRoleModalOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<{ id: string; name: string; roles?: string[] } | null>(null);
+  const [selectedUser, setSelectedUser] = useState<UserListItem | null>(null);
+  const [selectedUserForRole, setSelectedUserForRole] = useState<{ id: string; name: string; roles?: string[] } | null>(null);
 
   // Initialize filters
   const {
@@ -37,6 +38,7 @@ export const UsersPage: React.FC = () => {
       ...params,
       IncludeProfile: true,
       IncludeIdentity: true,
+      IncludeCreditCards: true,
     }),
     initialPageSize: 10,
     initialPageIndex: 1,
@@ -44,7 +46,7 @@ export const UsersPage: React.FC = () => {
   });
 
   const handleOpenIdentityModal = (user: UserListItem) => {
-    setSelectedUser({ id: user.id, name: user.fullNameFa || 'بدون نام', roles: user.roles });
+    setSelectedUser(user);
     setIdentityModalOpen(true);
   };
 
@@ -54,13 +56,13 @@ export const UsersPage: React.FC = () => {
   };
 
   const handleOpenRoleModal = (user: UserListItem) => {
-    setSelectedUser({ id: user.id, name: user.fullNameFa || 'بدون نام', roles: user.roles });
+    setSelectedUserForRole({ id: user.id, name: user.fullNameFa || 'بدون نام', roles: user.roles });
     setRoleModalOpen(true);
   };
 
   const handleCloseRoleModal = () => {
     setRoleModalOpen(false);
-    setSelectedUser(null);
+    setSelectedUserForRole(null);
   };
 
   const columns: ColumnsType<UserListItem> = [
@@ -274,21 +276,21 @@ export const UsersPage: React.FC = () => {
       />
 
       {selectedUser && (
-        <>
-          <UserIdentityModal
-            open={identityModalOpen}
-            onClose={handleCloseIdentityModal}
-            userId={selectedUser.id}
-            userName={selectedUser.name}
-          />
-          <RoleManagementModal
-            open={roleModalOpen}
-            onClose={handleCloseRoleModal}
-            userId={selectedUser.id}
-            userName={selectedUser.name}
-            currentRoles={selectedUser.roles || []}
-          />
-        </>
+        <UserIdentityModal
+          open={identityModalOpen}
+          onClose={handleCloseIdentityModal}
+          user={selectedUser}
+        />
+      )}
+
+      {selectedUserForRole && (
+        <RoleManagementModal
+          open={roleModalOpen}
+          onClose={handleCloseRoleModal}
+          userId={selectedUserForRole.id}
+          userName={selectedUserForRole.name}
+          currentRoles={selectedUserForRole.roles || []}
+        />
       )}
     </div>
   );

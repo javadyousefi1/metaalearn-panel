@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
-import { Modal, Form, Input, Select, Switch, InputNumber } from 'antd';
+import { Modal, Form, Input, Select, Switch } from 'antd';
 import { Users } from 'lucide-react';
 import { useGetUsersByRole } from '@/hooks';
+import { CourseScheduleStatus } from '@/enums';
 import type { CourseSchedule } from '@/types';
 
 interface CourseScheduleModalProps {
@@ -82,6 +83,14 @@ export const CourseScheduleModal: React.FC<CourseScheduleModalProps> = ({
     onClose();
   };
 
+  // Convert enum objects to select options
+  const getEnumOptions = (enumObj: Record<number, string>) => {
+    return Object.entries(enumObj).map(([key, value]) => ({
+      label: value,
+      value: parseInt(key),
+    }));
+  };
+
   return (
     <Modal
       title={
@@ -157,10 +166,9 @@ export const CourseScheduleModal: React.FC<CourseScheduleModalProps> = ({
               ]}
               className="mb-0"
             >
-              <InputNumber
-                min={0}
-                className="w-full"
-                placeholder="۰ = فعال"
+              <Select
+                placeholder="انتخاب وضعیت"
+                options={getEnumOptions(CourseScheduleStatus)}
               />
             </Form.Item>
           </div>

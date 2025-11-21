@@ -49,7 +49,7 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
   );
 
   return (
-    <div className={`mb-8 border-b pb-10 ${className}`}>
+    <div className={`mb-4 md:mb-8 border-b pb-4 md:pb-10 ${className}`}>
       {/* Breadcrumb - Portal to header if target exists, otherwise don't render here */}
       {breadcrumbElement && portalTarget && createPortal(breadcrumbElement, portalTarget)}
 
@@ -66,19 +66,19 @@ export const PageHeader: React.FC<PageHeaderProps> = ({
       )}
 
       {/* Title and Actions Row */}
-      <div className="flex items-center justify-between gap-4 flex-wrap">
+      <div className="flex items-start md:items-center justify-between gap-3 md:gap-4 flex-wrap">
         <div className="flex-1 min-w-0">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2 truncate">
+          <h1 className="text-xl md:text-3xl font-bold text-gray-800 mb-1 md:mb-2 break-words">
             {title}
           </h1>
           {description && (
-            <p className="text-gray-600 text-base">{description}</p>
+            <p className="text-gray-600 text-sm md:text-base">{description}</p>
           )}
         </div>
 
         {/* Actions */}
         {actions && (
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-center gap-2 flex-shrink-0 w-full md:w-auto">
             {actions}
           </div>
         )}

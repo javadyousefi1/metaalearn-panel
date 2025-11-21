@@ -6,6 +6,7 @@ export * from './useCourseSessions';
 export * from './useCourseSchedules';
 export * from './useCourseGallery';
 export * from './useUsers';
+export * from './useCreditCards';
 export * from './useTable';
 export * from './useTableFilters';
 export * from './useTicketMessages';

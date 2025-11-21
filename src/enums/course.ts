@@ -30,3 +30,29 @@ export const DaysOfWeek = {
     5: "پنجشنبه",
     6: "جمعه",
 } as const;
+
+export const InstallmentType = {
+    0: "بدون قسط",
+    1: "خودکار",
+    2: "سفارشی",
+} as const;
+
+// Enum values for InstallmentType
+export enum InstallmentTypeEnum {
+    None = 0,
+    Auto = 1,
+    Custom = 2,
+}
+
+export const CourseScheduleStatus = {
+    0: "اولیه",
+    1: "در حال انجام",
+    2: "تمام شده",
+} as const;
+
+// Enum values for CourseScheduleStatus
+export enum CourseScheduleStatusEnum {
+    Initial = 0,
+    InProgress = 1,
+    Completed = 2,
+}

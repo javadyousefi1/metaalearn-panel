@@ -39,6 +39,35 @@ export interface CreateUserPayload {
   permissions?: Permission[];
 }
 
+// Credit Card Types
+export enum CreditCardIdentityStatusType {
+  None = 0, // Credit card just created!
+  Pending = 1, // Credit card submitted, waiting for admin verification
+  Verified = 2, // Admin approved the credit card
+  Rejected = 3, // Admin rejected the credit card
+}
+
+export enum CreditCardIdentityActionType {
+  Verify = 1, // SuperAdmin verifies credit card
+  Reject = 2, // SuperAdmin rejects credit card
+}
+
+export interface CreditCard {
+  pan: string;
+  shaba: string;
+  imageUrl: string;
+  identityImageUrl: string;
+  identityStatusType: CreditCardIdentityStatusType;
+  message: string | null;
+  id: string;
+}
+
+export interface UpdateCreditCardIdentityPayload {
+  actionType: CreditCardIdentityActionType;
+  creditCardId: string;
+  message?: string; // Optional, not needed for Verify action
+}
+
 // User list types for the users management page
 export interface UserListItem {
   id: string;
@@ -50,6 +79,7 @@ export interface UserListItem {
   isActive: boolean;
   profile: any;
   identity: any;
+  creditCards: CreditCard[] | null;
   roles: string[];
   createdTime: string;
   updatedTime: string | null;
@@ -60,7 +90,9 @@ export interface GetAllUsersParams {
   PageSize: number;
   IncludeProfile?: boolean;
   IncludeIdentity?: boolean;
+  IncludeCreditCards?: boolean;
   IdentityStatus?: IdentityStatusType; // Filter by identity status
+  CreditCardStatus?: CreditCardIdentityStatusType; // Filter by credit card status
   PhoneNumber?: string; // Filter by phone number
   FullNameFa?: string; // Filter by full name (Persian)
   Role?: RoleType; // Filter by role
@@ -71,7 +103,7 @@ export interface AllUsersResponse {
   totalCount: number;
 }
 
-// Identity Status Types
+// Identity Status Types - What's stored in DB and shown in table
 export enum IdentityStatusType {
   None = 0, // User just created!
   Requested = 1, // User requested identity verification
@@ -81,10 +113,18 @@ export enum IdentityStatusType {
   Revoked = 5, // Verification was revoked by admin
 }
 
+// Identity Action Types - What admin can do
+export enum IdentityActionType {
+  Request = 1, // User requests identity verification
+  Verify = 2, // SuperAdmin verifies identity
+  Reject = 3, // SuperAdmin rejects identity
+  Revoke = 4, // SuperAdmin revokes identity
+}
+
 export interface UpdateUserIdentityPayload {
-  actionType: IdentityStatusType;
+  actionType: IdentityActionType;
   userId: string;
-  message?: string; // Optional, not needed for Verified status
+  message?: string; // Optional, not needed for Verify action
 }
 
 // Helper functions for identity status display
@@ -123,6 +163,65 @@ export const getIdentityStatusColor = (status: IdentityStatusType): string => {
       return 'volcano';
     default:
       return 'default';
+  }
+};
+
+// Helper functions for identity action display
+export const getIdentityActionName = (action: IdentityActionType): string => {
+  switch (action) {
+    case IdentityActionType.Request:
+      return 'درخواست احراز هویت';
+    case IdentityActionType.Verify:
+      return 'تایید هویت';
+    case IdentityActionType.Reject:
+      return 'رد هویت';
+    case IdentityActionType.Revoke:
+      return 'لغو هویت';
+    default:
+      return 'نامشخص';
+  }
+};
+
+// Helper functions for credit card status display
+export const getCreditCardStatusName = (status: CreditCardIdentityStatusType): string => {
+  switch (status) {
+    case CreditCardIdentityStatusType.None:
+      return 'بدون وضعیت';
+    case CreditCardIdentityStatusType.Pending:
+      return 'در انتظار تایید';
+    case CreditCardIdentityStatusType.Verified:
+      return 'تایید شده';
+    case CreditCardIdentityStatusType.Rejected:
+      return 'رد شده';
+    default:
+      return 'نامشخص';
+  }
+};
+
+export const getCreditCardStatusColor = (status: CreditCardIdentityStatusType): string => {
+  switch (status) {
+    case CreditCardIdentityStatusType.None:
+      return 'default';
+    case CreditCardIdentityStatusType.Pending:
+      return 'orange';
+    case CreditCardIdentityStatusType.Verified:
+      return 'green';
+    case CreditCardIdentityStatusType.Rejected:
+      return 'red';
+    default:
+      return 'default';
+  }
+};
+
+// Helper functions for credit card action display
+export const getCreditCardActionName = (action: CreditCardIdentityActionType): string => {
+  switch (action) {
+    case CreditCardIdentityActionType.Verify:
+      return 'تایید کارت';
+    case CreditCardIdentityActionType.Reject:
+      return 'رد کارت';
+    default:
+      return 'نامشخص';
   }
 };
 

@@ -46,9 +46,6 @@ export const useUpdateUserIdentity = () => {
       message.success('وضعیت هویت کاربر با موفقیت به‌روزرسانی شد');
       queryClient.invalidateQueries({ queryKey: queryKeys.users.all });
     },
-    onError: () => {
-      message.error('خطا در به‌روزرسانی وضعیت هویت کاربر');
-    },
   });
 
   return {

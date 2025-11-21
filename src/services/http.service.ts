@@ -5,6 +5,25 @@ import { message } from 'antd';
 import {ROUTES} from "@/constants";
 
 /**
+ * Backend Error Response Structure
+ */
+interface BackendError {
+  code: string;
+  description: string;
+  type: number;
+}
+
+interface BackendErrorResponse {
+  type?: string;
+  title?: string;
+  status?: number;
+  detail?: string;
+  errors?: BackendError[];
+  traceId?: string;
+  message?: string; // Fallback for simple error messages
+}
+
+/**
  * HTTP Service
  * Centralized HTTP client with interceptors for auth and error handling
  */
@@ -17,6 +36,7 @@ class HttpService {
       timeout: env.apiTimeout,
       headers: {
         'Content-Type': 'application/json',
+        'back-office' : 'true'
       },
     });
 
@@ -85,38 +105,79 @@ class HttpService {
     );
   }
 
+  /**
+   * Extract and format error message from backend response
+   */
+  private extractErrorMessage(data: BackendErrorResponse): string {
+    // Priority 1: Extract from errors array
+    if (data.errors && data.errors.length > 0) {
+      const errorDescriptions = data.errors
+        .map((err) => err.description)
+        .filter((desc) => desc && desc.trim() !== '');
+
+      if (errorDescriptions.length > 0) {
+        // Join multiple errors with a bullet point
+        return errorDescriptions.length === 1
+          ? errorDescriptions[0]
+          : errorDescriptions.map((desc, idx) => `${idx + 1}. ${desc}`).join('\n');
+      }
+    }
+
+    // Priority 2: Use detail field
+    if (data.detail) {
+      return data.detail;
+    }
+
+    // Priority 3: Use title field
+    if (data.title) {
+      return data.title;
+    }
+
+    // Priority 4: Use message field (fallback)
+    if (data.message) {
+      return data.message;
+    }
+
+    // Fallback message
+    return 'خطایی رخ داده است';
+  }
+
   private handleError(error: AxiosError): void {
     if (error.response) {
       // Server responded with error
       const status = error.response.status;
-      const data = error.response.data as { message?: string };
+      const data = error.response.data as BackendErrorResponse;
+
+
+      // Extract formatted error message
+      const errorMessage = this.extractErrorMessage(data);
 
       switch (status) {
         case 400:
-          message.error(data.message || 'Bad request');
+          message.error(errorMessage);
           break;
         case 401:
-          message.error('Unauthorized. Please login again.');
-          window.location.href = ROUTES.AUTH.LOGIN
+          message.error('دسترسی غیرمجاز. لطفاً دوباره وارد شوید');
+          window.location.href = ROUTES.AUTH.LOGIN;
           break;
         case 403:
-          message.error('You do not have permission to perform this action');
+          message.error('شما اجازه انجام این عملیات را ندارید');
           break;
         case 404:
-          message.error('Resource not found');
+          message.error(errorMessage || 'منبع مورد نظر یافت نشد');
           break;
         case 500:
-          message.error('Internal server error. Please try again later.');
+          message.error(errorMessage || 'خطای سرور. لطفاً بعداً تلاش کنید');
           break;
         default:
-          message.error(data.message || 'An error occurred');
+          message.error(errorMessage);
       }
     } else if (error.request) {
       // Request made but no response
-      message.error('Network error. Please check your connection.');
+      message.error('خطای شبکه. لطفاً اتصال اینترنت خود را بررسی کنید');
     } else {
       // Something else happened
-      message.error('An unexpected error occurred');
+      message.error('خطای غیرمنتظره‌ای رخ داد');
     }
   }
 
