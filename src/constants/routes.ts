@@ -76,6 +76,7 @@ export const ROUTES = {
   FINANCE: {
     ROOT: '/finance',
     CREDIT_CARDS: '/finance/credit-cards',
+    TRANSACTIONS: '/finance/transactions',
   },
 
   // Settings Routes
@@ -117,6 +118,7 @@ export const PAGE_TITLES: Record<string, string> = {
   [ROUTES.OPERATORS.LIST]: 'اپراتورها',
   [ROUTES.OPERATORS.DETAIL_PATH]: 'جزئیات تیکت اپراتور',
   [ROUTES.FINANCE.CREDIT_CARDS]: 'کارت‌های بانکی',
+  [ROUTES.FINANCE.TRANSACTIONS]: 'تاریخچه تراکنش‌ها',
   [ROUTES.COURSES.COURSE_LIST]: 'لیست دوره‌ها',
   [ROUTES.COURSES.CATEGORIES.ROOT]: 'مدیریت دسته‌بندی‌ها',
   [ROUTES.COURSE.DETAIL]: 'جزئیات دوره',

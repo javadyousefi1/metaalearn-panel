@@ -137,12 +137,12 @@ export const TicketDetailPage: React.FC = () => {
                 <div
                   key={message.id}
                   className={`flex ${
-                    !message.isOperator ? "justify-end" : "justify-start"
+                    message.isOperator ? "justify-start" : "justify-end"
                   }`}
                 >
                   <div
                     className={`flex gap-3 max-w-[70%] ${
-                      !message.isOperator ? "flex-row-reverse" : "flex-row"
+                      message.isOperator ? "flex-row" : "flex-row-reverse"
                     }`}
                   >
                     {/* User Avatar */}
@@ -154,7 +154,7 @@ export const TicketDetailPage: React.FC = () => {
                           size={40}
                           icon={<UserCircle />}
                           style={{
-                            backgroundColor: !message.isOperator
+                            backgroundColor: message.isOperator
                               ? "#4B26AD"
                               : "#52c41a",
                           }}
@@ -166,22 +166,22 @@ export const TicketDetailPage: React.FC = () => {
                     <div className="flex-1">
                       <div
                         className={`mb-1 text-xs text-gray-500 ${
-                          !message.isOperator ? "text-right" : "text-left"
+                          message.isOperator ? "text-right" : "text-left"
                         }`}
                       >
                         <span className="font-medium">
                           {message.userInfo.fullNameFa || "بدون نام"}
                         </span>
-                        {!message.isOperator && (
+                        {message.isOperator && (
                           <span className="mr-2 text-purple-600">(اپراتور)</span>
                         )}
                       </div>
 
                       <div
-                        className={`p-3 rounded-lg shadow-sm ${
-                          !message.isOperator
-                            ? "bg-purple-100 text-right"
-                            : "bg-gray-100 text-left"
+                        className={`p-3 rounded-lg shadow-sm text-right ${
+                          message.isOperator
+                            ? "bg-purple-100"
+                            : "bg-gray-100"
                         }`}
                       >
                         <p className="text-sm whitespace-pre-wrap">
@@ -205,11 +205,7 @@ export const TicketDetailPage: React.FC = () => {
                           </div>
                         )}
 
-                        <div
-                          className={`mt-2 text-xs text-gray-400 ${
-                            !message.isOperator ? "text-right" : "text-left"
-                          }`}
-                        >
+                        <div className="mt-2 text-xs text-gray-400 text-right">
                           {formatDate(message.createdTime)}
                         </div>
                       </div>

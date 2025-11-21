@@ -1,64 +1,101 @@
-we want create new page and new menu item in sidebar named اپراتور
-and in logic is same as and look like ticket you can read and use shared logic
-for first page
-this is curl for get all list
+i want add new page and new menu item in مالی named تاریخچه تراکنش
+and this is api
 curl -X 'GET' \
-  'http://185.79.97.146:5000/CourseTicket/GetAll?PageIndex=1&PageSize=10' \
+  'http://185.79.97.146:5000/Payment/GetAll?PageIndex=1&PageSize=10' \
   -H 'accept: application/json' \
   -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJhY2NvdW50IiwiaXNzIjoibWV0YWxlYXJuLWJhY2tlbmQiLCJleHAiOjE3NjM5OTExMTAsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWVpZGVudGlmaWVyIjoiYTQ4ZmNhZjItZDE2Mi00MTcxLTg2YjgtYzY1NDZiN2ViM2Q3IiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvbW9iaWxlcGhvbmUiOiIwOTEyNjg2ODUwNCIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6WyJvcGVyYXRvci1hZG1pbiIsInN1cGVyLWFkbWluIiwiaW5zdHJ1Y3RvciIsInN0dWRlbnQiLCJvcGVyYXRvciJdLCJpYXQiOjE3NjM2MzExMTAsIm5iZiI6MTc2MzYzMTExMH0.-XI3tEyTA1RPWlvqcL6gMW-HJJywUGplVrqe-kDoumQ'
 
-and the resposne {
-                   "items": [
-                     {
-                       "title": "دالی من ریدم بیا درستش کن",
-                       "status": 2,
-                       "userInfo": {
-                         "fullNameFa": "",
-                         "imageUrl": "",
-                         "phoneNumber": null,
-                         "id": "a48fcaf2-d162-4171-86b8-c6546b7eb3d7"
-                       },
-                       "courseId": "94d5d26c-8be3-496c-be15-020f312094f6",
-                       "courseScheduleId": "e72d80a3-e702-491b-af29-0d3fac30d739",
-                       "score": null,
-                       "createdTime": "2025-11-21T19:22:36.480802Z",
-                       "updatedTime": "2025-11-21T19:23:34.037658Z",
-                       "id": "922eed33-8f42-4827-bd83-5dd316605792"
-                     }
-                   ],
-                   "totalCount": 1
-                 }
-then user click on one of them
-call this api with coruce ticket id
-curl -X 'GET' \
-  'http://185.79.97.146:5000/CourseTicketMessage/GetAll?CourseTicketId=922eed33-8f42-4827-bd83-5dd316605792&PageIndex=1&PageSize=10' \
-  -H 'accept: application/json' \
-  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJhY2NvdW50IiwiaXNzIjoibWV0YWxlYXJuLWJhY2tlbmQiLCJleHAiOjE3NjM5OTExMTAsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWVpZGVudGlmaWVyIjoiYTQ4ZmNhZjItZDE2Mi00MTcxLTg2YjgtYzY1NDZiN2ViM2Q3IiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvbW9iaWxlcGhvbmUiOiIwOTEyNjg2ODUwNCIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6WyJvcGVyYXRvci1hZG1pbiIsInN1cGVyLWFkbWluIiwiaW5zdHJ1Y3RvciIsInN0dWRlbnQiLCJvcGVyYXRvciJdLCJpYXQiOjE3NjM2MzExMTAsIm5iZiI6MTc2MzYzMTExMH0.-XI3tEyTA1RPWlvqcL6gMW-HJJywUGplVrqe-kDoumQ'
+and this is resposne
+{
+  "items": [
+    {
+      "user": {
+        "fullNameFa": "جواد یوسفی",
+        "imageUrl": null,
+        "phoneNumber": "09126868504",
+        "id": "6add94f0-8f87-4977-82f5-74cd64f122ff"
+      },
+      "amount": 3000000,
+      "method": 2,
+      "status": 1,
+      "type": 3,
+      "valueType": 2,
+      "valueId": "94d5d26c-8be3-496c-be15-020f312094f6",
+      "referralCode": "8E56E174",
+      "paidTime": null,
+      "message": null,
+      "gateway": null,
+      "cardToCard": {
+        "imageUrl": "http://185.79.97.146:9000/payments/6add94f0-8f87-4977-82f5-74cd64f122ff/d87c45d9-914f-4a11-9eb3-59b7466dd3a8_20251121213550.jpg",
+        "transactionNumber": "11111111111111"
+      },
+      "createdTime": "2025-11-21T21:35:50.994019Z",
+      "updatedTime": null,
+      "id": "64b4b138-886d-42af-a615-527efe4b08e4"
+    },
+    {
+      "user": {
+        "fullNameFa": "جواد یوسفی",
+        "imageUrl": null,
+        "phoneNumber": "09126868504",
+        "id": "6add94f0-8f87-4977-82f5-74cd64f122ff"
+      },
+      "amount": 3000000,
+      "method": 3,
+      "status": 1,
+      "type": 3,
+      "valueType": 2,
+      "valueId": "94d5d26c-8be3-496c-be15-020f312094f6",
+      "referralCode": "D73EE65D",
+      "paidTime": null,
+      "message": null,
+      "gateway": {
+        "type": 1,
+        "authority": "A000000000000000000000000000pq2767oe",
+        "paymentUrl": "https://payment.zarinpal.com/pg/StartPay/A000000000000000000000000000pq2767oe",
+        "fee": 123500,
+        "feeType": "Merchant",
+        "refId": null,
+        "cardPan": null,
+        "cardHash": null
+      },
+      "cardToCard": null,
+      "createdTime": "2025-11-21T21:34:11.45797Z",
+      "updatedTime": null,
+      "id": "b07165d4-c7ef-4743-80ce-d166f032a1b1"
+    }
+  ],
+  "totalCount": 2
+}
 
-and this is api to admin send message
-curl -X 'POST' \
-  'http://185.79.97.146:5000/CourseTicketMessage/Create' \
-  -H 'accept: application/json' \
-  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJhY2NvdW50IiwiaXNzIjoibWV0YWxlYXJuLWJhY2tlbmQiLCJleHAiOjE3NjM5OTExMTAsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWVpZGVudGlmaWVyIjoiYTQ4ZmNhZjItZDE2Mi00MTcxLTg2YjgtYzY1NDZiN2ViM2Q3IiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvbW9iaWxlcGhvbmUiOiIwOTEyNjg2ODUwNCIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6WyJvcGVyYXRvci1hZG1pbiIsInN1cGVyLWFkbWluIiwiaW5zdHJ1Y3RvciIsInN0dWRlbnQiLCJvcGVyYXRvciJdLCJpYXQiOjE3NjM2MzExMTAsIm5iZiI6MTc2MzYzMTExMH0.-XI3tEyTA1RPWlvqcL6gMW-HJJywUGplVrqe-kDoumQ' \
-  -H 'Content-Type: multipart/form-data' \
-  -F 'courseTicketId=922eed33-8f42-4827-bd83-5dd316605792' \
-  -F 'content=string' \
-  -F 'files=string'
+and this is enums
+public enum PaymentValueType
+{
+    WalletTransaction = 1,
+    Course = 2,
+    InstallmentTransaction = 3
+}
+public enum PaymentMethod
+{
+    Wallet = 1,
+    CardToCard = 2,
+    OnlinePayment = 3
+}
+public enum PaymentType
+{
+    None = 0,
+    Free = 1,
+    Installment = 2,
+    FullyPayment = 3
+}
 
-and this is for delete
-curl -X 'DELETE' \
-  'http://185.79.97.146:5000/CourseTicketMessage/Delete?id=922eed33-8f42-4827-bd83-5dd316605792' \
-  -H 'accept: */*' \
-  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJhY2NvdW50IiwiaXNzIjoibWV0YWxlYXJuLWJhY2tlbmQiLCJleHAiOjE3NjM5OTExMTAsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWVpZGVudGlmaWVyIjoiYTQ4ZmNhZjItZDE2Mi00MTcxLTg2YjgtYzY1NDZiN2ViM2Q3IiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvbW9iaWxlcGhvbmUiOiIwOTEyNjg2ODUwNCIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6WyJvcGVyYXRvci1hZG1pbiIsInN1cGVyLWFkbWluIiwiaW5zdHJ1Y3RvciIsInN0dWRlbnQiLCJvcGVyYXRvciJdLCJpYXQiOjE3NjM2MzExMTAsIm5iZiI6MTc2MzYzMTExMH0.-XI3tEyTA1RPWlvqcL6gMW-HJJywUGplVrqe-kDoumQ'
-
-and file payload just can be image or zip
-
-and this is edit message
+and add a column named عملیات and it is for payment verify
 curl -X 'PUT' \
-  'http://185.79.97.146:5000/CourseTicketMessage/Update' \
+  'http://185.79.97.146:5000/Payment/Verify' \
   -H 'accept: */*' \
   -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJhY2NvdW50IiwiaXNzIjoibWV0YWxlYXJuLWJhY2tlbmQiLCJleHAiOjE3NjM5OTExMTAsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWVpZGVudGlmaWVyIjoiYTQ4ZmNhZjItZDE2Mi00MTcxLTg2YjgtYzY1NDZiN2ViM2Q3IiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvbW9iaWxlcGhvbmUiOiIwOTEyNjg2ODUwNCIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6WyJvcGVyYXRvci1hZG1pbiIsInN1cGVyLWFkbWluIiwiaW5zdHJ1Y3RvciIsInN0dWRlbnQiLCJvcGVyYXRvciJdLCJpYXQiOjE3NjM2MzExMTAsIm5iZiI6MTc2MzYzMTExMH0.-XI3tEyTA1RPWlvqcL6gMW-HJJywUGplVrqe-kDoumQ' \
-  -H 'Content-Type: multipart/form-data' \
-  -F 'id=3fa85f64-5717-4562-b3fc-2c963f66afa6' \
-  -F 'content=string' \
-  -F 'files=string'
+  -H 'Content-Type: application/json' \
+  -d '{
+  "paymentId": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+}'
+use custom hook pattern like other pages show pop confirm for click on this action

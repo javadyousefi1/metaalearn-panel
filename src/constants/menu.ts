@@ -9,6 +9,7 @@ import {
     Wallet,
     CreditCard,
     UserCog,
+    Receipt,
     LucideIcon,
 } from 'lucide-react';
 import { ROUTES } from './routes';
@@ -82,6 +83,12 @@ export const MENU_ITEMS: MenuItemConfig[] = [
                 path: ROUTES.FINANCE.CREDIT_CARDS,
                 label: 'کارت‌های بانکی',
                 icon: CreditCard,
+            },
+            {
+                key: 'transactions',
+                path: ROUTES.FINANCE.TRANSACTIONS,
+                label: 'تاریخچه تراکنش',
+                icon: Receipt,
             },
         ],
     },

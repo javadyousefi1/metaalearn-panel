@@ -9,3 +9,4 @@ export * from './user.service';
 export * from './ticket.service';
 export * from './creditCard.service';
 export * from './courseTicket.service';
+export * from './payment.service';

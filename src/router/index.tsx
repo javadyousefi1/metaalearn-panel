@@ -9,7 +9,7 @@ import { OperatorTicketsPage, OperatorTicketDetailPage } from '@/pages/operators
 import { CoursesPage, CourseListPage } from '@/pages/courses';
 import { CourseDetailPage, CourseFaqPage, CourseSessionsPage, CourseIntroductionPage, CourseSchedulePage, CourseGalleryPage } from '@/pages/course';
 import { CategoriesPage, SubCategoriesPage } from '@/pages/categories';
-import { BankCardsPage } from '@/pages/finance';
+import { BankCardsPage, TransactionsPage } from '@/pages/finance';
 import { SettingsPage } from '@/pages/settings';
 import { ROUTES } from '@/constants';
 import { Permission } from '@/types';
@@ -80,6 +80,10 @@ export const router = createBrowserRouter([
       {
         path: ROUTES.FINANCE.CREDIT_CARDS,
         element: <BankCardsPage />,
+      },
+      {
+        path: ROUTES.FINANCE.TRANSACTIONS,
+        element: <TransactionsPage />,
       },
 
       // Courses Management

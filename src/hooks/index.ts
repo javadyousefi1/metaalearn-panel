@@ -11,3 +11,4 @@ export * from './useTable';
 export * from './useTableFilters';
 export * from './useTicketMessages';
 export * from './useCourseTicketMessages';
+export * from './usePaymentVerification';
