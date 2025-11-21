@@ -10,3 +10,4 @@ export * from './useCreditCards';
 export * from './useTable';
 export * from './useTableFilters';
 export * from './useTicketMessages';
+export * from './useCourseTicketMessages';

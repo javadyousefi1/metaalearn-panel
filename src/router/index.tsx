@@ -5,6 +5,7 @@ import { LoginPage } from '@/pages/auth';
 import { DashboardPage } from '@/pages/dashboard';
 import { UsersPage } from '@/pages/users';
 import { TicketsPage, TicketDetailPage } from '@/pages/tickets';
+import { OperatorTicketsPage, OperatorTicketDetailPage } from '@/pages/operators';
 import { CoursesPage, CourseListPage } from '@/pages/courses';
 import { CourseDetailPage, CourseFaqPage, CourseSessionsPage, CourseIntroductionPage, CourseSchedulePage, CourseGalleryPage } from '@/pages/course';
 import { CategoriesPage, SubCategoriesPage } from '@/pages/categories';
@@ -63,6 +64,16 @@ export const router = createBrowserRouter([
       {
         path: ROUTES.TICKETS.DETAIL_PATH,
         element: <TicketDetailPage />,
+      },
+
+      // Operators Management (Course Tickets)
+      {
+        path: ROUTES.OPERATORS.ROOT,
+        element: <OperatorTicketsPage />,
+      },
+      {
+        path: ROUTES.OPERATORS.DETAIL_PATH,
+        element: <OperatorTicketDetailPage />,
       },
 
       // Finance Management

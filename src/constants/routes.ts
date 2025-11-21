@@ -64,6 +64,14 @@ export const ROUTES = {
     DETAIL_PATH: '/tickets/:id',
   },
 
+  // Operators Routes (Course Tickets)
+  OPERATORS: {
+    ROOT: '/operators',
+    LIST: '/operators',
+    DETAIL: (id: string) => `/operators/${id}`,
+    DETAIL_PATH: '/operators/:id',
+  },
+
   // Finance Routes
   FINANCE: {
     ROOT: '/finance',
@@ -106,6 +114,8 @@ export const PAGE_TITLES: Record<string, string> = {
   [ROUTES.USERS.EDIT]: 'Edit User',
   [ROUTES.USERS.VIEW]: 'User Details',
   [ROUTES.TICKETS.LIST]: 'تیکت‌ها',
+  [ROUTES.OPERATORS.LIST]: 'اپراتورها',
+  [ROUTES.OPERATORS.DETAIL_PATH]: 'جزئیات تیکت اپراتور',
   [ROUTES.FINANCE.CREDIT_CARDS]: 'کارت‌های بانکی',
   [ROUTES.COURSES.COURSE_LIST]: 'لیست دوره‌ها',
   [ROUTES.COURSES.CATEGORIES.ROOT]: 'مدیریت دسته‌بندی‌ها',

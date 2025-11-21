@@ -8,6 +8,7 @@ import {
     Ticket,
     Wallet,
     CreditCard,
+    UserCog,
     LucideIcon,
 } from 'lucide-react';
 import { ROUTES } from './routes';
@@ -44,6 +45,12 @@ export const MENU_ITEMS: MenuItemConfig[] = [
       path: ROUTES.TICKETS.ROOT,
       label: 'تیکت‌ها',
       icon: Ticket,
+    },
+    {
+      key: 'operators',
+      path: ROUTES.OPERATORS.ROOT,
+      label: 'اپراتور',
+      icon: UserCog,
     },
     {
         key: 'courses',
