@@ -17,7 +17,8 @@
       "Bash(git commit -m \"$(cat <<''EOF''\nResolve merge conflict in package.json\n\nCombined dependencies from both branches:\n- Kept @ant-design/icons from HEAD\n- Kept react-quill from merged branch\n- Removed invalid ''icons'' link dependency\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
       "Bash(pnpm install)",
       "Bash(pnpm add:*)",
-      "Bash(nul)"
+      "Bash(nul)",
+      "Bash(dir /s /b \"C:\\Users\\Javad\\Desktop\\metaalearn-panel\\src\\pages\")"
     ],
     "deny": [],
     "ask": []

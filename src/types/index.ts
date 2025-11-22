@@ -23,3 +23,12 @@ export {
   getGalleryCategoryName,
   getGalleryCategoryColor,
 } from './courseGallery.types';
+// Blog types
+export * from './blog.types';
+export * from './blogCategory.types';
+export type {
+  BlogGalleryItem,
+  BlogGalleryListParams,
+  BlogGalleryListResponse,
+  UploadBlogGalleryPayload,
+} from './blogGallery.types';

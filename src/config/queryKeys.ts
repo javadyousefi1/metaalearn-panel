@@ -52,4 +52,23 @@ export const queryKeys = {
       [...queryKeys.gallery.lists(), { ...filters }] as const,
     byCourse: (courseId: string) => [...queryKeys.gallery.all, 'course', courseId] as const,
   },
+  blogs: {
+    all: ['blogs'] as const,
+    lists: () => [...queryKeys.blogs.all, 'list'] as const,
+    list: (filters?: Record<string, unknown>) =>
+      [...queryKeys.blogs.lists(), { ...filters }] as const,
+    details: () => [...queryKeys.blogs.all, 'detail'] as const,
+    detail: (id: string) => [...queryKeys.blogs.details(), id] as const,
+  },
+  blogCategories: {
+    all: ['blogCategories'] as const,
+    lists: () => [...queryKeys.blogCategories.all, 'list'] as const,
+  },
+  blogGallery: {
+    all: ['blogGallery'] as const,
+    lists: () => [...queryKeys.blogGallery.all, 'list'] as const,
+    list: (filters?: Record<string, unknown>) =>
+      [...queryKeys.blogGallery.lists(), { ...filters }] as const,
+    byBlog: (blogId: string) => [...queryKeys.blogGallery.all, 'blog', blogId] as const,
+  },
 } as const;

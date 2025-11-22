@@ -35,7 +35,6 @@ class HttpService {
       baseURL: env.apiBaseUrl,
       timeout: env.apiTimeout,
       headers: {
-        'Content-Type': 'application/json',
         'back-office' : 'true'
       },
     });
@@ -51,6 +50,7 @@ class HttpService {
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }
+
         return config;
       },
       (error) => {

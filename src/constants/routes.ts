@@ -79,6 +79,25 @@ export const ROUTES = {
     TRANSACTIONS: '/finance/transactions',
   },
 
+  // Blog Routes
+  BLOGS: {
+    ROOT: '/blogs',
+    LIST: '/blogs',
+    CREATE: '/blogs/create',
+    CREATE_INFO: '/blogs/create/info',
+    CATEGORIES: '/blogs/categories',
+  },
+
+  // Blog Detail Routes
+  BLOG: {
+    ROOT: (id: string) => `/blogs/${id}`,
+    DETAIL: '/blogs/:id',
+    INFO: (id: string) => `/blogs/${id}/info`,
+    INFO_PATH: '/blogs/:id/info',
+    GALLERY: (id: string) => `/blogs/${id}/gallery`,
+    GALLERY_PATH: '/blogs/:id/gallery',
+  },
+
   // Settings Routes
   SETTINGS: {
     ROOT: '/settings',
@@ -126,6 +145,12 @@ export const PAGE_TITLES: Record<string, string> = {
   [ROUTES.COURSE.FAQ_PATH]: 'سوالات متداول',
   [ROUTES.COURSE.SCHEDULES_PATH]: 'گروه‌بندی',
   [ROUTES.COURSE.GALLERY_PATH]: 'گالری دوره',
+  [ROUTES.BLOGS.LIST]: 'لیست مقالات',
+  [ROUTES.BLOGS.CATEGORIES]: 'دسته‌بندی‌های مقالات',
+  [ROUTES.BLOGS.CREATE]: 'ایجاد مقاله جدید',
+  [ROUTES.BLOG.DETAIL]: 'جزئیات مقاله',
+  [ROUTES.BLOG.INFO_PATH]: 'اطلاعات مقاله',
+  [ROUTES.BLOG.GALLERY_PATH]: 'گالری مقاله',
   [ROUTES.SETTINGS.PROFILE]: 'Profile Settings',
   [ROUTES.SETTINGS.ACCOUNT]: 'Account Settings',
   [ROUTES.SETTINGS.SECURITY]: 'Security Settings',

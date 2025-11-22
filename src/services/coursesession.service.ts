@@ -67,17 +67,13 @@ export const courseSessionService = {
   upload: async (file: File, courseSessionId: string, uploadType: number): Promise<{ url: string }> => {
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('CourseSessionId', courseSessionId);
-    formData.append('UploadType', uploadType.toString());
+    formData.append('courseSessionId', courseSessionId);
+    formData.append('uploadType', uploadType.toString());
 
+    // Don't set Content-Type header - the interceptor will handle it automatically with boundary
     const response = await httpService.post<{ url: string }>(
       '/CourseSession/Upload',
-      formData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      }
+      formData
     );
     return response.data;
   },

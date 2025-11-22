@@ -126,7 +126,7 @@ export const CourseSessionsPage: React.FC = () => {
 
   const handleUploadMedia = async (sessionId: string, file: File, uploadType: number) => {
     if (!id) return;
-
+    console.log(file ,"file")
     // Upload file
     const result = await uploadFile(file, sessionId, uploadType);
 

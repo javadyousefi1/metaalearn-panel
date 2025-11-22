@@ -10,6 +10,7 @@ import {
     CreditCard,
     UserCog,
     Receipt,
+    FileText,
     LucideIcon,
 } from 'lucide-react';
 import { ROUTES } from './routes';
@@ -67,6 +68,25 @@ export const MENU_ITEMS: MenuItemConfig[] = [
             {
                 key: 'categories',
                 path: ROUTES.COURSES.CATEGORIES.ROOT,
+                label: 'دسته‌بندی‌ها',
+                icon: FolderTree,
+            },
+        ],
+    },
+    {
+        key: 'blogs',
+        path: ROUTES.BLOGS.ROOT,
+        label: 'مقالات',
+        icon: FileText,
+        children: [
+            {
+                key: 'blogs-list',
+                path: ROUTES.BLOGS.LIST,
+                label: 'لیست مقالات',
+            },
+            {
+                key: 'blog-categories',
+                path: ROUTES.BLOGS.CATEGORIES,
                 label: 'دسته‌بندی‌ها',
                 icon: FolderTree,
             },

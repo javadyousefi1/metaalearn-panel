@@ -10,3 +10,6 @@ export * from './ticket.service';
 export * from './creditCard.service';
 export * from './courseTicket.service';
 export * from './payment.service';
+export * from './blog.service';
+export * from './blogCategory.service';
+export * from './blogGallery.service';

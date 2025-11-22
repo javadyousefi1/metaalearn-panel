@@ -89,10 +89,10 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
         ...session,
         sessionLevel: level,
         occurrenceTime: session.occurrenceTime
-          ? moment(session.occurrenceTime)
+          ? moment(session.occurrenceTime).format('YYYY-MM-DD')
           : null,
         practiceDueTime: session.practiceDueTime
-          ? moment(session.practiceDueTime)
+          ? moment(session.practiceDueTime).format('YYYY-MM-DD')
           : null,
         onlineMeetingUrls: session.onlineMeetingUrls || [],
       });
@@ -169,7 +169,7 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
       message.warning('لطفاً فایلی را انتخاب کنید');
       return;
     }
-
+    console.log(file ,"file file")
     await onUploadMedia(session.id, file, uploadType);
     setFileList([]);
     setUploadType(CourseSessionUploadType.Video);
@@ -417,7 +417,6 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
             label={"زمان برگزاری"}
             isFormItem
             name={"occurrenceTime"}
-            value={form.getFieldValue("occurrenceTime")}
             isRequired
           />
 
@@ -430,7 +429,6 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
             label="مهلت تمرین"
             isFormItem
             name={"practiceDueTime"}
-            value={form.getFieldValue("practiceDueTime")}
             isRequired
           />
 

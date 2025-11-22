@@ -9,6 +9,7 @@ import { OperatorTicketsPage, OperatorTicketDetailPage } from '@/pages/operators
 import { CoursesPage, CourseListPage } from '@/pages/courses';
 import { CourseDetailPage, CourseFaqPage, CourseSessionsPage, CourseIntroductionPage, CourseSchedulePage, CourseGalleryPage } from '@/pages/course';
 import { CategoriesPage, SubCategoriesPage } from '@/pages/categories';
+import { BlogListPage, BlogCategoryPage, BlogDetailPage, BlogInfoPage, BlogGalleryPage } from '@/pages/blogs';
 import { BankCardsPage, TransactionsPage } from '@/pages/finance';
 import { SettingsPage } from '@/pages/settings';
 import { ROUTES } from '@/constants';
@@ -134,6 +135,43 @@ export const router = createBrowserRouter([
           {
             path: ROUTES.COURSE.GALLERY_PATH,
             element: <CourseGalleryPage />,
+          },
+        ],
+      },
+
+      // Blog Management
+      {
+        path: ROUTES.BLOGS.LIST,
+        element: <BlogListPage />,
+      },
+      {
+        path: ROUTES.BLOGS.CATEGORIES,
+        element: <BlogCategoryPage />,
+      },
+
+      // Blog Detail with nested routes
+      {
+        path: ROUTES.BLOG.DETAIL,
+        element: <BlogDetailPage />,
+        children: [
+          {
+            path: ROUTES.BLOG.INFO_PATH,
+            element: <BlogInfoPage />,
+          },
+          {
+            path: ROUTES.BLOG.GALLERY_PATH,
+            element: <BlogGalleryPage />,
+          },
+        ],
+      },
+      // Blog Create with nested routes
+      {
+        path: ROUTES.BLOGS.CREATE,
+        element: <BlogDetailPage />,
+        children: [
+          {
+            path: ROUTES.BLOGS.CREATE_INFO,
+            element: <BlogInfoPage />,
           },
         ],
       },
