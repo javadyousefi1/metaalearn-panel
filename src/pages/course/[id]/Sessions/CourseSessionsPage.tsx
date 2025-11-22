@@ -84,6 +84,7 @@ export const CourseSessionsPage: React.FC = () => {
         videoUrl: editingSession.videoUrl || '',
         fileUrl: editingSession.fileUrl || '',
         onlineMeetingUrl: values.onlineMeetingUrl || '',
+        onlineMeetingUrls: values.onlineMeetingUrls || [],
         parentId: editingSession.parentId,
         isPracticeAvailable: values.isPracticeAvailable ?? false,
       });
@@ -113,6 +114,7 @@ export const CourseSessionsPage: React.FC = () => {
         videoUrl: '',
         fileUrl: '',
         onlineMeetingUrl: values.onlineMeetingUrl || '',
+        onlineMeetingUrls: values.onlineMeetingUrls || [],
         parentId: targetParentId,
         isPracticeAvailable: values.isPracticeAvailable ?? false,
       });
@@ -156,6 +158,7 @@ export const CourseSessionsPage: React.FC = () => {
       videoUrl: updatedVideoUrl,
       fileUrl: updatedFileUrl,
       onlineMeetingUrl: session.onlineMeetingUrl || '',
+      onlineMeetingUrls: session.onlineMeetingUrls || [],
       parentId: session.parentId,
       isPracticeAvailable: session.isPracticeAvailable ?? false,
     });
@@ -207,14 +210,20 @@ export const CourseSessionsPage: React.FC = () => {
             </a>
           </Descriptions.Item>
         )}
-        {session.onlineMeetingUrl && (
-          <Descriptions.Item label="جلسه آنلاین">
-            <a href={session.onlineMeetingUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-              <Space>
-                <LinkIcon size={16} />
-                ورود به جلسه
-              </Space>
-            </a>
+        {session.onlineMeetingUrls && session.onlineMeetingUrls.length > 0 && (
+          <Descriptions.Item label="لینک‌های جلسه آنلاین">
+            <div className="space-y-1">
+              {session.onlineMeetingUrls.map((item, index) => (
+                <div key={index}>
+                  <a href={item.url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                    <Space>
+                      <LinkIcon size={16} />
+                      {item.url}
+                    </Space>
+                  </a>
+                </div>
+              ))}
+            </div>
           </Descriptions.Item>
         )}
         <Descriptions.Item label="وضعیت تمرین">

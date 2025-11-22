@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Modal, Form, Input, Switch, Select, Space, Alert, Upload, Button, Segmented, message } from "antd";
-import { Video, FileText, FileEdit, Folder, Upload as UploadIcon, Image } from 'lucide-react';
+import { Video, FileText, FileEdit, Folder, Upload as UploadIcon, Image, Plus, Trash2, Link as LinkIcon } from 'lucide-react';
 import type { UploadFile, SegmentedValue } from 'antd';
+import { useParams } from 'react-router-dom';
 import DatePicker from "@/components/datePicker/DatePicker";
-import type { CourseSession } from "@/types/session.types";
+import type { CourseSession, OnlineMeetingUrl } from "@/types/session.types";
+import { useGetAllSchedules } from '@/hooks';
 import moment from 'moment-jalaali';
 
 // Upload Type Enum
@@ -40,6 +42,7 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
   nextIndex = 0,
   allSessions = [],
 }) => {
+  const { id: courseId } = useParams<{ id: string }>();
   const [form] = Form.useForm();
   const [sessionLevel, setSessionLevel] = useState<1 | 2 | 3>(1);
   const [selectedLevel1, setSelectedLevel1] = useState<string | null>(null);
@@ -47,6 +50,12 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
   const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [uploadType, setUploadType] = useState<CourseSessionUploadType>(CourseSessionUploadType.Video);
   const [activeTab, setActiveTab] = useState<SegmentedValue>('info');
+
+  // Fetch course schedules
+  const { data: schedules = [] } = useGetAllSchedules(
+    { CourseId: courseId, PageIndex: 1, PageSize: 100 },
+    !!courseId && open
+  );
 
   // Get hierarchy information for existing session
   const getSessionLevel = (session: CourseSession | null): 1 | 2 | 3 => {
@@ -85,6 +94,7 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
         practiceDueTime: session.practiceDueTime
           ? moment(session.practiceDueTime)
           : null,
+        onlineMeetingUrls: session.onlineMeetingUrls || [],
       });
     } else if (open) {
       // Determine level based on provided parentId
@@ -135,6 +145,7 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
         : "",
       parentId: finalParentId,
       index: values.index ?? nextIndex,
+      onlineMeetingUrls: values.onlineMeetingUrls || [],
     };
 
     await onSubmit(formattedValues);
@@ -423,13 +434,75 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
             isRequired
           />
 
-          {/* Online Meeting URL */}
-          <Form.Item
-            name="onlineMeetingUrl"
-            label="لینک جلسه آنلاین"
-            rules={[{ type: "url", message: "لطفاً یک آدرس معتبر وارد کنید" }]}
-          >
-            <Input placeholder="https://meet.google.com/..." />
+          {/* Schedule Online Meeting URLs */}
+          <Form.Item label="لینک‌های جلسه آنلاین">
+            <Form.List name="onlineMeetingUrls">
+              {(fields, { add, remove }) => (
+                <>
+                  {fields.map(({ key, name, ...restField }) => (
+                    <Space key={key} className="w-full" align="baseline">
+                      <Form.Item
+                        {...restField}
+                        name={[name, 'scheduleId']}
+                        rules={[{ required: true, message: 'انتخاب گروه الزامی است' }]}
+                        className="flex-1"
+                      >
+                        <Select
+                          placeholder="انتخاب گروه"
+                          size="large"
+                          showSearch
+                          optionFilterProp="children"
+                        >
+                          {schedules.map((schedule) => (
+                            <Select.Option key={schedule.id} value={schedule.id}>
+                              {schedule.name}
+                            </Select.Option>
+                          ))}
+                        </Select>
+                      </Form.Item>
+                      <Form.Item
+                        {...restField}
+                        name={[name, 'url']}
+                        rules={[
+                          { required: true, message: 'لینک الزامی است' },
+                          { type: 'url', message: 'لطفاً یک آدرس معتبر وارد کنید' }
+                        ]}
+                        className="flex-1"
+                      >
+                        <Input
+                          placeholder="https://meet.google.com/..."
+                          prefix={<LinkIcon size={16} />}
+                          size="large"
+                        />
+                      </Form.Item>
+                      <Button
+                        type="text"
+                        danger
+                        icon={<Trash2 size={16} />}
+                        onClick={() => remove(name)}
+                      />
+                    </Space>
+                  ))}
+                  <Button
+                    type="dashed"
+                    onClick={() => add()}
+                    block
+                    icon={<Plus size={16} />}
+                    disabled={!schedules.length}
+                  >
+                    افزودن لینک جلسه آنلاین
+                  </Button>
+                  {!schedules.length && (
+                    <Alert
+                      message="هیچ گروهی برای این دوره تعریف نشده است"
+                      type="warning"
+                      showIcon
+                      className="mt-2"
+                    />
+                  )}
+                </>
+              )}
+            </Form.List>
           </Form.Item>
 
           {/* Practice Available */}
