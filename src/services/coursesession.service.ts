@@ -56,4 +56,29 @@ export const courseSessionService = {
   delete: async (id: string): Promise<void> => {
     await httpService.delete(`/CourseSession/Delete/${id}`);
   },
+
+  /**
+   * Upload file for course session
+   * @param file - File to upload
+   * @param courseSessionId - Course Session ID
+   * @param uploadType - Upload type (1=Video, 2=File, 3=VideoCover)
+   * @returns Promise with file URL
+   */
+  upload: async (file: File, courseSessionId: string, uploadType: number): Promise<{ url: string }> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('CourseSessionId', courseSessionId);
+    formData.append('UploadType', uploadType.toString());
+
+    const response = await httpService.post<{ url: string }>(
+      '/CourseSession/Upload',
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
+    return response.data;
+  },
 };

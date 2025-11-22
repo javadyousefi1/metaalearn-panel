@@ -46,16 +46,31 @@ export const useCourseSessions = () => {
     },
   });
 
+  // Upload file mutation
+  const uploadMutation = useMutation({
+    mutationFn: ({ file, courseSessionId, uploadType }: { file: File; courseSessionId: string; uploadType: number }) =>
+      courseSessionService.upload(file, courseSessionId, uploadType),
+    onSuccess: () => {
+      message.success('فایل با موفقیت آپلود شد');
+    },
+    onError: () => {
+      message.error('خطا در آپلود فایل');
+    },
+  });
+
   return {
     // Mutations
     createSession: (data: CreateSessionPayload) => createMutation.mutateAsync(data),
     updateSession: (data: UpdateSessionPayload) => updateMutation.mutateAsync(data),
     deleteSession: (id: string) => deleteMutation.mutateAsync(id),
+    uploadFile: (file: File, courseSessionId: string, uploadType: number) =>
+      uploadMutation.mutateAsync({ file, courseSessionId, uploadType }),
 
     // Loading states
     isCreating: createMutation.isPending,
     isUpdating: updateMutation.isPending,
     isDeleting: deleteMutation.isPending,
+    isUploading: uploadMutation.isPending,
   };
 };
 

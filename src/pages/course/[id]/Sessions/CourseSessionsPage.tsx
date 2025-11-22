@@ -15,7 +15,7 @@ export const CourseSessionsPage: React.FC = () => {
   const [selectedLevel1ParentId, setSelectedLevel1ParentId] = useState<string | null>(null);
 
   const { data: allSessions = [], refetch, isLoading } = useGetAllSessions(true,id);
-  const { createSession, updateSession, deleteSession, isCreating, isUpdating, isDeleting } = useCourseSessions();
+  const { createSession, updateSession, deleteSession, uploadFile, isCreating, isUpdating, isDeleting, isUploading } = useCourseSessions();
 
   // Flatten all sessions for easier lookup
   const flatSessions = useMemo(() => {
@@ -81,8 +81,8 @@ export const CourseSessionsPage: React.FC = () => {
         index: values.index ?? editingSession.index,
         occurrenceTime: values.occurrenceTime!,
         practiceDueTime: values.practiceDueTime!,
-        videoUrl: values.videoUrl || '',
-        fileUrl: values.fileUrl || '',
+        videoUrl: editingSession.videoUrl || '',
+        fileUrl: editingSession.fileUrl || '',
         onlineMeetingUrl: values.onlineMeetingUrl || '',
         parentId: editingSession.parentId,
         isPracticeAvailable: values.isPracticeAvailable ?? false,
@@ -102,6 +102,7 @@ export const CourseSessionsPage: React.FC = () => {
         nextIndex = parentSessions.length;
       }
 
+      // Create session
       await createSession({
         courseId: id,
         name: values.name!,
@@ -109,8 +110,8 @@ export const CourseSessionsPage: React.FC = () => {
         index: nextIndex,
         occurrenceTime: values.occurrenceTime!,
         practiceDueTime: values.practiceDueTime!,
-        videoUrl: values.videoUrl || '',
-        fileUrl: values.fileUrl || '',
+        videoUrl: '',
+        fileUrl: '',
         onlineMeetingUrl: values.onlineMeetingUrl || '',
         parentId: targetParentId,
         isPracticeAvailable: values.isPracticeAvailable ?? false,
@@ -119,6 +120,47 @@ export const CourseSessionsPage: React.FC = () => {
 
     await refetch();
     handleModalClose();
+  };
+
+  const handleUploadMedia = async (sessionId: string, file: File, uploadType: number) => {
+    if (!id) return;
+
+    // Upload file
+    const result = await uploadFile(file, sessionId, uploadType);
+
+    // Find the session to preserve existing data
+    const session = flatSessions.find(s => s.id === sessionId);
+    if (!session) return;
+
+    // Determine which URL field to update based on upload type
+    let updatedVideoUrl = session.videoUrl;
+    let updatedFileUrl = session.fileUrl;
+
+    if (uploadType === 1) { // Video
+      updatedVideoUrl = result.url;
+    } else if (uploadType === 2) { // File
+      updatedFileUrl = result.url;
+    } else if (uploadType === 3) { // VideoCover
+      updatedVideoUrl = result.url; // Store cover in videoUrl for now
+    }
+
+    // Update session with new file URL
+    await updateSession({
+      id: sessionId,
+      courseId: id,
+      name: session.name,
+      description: session.description,
+      index: session.index,
+      occurrenceTime: session.occurrenceTime,
+      practiceDueTime: session.practiceDueTime,
+      videoUrl: updatedVideoUrl,
+      fileUrl: updatedFileUrl,
+      onlineMeetingUrl: session.onlineMeetingUrl || '',
+      parentId: session.parentId,
+      isPracticeAvailable: session.isPracticeAvailable ?? false,
+    });
+
+    await refetch();
   };
 
   const handleDeleteSession = async (sessionId: string) => {
@@ -368,7 +410,9 @@ export const CourseSessionsPage: React.FC = () => {
         open={modalOpen}
         onClose={handleModalClose}
         onSubmit={handleSubmitSession}
+        onUploadMedia={handleUploadMedia}
         loading={isCreating || isUpdating}
+        uploadLoading={isUploading}
         session={editingSession}
         parentId={selectedParentId}
         level1ParentId={selectedLevel1ParentId}

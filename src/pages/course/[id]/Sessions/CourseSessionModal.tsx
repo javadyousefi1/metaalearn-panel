@@ -1,14 +1,25 @@
 import React, { useEffect, useState } from "react";
-import { Modal, Form, Input, Switch, Select, Space, Alert } from "antd";
+import { Modal, Form, Input, Switch, Select, Space, Alert, Upload, Button, Segmented, message } from "antd";
+import { Video, FileText, FileEdit, Folder, Upload as UploadIcon, Image } from 'lucide-react';
+import type { UploadFile, SegmentedValue } from 'antd';
 import DatePicker from "@/components/datePicker/DatePicker";
 import type { CourseSession } from "@/types/session.types";
 import moment from 'moment-jalaali';
+
+// Upload Type Enum
+enum CourseSessionUploadType {
+  Video = 1,
+  File = 2,
+  VideoCover = 3
+}
 
 interface CourseSessionModalProps {
   open: boolean;
   onClose: () => void;
   onSubmit: (values: Partial<CourseSession>) => Promise<void>;
+  onUploadMedia?: (sessionId: string, file: File, uploadType: CourseSessionUploadType) => Promise<void>;
   loading?: boolean;
+  uploadLoading?: boolean;
   session?: CourseSession | null;
   parentId?: string | null;
   level1ParentId?: string | null; // For level 3 sessions
@@ -20,7 +31,9 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
   open,
   onClose,
   onSubmit,
+  onUploadMedia,
   loading = false,
+  uploadLoading = false,
   session = null,
   parentId = null,
   level1ParentId = null,
@@ -31,6 +44,9 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
   const [sessionLevel, setSessionLevel] = useState<1 | 2 | 3>(1);
   const [selectedLevel1, setSelectedLevel1] = useState<string | null>(null);
   const [selectedLevel2, setSelectedLevel2] = useState<string | null>(null);
+  const [fileList, setFileList] = useState<UploadFile[]>([]);
+  const [uploadType, setUploadType] = useState<CourseSessionUploadType>(CourseSessionUploadType.Video);
+  const [activeTab, setActiveTab] = useState<SegmentedValue>('info');
 
   // Get hierarchy information for existing session
   const getSessionLevel = (session: CourseSession | null): 1 | 2 | 3 => {
@@ -97,7 +113,7 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
     }
   }, [open, session, form, nextIndex, parentId, level1ParentId, allSessions]);
 
-  const handleSubmit = async () => {
+  const handleSubmitInfo = async () => {
     const values = await form.validateFields();
 
     // Determine correct parentId based on session level
@@ -126,6 +142,26 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
     setSessionLevel(1);
     setSelectedLevel1(null);
     setSelectedLevel2(null);
+    setFileList([]);
+    setUploadType(CourseSessionUploadType.Video);
+  };
+
+  const handleUploadMedia = async () => {
+    if (!session?.id || !onUploadMedia) {
+      message.warning('لطفاً ابتدا جلسه را ایجاد کنید');
+      return;
+    }
+
+    const file = fileList[0]?.originFileObj;
+
+    if (!file) {
+      message.warning('لطفاً فایلی را انتخاب کنید');
+      return;
+    }
+
+    await onUploadMedia(session.id, file, uploadType);
+    setFileList([]);
+    setUploadType(CourseSessionUploadType.Video);
   };
 
   const handleCancel = () => {
@@ -133,6 +169,9 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
     setSessionLevel(1);
     setSelectedLevel1(null);
     setSelectedLevel2(null);
+    setFileList([]);
+    setUploadType(CourseSessionUploadType.Video);
+    setActiveTab('info');
     onClose();
   };
 
@@ -161,16 +200,69 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
         </span>
       }
       open={open}
-      onOk={handleSubmit}
       onCancel={handleCancel}
-      okText={session ? "به‌روزرسانی" : "افزودن"}
-      cancelText="انصراف"
-      confirmLoading={loading}
       width={800}
       centered
       destroyOnClose
+      footer={
+        <div className="flex justify-end gap-2">
+          <Button onClick={handleCancel} size="large">
+            انصراف
+          </Button>
+          {activeTab === 'info' ? (
+            <Button
+              type="primary"
+              onClick={handleSubmitInfo}
+              loading={loading}
+              size="large"
+            >
+              {session ? "به‌روزرسانی اطلاعات" : "ذخیره جلسه"}
+            </Button>
+          ) : (
+            <Button
+              type="primary"
+              onClick={handleUploadMedia}
+              loading={uploadLoading}
+              disabled={!session || !fileList.length}
+              size="large"
+              icon={<UploadIcon size={16} />}
+            >
+              آپلود فایل
+            </Button>
+          )}
+        </div>
+      }
     >
       <div className="py-4 max-h-[70vh] overflow-y-auto">
+        {/* Segmented Control */}
+        <div className="mb-6 flex justify-center">
+          <Segmented
+            value={activeTab}
+            onChange={setActiveTab}
+            size="large"
+            options={[
+              {
+                label: (
+                  <div className="flex items-center gap-2 px-4">
+                    <FileEdit size={18} />
+                    <span>اطلاعات جلسه</span>
+                  </div>
+                ),
+                value: 'info',
+              },
+              {
+                label: (
+                  <div className="flex items-center gap-2 px-4">
+                    <Folder size={18} />
+                    <span>فایل‌ها و رسانه</span>
+                  </div>
+                ),
+                value: 'media',
+              },
+            ]}
+          />
+        </div>
+
         <Form
           form={form}
           layout="vertical"
@@ -178,95 +270,98 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
           requiredMark={false}
           disabled={loading}
         >
-          {/* Level Selector - Only for new sessions */}
-          {!session && (
+          {/* Info Tab */}
+          {activeTab === 'info' && (
             <>
-              <Alert
-                message={`در حال ایجاد: ${getLevelLabel(sessionLevel)}`}
-                type="info"
-                showIcon
-                className="mb-4"
-              />
-              <Form.Item
-                name="sessionLevel"
-                label="سطح جلسه"
-                rules={[{ required: true, message: "لطفاً سطح جلسه را انتخاب کنید" }]}
-              >
-                <Select
-                  value={sessionLevel}
-                  onChange={(value) => {
-                    setSessionLevel(value);
-                    setSelectedLevel1(null);
-                    setSelectedLevel2(null);
-                  }}
-                  placeholder="سطح جلسه را انتخاب کنید"
-                  disabled={!!parentId || !!level1ParentId}
-                >
-                  <Select.Option value={1}>سطح ۱ - فصل اصلی</Select.Option>
-                  <Select.Option value={2}>سطح ۲ - زیر فصل</Select.Option>
-                  <Select.Option value={3}>سطح ۳ - مبحث</Select.Option>
-                </Select>
-              </Form.Item>
-
-              {/* Parent Selectors */}
-              {sessionLevel === 2 && (
-                <Form.Item
-                  label="انتخاب فصل اصلی"
-                  rules={[{ required: true, message: "لطفاً فصل اصلی را انتخاب کنید" }]}
-                >
-                  <Select
-                    value={selectedLevel1}
-                    onChange={setSelectedLevel1}
-                    placeholder="فصل اصلی را انتخاب کنید"
-                    disabled={!!parentId}
-                  >
-                    {level1Sessions.map(s => (
-                      <Select.Option key={s.id} value={s.id}>{s.name}</Select.Option>
-                    ))}
-                  </Select>
-                </Form.Item>
-              )}
-
-              {sessionLevel === 3 && (
-                <Space direction="vertical" className="w-full">
+              {/* Level Selector - Only for child sessions */}
+              {!session && (parentId || level1ParentId) && (
+                <>
+                  <Alert
+                    message={`در حال ایجاد: ${getLevelLabel(sessionLevel)}`}
+                    type="info"
+                    showIcon
+                    className="mb-4"
+                  />
                   <Form.Item
-                    label="انتخاب فصل اصلی"
-                    rules={[{ required: true, message: "لطفاً فصل اصلی را انتخاب کنید" }]}
+                    name="sessionLevel"
+                    label="سطح جلسه"
+                    rules={[{ required: true, message: "لطفاً سطح جلسه را انتخاب کنید" }]}
                   >
                     <Select
-                      value={selectedLevel1}
+                      value={sessionLevel}
                       onChange={(value) => {
-                        setSelectedLevel1(value);
+                        setSessionLevel(value);
+                        setSelectedLevel1(null);
                         setSelectedLevel2(null);
                       }}
-                      placeholder="فصل اصلی را انتخاب کنید"
-                      disabled={!!level1ParentId}
+                      placeholder="سطح جلسه را انتخاب کنید"
+                      disabled={!!parentId || !!level1ParentId}
                     >
-                      {level1Sessions.map(s => (
-                        <Select.Option key={s.id} value={s.id}>{s.name}</Select.Option>
-                      ))}
+                      <Select.Option value={1}>سطح ۱ - فصل اصلی</Select.Option>
+                      <Select.Option value={2}>سطح ۲ - زیر فصل</Select.Option>
+                      <Select.Option value={3}>سطح ۳ - مبحث</Select.Option>
                     </Select>
                   </Form.Item>
 
-                  <Form.Item
-                    label="انتخاب زیر فصل"
-                    rules={[{ required: true, message: "لطفاً زیر فصل را انتخاب کنید" }]}
-                  >
-                    <Select
-                      value={selectedLevel2}
-                      onChange={setSelectedLevel2}
-                      placeholder="ابتدا فصل اصلی را انتخاب کنید"
-                      disabled={!selectedLevel1 || !!parentId}
+                  {/* Parent Selectors */}
+                  {sessionLevel === 2 && (
+                    <Form.Item
+                      label="انتخاب فصل اصلی"
+                      rules={[{ required: true, message: "لطفاً فصل اصلی را انتخاب کنید" }]}
                     >
-                      {level2Sessions.map(s => (
-                        <Select.Option key={s.id} value={s.id}>{s.name}</Select.Option>
-                      ))}
-                    </Select>
-                  </Form.Item>
-                </Space>
+                      <Select
+                        value={selectedLevel1}
+                        onChange={setSelectedLevel1}
+                        placeholder="فصل اصلی را انتخاب کنید"
+                        disabled={!!parentId}
+                      >
+                        {level1Sessions.map(s => (
+                          <Select.Option key={s.id} value={s.id}>{s.name}</Select.Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+                  )}
+
+                  {sessionLevel === 3 && (
+                    <Space direction="vertical" className="w-full">
+                      <Form.Item
+                        label="انتخاب فصل اصلی"
+                        rules={[{ required: true, message: "لطفاً فصل اصلی را انتخاب کنید" }]}
+                      >
+                        <Select
+                          value={selectedLevel1}
+                          onChange={(value) => {
+                            setSelectedLevel1(value);
+                            setSelectedLevel2(null);
+                          }}
+                          placeholder="فصل اصلی را انتخاب کنید"
+                          disabled={!!level1ParentId}
+                        >
+                          {level1Sessions.map(s => (
+                            <Select.Option key={s.id} value={s.id}>{s.name}</Select.Option>
+                          ))}
+                        </Select>
+                      </Form.Item>
+
+                      <Form.Item
+                        label="انتخاب زیر فصل"
+                        rules={[{ required: true, message: "لطفاً زیر فصل را انتخاب کنید" }]}
+                      >
+                        <Select
+                          value={selectedLevel2}
+                          onChange={setSelectedLevel2}
+                          placeholder="ابتدا فصل اصلی را انتخاب کنید"
+                          disabled={!selectedLevel1 || !!parentId}
+                        >
+                          {level2Sessions.map(s => (
+                            <Select.Option key={s.id} value={s.id}>{s.name}</Select.Option>
+                          ))}
+                        </Select>
+                      </Form.Item>
+                    </Space>
+                  )}
+                </>
               )}
-            </>
-          )}
 
           {/* Session Name */}
           <Form.Item
@@ -328,24 +423,6 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
             isRequired
           />
 
-          {/* Video URL */}
-          <Form.Item
-            name="videoUrl"
-            label="لینک ویدیو"
-            rules={[{ type: "url", message: "لطفاً یک آدرس معتبر وارد کنید" }]}
-          >
-            <Input placeholder="https://example.com/video.mp4" />
-          </Form.Item>
-
-          {/* File URL */}
-          <Form.Item
-            name="fileUrl"
-            label="لینک فایل"
-            rules={[{ type: "url", message: "لطفاً یک آدرس معتبر وارد کنید" }]}
-          >
-            <Input placeholder="https://example.com/file.pdf" />
-          </Form.Item>
-
           {/* Online Meeting URL */}
           <Form.Item
             name="onlineMeetingUrl"
@@ -363,6 +440,133 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
           >
             <Switch />
           </Form.Item>
+            </>
+          )}
+
+          {/* Media Tab */}
+          {activeTab === 'media' && (
+            <>
+              {!session ? (
+                <Alert
+                  message="لطفاً ابتدا اطلاعات جلسه را ذخیره کنید"
+                  description="برای آپلود فایل‌های رسانه‌ای، ابتدا باید جلسه را ایجاد کنید. به بخش 'اطلاعات جلسه' بروید و جلسه را ذخیره کنید."
+                  type="warning"
+                  showIcon
+                  className="mb-4"
+                />
+              ) : (
+                <Alert
+                  message="فایل‌های رسانه‌ای جلسه را در این بخش مدیریت کنید"
+                  description="نوع فایل را انتخاب کرده و سپس فایل مورد نظر را آپلود کنید."
+                  type="info"
+                  showIcon
+                  className="mb-4"
+                />
+              )}
+
+              {/* Current Files Display */}
+              {session && (
+                <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+                  <h4 className="font-semibold mb-3">فایل‌های فعلی:</h4>
+                  <Space direction="vertical" className="w-full">
+                    {session.videoUrl && (
+                      <div className="flex items-center gap-2">
+                        <Video size={16} className="text-blue-500" />
+                        <span className="text-sm text-gray-600">ویدیو:</span>
+                        <a href={session.videoUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline text-sm">
+                          مشاهده
+                        </a>
+                      </div>
+                    )}
+                    {session.fileUrl && (
+                      <div className="flex items-center gap-2">
+                        <FileText size={16} className="text-green-500" />
+                        <span className="text-sm text-gray-600">فایل:</span>
+                        <a href={session.fileUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline text-sm">
+                          دانلود
+                        </a>
+                      </div>
+                    )}
+                    {!session.videoUrl && !session.fileUrl && (
+                      <div className="text-sm text-gray-400">هیچ فایلی آپلود نشده است</div>
+                    )}
+                  </Space>
+                </div>
+              )}
+
+              {/* Upload Type Selection */}
+              <Form.Item
+                label="نوع فایل"
+                required
+              >
+                <Select
+                  value={uploadType}
+                  onChange={setUploadType}
+                  size="large"
+                  disabled={!session}
+                >
+                  <Select.Option value={CourseSessionUploadType.Video}>
+                    <Space>
+                      <Video size={16} />
+                      <span>ویدیو</span>
+                    </Space>
+                  </Select.Option>
+                  <Select.Option value={CourseSessionUploadType.File}>
+                    <Space>
+                      <FileText size={16} />
+                      <span>فایل ضمیمه</span>
+                    </Space>
+                  </Select.Option>
+                  <Select.Option value={CourseSessionUploadType.VideoCover}>
+                    <Space>
+                      <Image size={16} />
+                      <span>کاور ویدیو</span>
+                    </Space>
+                  </Select.Option>
+                </Select>
+              </Form.Item>
+
+              {/* File Upload */}
+              <Form.Item
+                label="انتخاب فایل"
+                required
+              >
+                <Upload
+                  fileList={fileList}
+                  onChange={({ fileList }) => setFileList(fileList)}
+                  beforeUpload={() => false}
+                  maxCount={1}
+                  accept={
+                    uploadType === CourseSessionUploadType.Video
+                      ? 'video/*'
+                      : uploadType === CourseSessionUploadType.VideoCover
+                      ? 'image/*'
+                      : '*'
+                  }
+                  disabled={!session}
+                >
+                  <Button
+                    icon={
+                      uploadType === CourseSessionUploadType.Video
+                        ? <Video size={16} />
+                        : uploadType === CourseSessionUploadType.VideoCover
+                        ? <Image size={16} />
+                        : <FileText size={16} />
+                    }
+                    size="large"
+                    block
+                    disabled={!session}
+                  >
+                    {uploadType === CourseSessionUploadType.Video
+                      ? 'انتخاب ویدیو'
+                      : uploadType === CourseSessionUploadType.VideoCover
+                      ? 'انتخاب تصویر کاور'
+                      : 'انتخاب فایل'}
+                  </Button>
+                </Upload>
+              </Form.Item>
+            </>
+          )}
         </Form>
       </div>
     </Modal>

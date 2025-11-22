@@ -1,101 +1,25 @@
-i want add new page and new menu item in مالی named تاریخچه تراکنش
-and this is api
-curl -X 'GET' \
-  'http://185.79.97.146:5000/Payment/GetAll?PageIndex=1&PageSize=10' \
-  -H 'accept: application/json' \
-  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJhY2NvdW50IiwiaXNzIjoibWV0YWxlYXJuLWJhY2tlbmQiLCJleHAiOjE3NjM5OTExMTAsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWVpZGVudGlmaWVyIjoiYTQ4ZmNhZjItZDE2Mi00MTcxLTg2YjgtYzY1NDZiN2ViM2Q3IiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvbW9iaWxlcGhvbmUiOiIwOTEyNjg2ODUwNCIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6WyJvcGVyYXRvci1hZG1pbiIsInN1cGVyLWFkbWluIiwiaW5zdHJ1Y3RvciIsInN0dWRlbnQiLCJvcGVyYXRvciJdLCJpYXQiOjE3NjM2MzExMTAsIm5iZiI6MTc2MzYzMTExMH0.-XI3tEyTA1RPWlvqcL6gMW-HJJywUGplVrqe-kDoumQ'
+course session have an upload api we should change it
+this is curl
 
-and this is resposne
-{
-  "items": [
-    {
-      "user": {
-        "fullNameFa": "جواد یوسفی",
-        "imageUrl": null,
-        "phoneNumber": "09126868504",
-        "id": "6add94f0-8f87-4977-82f5-74cd64f122ff"
-      },
-      "amount": 3000000,
-      "method": 2,
-      "status": 1,
-      "type": 3,
-      "valueType": 2,
-      "valueId": "94d5d26c-8be3-496c-be15-020f312094f6",
-      "referralCode": "8E56E174",
-      "paidTime": null,
-      "message": null,
-      "gateway": null,
-      "cardToCard": {
-        "imageUrl": "http://185.79.97.146:9000/payments/6add94f0-8f87-4977-82f5-74cd64f122ff/d87c45d9-914f-4a11-9eb3-59b7466dd3a8_20251121213550.jpg",
-        "transactionNumber": "11111111111111"
-      },
-      "createdTime": "2025-11-21T21:35:50.994019Z",
-      "updatedTime": null,
-      "id": "64b4b138-886d-42af-a615-527efe4b08e4"
-    },
-    {
-      "user": {
-        "fullNameFa": "جواد یوسفی",
-        "imageUrl": null,
-        "phoneNumber": "09126868504",
-        "id": "6add94f0-8f87-4977-82f5-74cd64f122ff"
-      },
-      "amount": 3000000,
-      "method": 3,
-      "status": 1,
-      "type": 3,
-      "valueType": 2,
-      "valueId": "94d5d26c-8be3-496c-be15-020f312094f6",
-      "referralCode": "D73EE65D",
-      "paidTime": null,
-      "message": null,
-      "gateway": {
-        "type": 1,
-        "authority": "A000000000000000000000000000pq2767oe",
-        "paymentUrl": "https://payment.zarinpal.com/pg/StartPay/A000000000000000000000000000pq2767oe",
-        "fee": 123500,
-        "feeType": "Merchant",
-        "refId": null,
-        "cardPan": null,
-        "cardHash": null
-      },
-      "cardToCard": null,
-      "createdTime": "2025-11-21T21:34:11.45797Z",
-      "updatedTime": null,
-      "id": "b07165d4-c7ef-4743-80ce-d166f032a1b1"
-    }
-  ],
-  "totalCount": 2
-}
-
-and this is enums
-public enum PaymentValueType
-{
-    WalletTransaction = 1,
-    Course = 2,
-    InstallmentTransaction = 3
-}
-public enum PaymentMethod
-{
-    Wallet = 1,
-    CardToCard = 2,
-    OnlinePayment = 3
-}
-public enum PaymentType
-{
-    None = 0,
-    Free = 1,
-    Installment = 2,
-    FullyPayment = 3
-}
-
-and add a column named عملیات and it is for payment verify
-curl -X 'PUT' \
-  'http://185.79.97.146:5000/Payment/Verify' \
+curl -X 'POST' \
+  'http://185.79.97.146:5000/CourseSession/Upload' \
   -H 'accept: */*' \
-  -H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJhY2NvdW50IiwiaXNzIjoibWV0YWxlYXJuLWJhY2tlbmQiLCJleHAiOjE3NjM5OTExMTAsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWVpZGVudGlmaWVyIjoiYTQ4ZmNhZjItZDE2Mi00MTcxLTg2YjgtYzY1NDZiN2ViM2Q3IiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvbW9iaWxlcGhvbmUiOiIwOTEyNjg2ODUwNCIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6WyJvcGVyYXRvci1hZG1pbiIsInN1cGVyLWFkbWluIiwiaW5zdHJ1Y3RvciIsInN0dWRlbnQiLCJvcGVyYXRvciJdLCJpYXQiOjE3NjM2MzExMTAsIm5iZiI6MTc2MzYzMTExMH0.-XI3tEyTA1RPWlvqcL6gMW-HJJywUGplVrqe-kDoumQ' \
-  -H 'Content-Type: application/json' \
-  -d '{
-  "paymentId": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
-}'
-use custom hook pattern like other pages show pop confirm for click on this action
+  -H 'Content-Type: multipart/form-data' \
+  -F 'file=@filldata.png;type=image/png'
+  with CourseSessionId too
+
+and enum
+public enum CourseSessionUploadType
+{
+    Video = 1,
+    File = 2,
+    VideoCover = 3
+}
+
+
+this is file src/pages/course/[id]/Sessions/CourseSessionsPage.tsx and modal src/pages/course/[id]/Sessions/CourseSessionModal.tsx
+
+we have 2 filed
+لینک ویدیو
+لینک فایل
+we should replace them with that api with related enum
