@@ -119,6 +119,7 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
         sessionLevel: level,
         index: nextIndex,
         isPracticeAvailable: false,
+        isTopic: false,
       });
     }
   }, [open, session, form, nextIndex, parentId, level1ParentId, allSessions]);
@@ -507,6 +508,15 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
           <Form.Item
             name="isPracticeAvailable"
             label="تمرین در دسترس است"
+            valuePropName="checked"
+          >
+            <Switch />
+          </Form.Item>
+
+          {/* Is Topic */}
+          <Form.Item
+            name="isTopic"
+            label="موضوع (Topic)"
             valuePropName="checked"
           >
             <Switch />

@@ -25,6 +25,7 @@ export interface CourseSession {
   parentName: string | null;
   subSessions: CourseSession[] | null;
   isPracticeAvailable: boolean;
+  isTopic: boolean;
   createdTime: string;
   updatedTime: string | null;
 }
@@ -42,6 +43,7 @@ export interface CreateSessionPayload {
   onlineMeetingUrls?: OnlineMeetingUrl[];
   parentId: string | null;
   isPracticeAvailable: boolean;
+  isTopic: boolean;
 }
 
 export interface UpdateSessionPayload {
@@ -58,6 +60,7 @@ export interface UpdateSessionPayload {
   onlineMeetingUrls?: OnlineMeetingUrl[];
   parentId: string | null;
   isPracticeAvailable: boolean;
+  isTopic: boolean;
 }
 
 export interface SessionListResponse {

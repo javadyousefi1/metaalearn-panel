@@ -87,6 +87,7 @@ export const CourseSessionsPage: React.FC = () => {
         onlineMeetingUrls: values.onlineMeetingUrls || [],
         parentId: editingSession.parentId,
         isPracticeAvailable: values.isPracticeAvailable ?? false,
+        isTopic: values.isTopic ?? false,
       });
     } else {
       // Create new session
@@ -117,6 +118,7 @@ export const CourseSessionsPage: React.FC = () => {
         onlineMeetingUrls: values.onlineMeetingUrls || [],
         parentId: targetParentId,
         isPracticeAvailable: values.isPracticeAvailable ?? false,
+        isTopic: values.isTopic ?? false,
       });
     }
 
@@ -231,6 +233,13 @@ export const CourseSessionsPage: React.FC = () => {
             <Tag color="green">در دسترس</Tag>
           ) : (
             <Tag color="default">غیرفعال</Tag>
+          )}
+        </Descriptions.Item>
+        <Descriptions.Item label="موضوع (Topic)">
+          {session.isTopic ? (
+            <Tag color="blue">بله</Tag>
+          ) : (
+            <Tag color="default">خیر</Tag>
           )}
         </Descriptions.Item>
       </Descriptions>
