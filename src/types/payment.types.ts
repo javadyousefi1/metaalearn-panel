@@ -89,6 +89,11 @@ export interface VerifyPaymentPayload {
   paymentId: string;
 }
 
+export interface RejectPaymentPayload {
+  paymentId: string;
+  reason: string;
+}
+
 // Helper functions for payment method display
 export const getPaymentMethodName = (method: PaymentMethod | number): string => {
   const methodValue = typeof method === 'number' ? method : method;

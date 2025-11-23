@@ -1,5 +1,5 @@
-import React from 'react';
-import { Tag, Avatar, Tooltip, Popconfirm } from 'antd';
+import React, { useState } from 'react';
+import { Tag, Avatar, Tooltip, Button } from 'antd';
 import { Home, UserCircle, CheckCircle } from 'lucide-react';
 import type { ColumnsType } from 'antd/es/table';
 import { PageHeader, DataTable } from '@/components/common';
@@ -17,13 +17,16 @@ import {
     formatAmount, PaymentType, PaymentMethod,
 } from '@/types/payment.types';
 import { formatDate } from '@/utils';
+import { PaymentVerificationModal } from './PaymentVerificationModal';
 
 /**
  * TransactionsPage Component - Display payment transactions with verification
  */
 export const TransactionsPage: React.FC = () => {
   const { filters, handleTableChange } = useTableFilters();
-  const { verifyPayment, isVerifying } = usePaymentVerification();
+  const { verifyPayment, rejectPayment, isProcessing } = usePaymentVerification();
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedPayment, setSelectedPayment] = useState<PaymentListItem | null>(null);
 
   const {
     data: payments,
@@ -42,12 +45,22 @@ export const TransactionsPage: React.FC = () => {
     filters,
   });
 
+  const handleOpenModal = (payment: PaymentListItem) => {
+    setSelectedPayment(payment);
+    setModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+    setSelectedPayment(null);
+  };
+
   const handleVerifyPayment = async (paymentId: string) => {
-    try {
-      await verifyPayment({ paymentId });
-    } catch (error) {
-      console.error('Error verifying payment:', error);
-    }
+    await verifyPayment({ paymentId });
+  };
+
+  const handleRejectPayment = async (paymentId: string, reason: string) => {
+    await rejectPayment({ paymentId, reason });
   };
 
   const columns: ColumnsType<PaymentListItem> = [
@@ -156,28 +169,23 @@ export const TransactionsPage: React.FC = () => {
       align: 'center',
       fixed: 'right',
       render: (_: any, payment: PaymentListItem) => {
-        // Only show verify button for pending payments
-          console.log(payment ,"payment")
+        // Only show verify button for card to card payments that are not paid
         if (payment.method !== PaymentMethod.CardToCard || payment.status === PaymentStatus.Paid) {
           return <span className="text-gray-400 text-xs">-</span>;
         }
 
         return (
           <div className="flex items-center justify-center gap-3">
-            <Popconfirm
-              title="تایید پرداخت"
-              description="آیا از تایید این پرداخت اطمینان دارید؟"
-              onConfirm={() => handleVerifyPayment(payment.id)}
-              okText="بله"
-              cancelText="خیر"
-              okButtonProps={{ loading: isVerifying }}
-            >
-              <Tooltip title="تایید پرداخت">
-                <button className="hover:text-green-600 transition-colors">
-                  <CheckCircle size={20} />
-                </button>
-              </Tooltip>
-            </Popconfirm>
+            <Tooltip title="بررسی پرداخت">
+              <Button
+                type="text"
+                icon={<CheckCircle size={18} />}
+                onClick={() => handleOpenModal(payment)}
+                className="hover:text-green-600"
+              >
+                بررسی
+              </Button>
+            </Tooltip>
           </div>
         );
       },
@@ -221,6 +229,15 @@ export const TransactionsPage: React.FC = () => {
             status: 'Status',
           }),
         }}
+      />
+
+      <PaymentVerificationModal
+        open={modalOpen}
+        payment={selectedPayment}
+        onClose={handleCloseModal}
+        onVerify={handleVerifyPayment}
+        onReject={handleRejectPayment}
+        loading={isProcessing}
       />
     </div>
   );

@@ -3,6 +3,7 @@ import type {
   GetAllPaymentsParams,
   AllPaymentsResponse,
   VerifyPaymentPayload,
+  RejectPaymentPayload,
 } from '@/types/payment.types';
 
 /**
@@ -24,5 +25,12 @@ export const paymentService = {
    */
   async verify(payload: VerifyPaymentPayload): Promise<void> {
     await httpService.put('/Payment/Verify', payload);
+  },
+
+  /**
+   * Reject a payment
+   */
+  async reject(payload: RejectPaymentPayload): Promise<void> {
+    await httpService.put('/Payment/Reject', payload);
   },
 };
