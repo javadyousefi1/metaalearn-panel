@@ -11,6 +11,7 @@ import {
     UserCog,
     Receipt,
     FileText,
+    ClipboardList,
     LucideIcon,
 } from 'lucide-react';
 import { ROUTES } from './routes';
@@ -53,6 +54,20 @@ export const MENU_ITEMS: MenuItemConfig[] = [
       path: ROUTES.OPERATORS.ROOT,
       label: 'اپراتور',
       icon: UserCog,
+      children: [
+        {
+          key: 'operators-tickets',
+          path: ROUTES.OPERATORS.LIST,
+          label: 'تیکت‌ها',
+          icon: Ticket,
+        },
+        {
+          key: 'operators-practices',
+          path: ROUTES.OPERATORS.PRACTICES,
+          label: 'تمرین‌ها',
+          icon: ClipboardList,
+        },
+      ],
     },
     {
         key: 'courses',

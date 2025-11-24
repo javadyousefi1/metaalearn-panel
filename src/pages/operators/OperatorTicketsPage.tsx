@@ -111,7 +111,7 @@ export const OperatorTicketsPage: React.FC = () => {
             />
           )}
           <span className="font-medium">
-            {userInfo.fullNameFa || "بدون نام"}
+            {userInfo?.fullNameFa || "بدون نام"}
           </span>
         </div>
       ),

@@ -170,7 +170,7 @@ export const TransactionsPage: React.FC = () => {
       fixed: 'right',
       render: (_: any, payment: PaymentListItem) => {
         // Only show verify button for card to card payments that are not paid
-        if (payment.method !== PaymentMethod.CardToCard || payment.status === PaymentStatus.Paid) {
+        if (payment.method !== PaymentMethod.CardToCard || payment.status !== PaymentStatus.Pending)  {
           return <span className="text-gray-400 text-xs">-</span>;
         }
 

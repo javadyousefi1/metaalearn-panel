@@ -70,6 +70,9 @@ export const ROUTES = {
     LIST: '/operators',
     DETAIL: (id: string) => `/operators/${id}`,
     DETAIL_PATH: '/operators/:id',
+    PRACTICES: '/operators/practices',
+    PRACTICE_DETAIL: (courseId: string) => `/operators/practices/${courseId}`,
+    PRACTICE_DETAIL_PATH: '/operators/practices/:courseId',
   },
 
   // Finance Routes

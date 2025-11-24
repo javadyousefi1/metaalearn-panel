@@ -35,7 +35,7 @@ class HttpService {
       baseURL: env.apiBaseUrl,
       timeout: env.apiTimeout,
       headers: {
-        'back-office' : 'true'
+        'Back-Office' : 'true'
       },
     });
 
@@ -151,7 +151,7 @@ class HttpService {
 
       // Extract formatted error message
       const errorMessage = this.extractErrorMessage(data);
-
+        console.log(errorMessage ,"errorMessage")
       switch (status) {
         case 400:
           message.error(errorMessage);

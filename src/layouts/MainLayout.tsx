@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Layout, Menu, Avatar, Dropdown, Drawer, theme } from 'antd';
-import type { MenuProps } from 'antd';
+import { Layout, Menu, Avatar, Drawer, theme, Button, Modal } from 'antd';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import { LogOut, User, Settings, ChevronLeft, ChevronRight, Menu as MenuIcon, X } from 'lucide-react';
+import { LogOut, ChevronLeft, ChevronRight, Menu as MenuIcon, X } from 'lucide-react';
 import { useAuth } from '@/hooks';
 import { MENU_ITEMS } from '@/constants';
-import { getInitials, getFullName } from '@/utils';
+import { getInitials } from '@/utils';
 
 const { Header, Sider, Content } = Layout;
 
@@ -34,6 +33,7 @@ const useIsMobile = (breakpoint = 768) => {
 export const MainLayout: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [logoutModalOpen, setLogoutModalOpen] = useState(false);
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const location = useLocation();
@@ -83,29 +83,24 @@ export const MainLayout: React.FC = () => {
     return menuItem;
   });
 
-  // User dropdown menu
-  const userMenuItems: MenuProps['items'] = [
-    {
-      key: 'profile',
-      icon: <User size={16} />,
-      label: 'پروفایل',
-      onClick: () => navigate('/settings/profile'),
-    },
-    {
-      key: 'settings',
-      icon: <Settings size={16} />,
-      label: 'تنظیمات',
-      onClick: () => navigate('/settings'),
-    },
-    { type: 'divider' },
-    {
-      key: 'logout',
-      icon: <LogOut size={16} />,
-      label: 'خروج',
-      onClick: logout,
-      danger: true,
-    },
-  ];
+  // Get user full name safely
+  const getUserFullName = () => {
+    if (!user) return 'کاربر';
+    const firstName = user.firstName || '';
+    const lastName = user.lastName || '';
+    const fullName = `${firstName} ${lastName}`.trim();
+    return fullName || user.email || 'کاربر';
+  };
+
+  // Handle logout with confirmation
+  const handleLogout = () => {
+    setLogoutModalOpen(true);
+  };
+
+  const confirmLogout = () => {
+    setLogoutModalOpen(false);
+    logout();
+  };
 
   // Get current selected menu key from location
   const selectedKey = MENU_ITEMS.find((item) => {
@@ -118,7 +113,7 @@ export const MainLayout: React.FC = () => {
 
   // Menu content (shared between Sider and Drawer)
   const menuContent = (
-    <>
+    <div className="flex flex-col h-full">
       <div className="h-16 flex items-center justify-center border-b border-gray-200 px-4">
         <img
           src="/images/metaaLearn-logo.png"
@@ -130,9 +125,21 @@ export const MainLayout: React.FC = () => {
         mode="inline"
         selectedKeys={[selectedKey]}
         items={menuItems}
-        className="border-r-0"
+        className="border-r-0 flex-1"
       />
-    </>
+      <div className="border-t border-gray-200 p-4">
+        <Button
+          type="primary"
+          danger
+          icon={<LogOut size={16} />}
+          onClick={handleLogout}
+          block
+          size="large"
+        >
+          خروج از حساب
+        </Button>
+      </div>
+    </div>
   );
 
   return (
@@ -157,7 +164,7 @@ export const MainLayout: React.FC = () => {
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
         width={280}
-        styles={{ body: { padding: 0 } }}
+        styles={{ body: { padding: 0, display: 'flex', flexDirection: 'column', height: '100%' } }}
         closable={false}
         className="md:hidden"
       >
@@ -178,9 +185,35 @@ export const MainLayout: React.FC = () => {
           mode="inline"
           selectedKeys={[selectedKey]}
           items={menuItems}
-          className="border-r-0"
+          className="border-r-0 flex-1"
+          style={{ flex: 1 }}
         />
+        <div className="border-t border-gray-200 p-4">
+          <Button
+            type="primary"
+            danger
+            icon={<LogOut size={16} />}
+            onClick={handleLogout}
+            block
+            size="large"
+          >
+            خروج از حساب
+          </Button>
+        </div>
       </Drawer>
+
+      {/* Logout Confirmation Modal */}
+      <Modal
+        title="خروج از حساب کاربری"
+        open={logoutModalOpen}
+        onOk={confirmLogout}
+        onCancel={() => setLogoutModalOpen(false)}
+        okText="بله، خروج"
+        cancelText="انصراف"
+        okButtonProps={{ danger: true }}
+      >
+        <p>آیا از خروج از حساب کاربری خود اطمینان دارید؟</p>
+      </Modal>
 
       <Layout
         style={{
@@ -219,19 +252,17 @@ export const MainLayout: React.FC = () => {
 
           <div id="breadcrumb-portal" className="flex-1 px-2 md:px-6 items-center flex hidden md:flex" />
 
-          <Dropdown menu={{ items: userMenuItems }} placement="bottomRight" arrow>
-            <div className="flex items-center gap-2 md:gap-3 cursor-pointer hover:bg-gray-50 px-2 md:px-3 py-2 rounded-lg transition-colors">
-              <div className="text-right hidden sm:block">
-                <div className="text-sm font-medium text-gray-900">
-                  {user ? getFullName(user.firstName, user.lastName) : 'User'}
-                </div>
-                <div className="text-xs text-gray-500">{user?.role || 'Role'}</div>
+          <div className="flex items-center gap-2 md:gap-3 px-2 md:px-3 py-2">
+            <div className="text-right hidden sm:block">
+              <div className="text-sm font-medium text-gray-900">
+                {getUserFullName()}
               </div>
-              <Avatar size={36} className="bg-primary-500">
-                {user ? getInitials(getFullName(user.firstName, user.lastName)) : 'U'}
-              </Avatar>
+              <div className="text-xs text-gray-500">{user?.role || 'نقش'}</div>
             </div>
-          </Dropdown>
+            <Avatar size={36} className="bg-primary-500">
+              {getInitials(getUserFullName())}
+            </Avatar>
+          </div>
         </Header>
         <Content
           className="p-3 md:p-6 overflow-x-hidden"

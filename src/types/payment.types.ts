@@ -24,6 +24,7 @@ export enum PaymentStatus {
   Failed = 3,
   Refunded = 4,
   Cancelled = 5,
+  Rejected = 6,
 }
 
 // Payment User Info
@@ -140,6 +141,8 @@ export const getPaymentStatusName = (status: PaymentStatus | number): string => 
       return 'بازگشت داده شده';
     case PaymentStatus.Cancelled:
       return 'لغو شده';
+    case PaymentStatus.Rejected:
+       return 'رد شده توسط ادمین';
     default:
       return 'نامشخص';
   }
@@ -153,6 +156,7 @@ export const getPaymentStatusColor = (status: PaymentStatus | number): string =>
       return 'orange';
     case PaymentStatus.Paid:
       return 'green';
+    case PaymentStatus.Rejected:
     case PaymentStatus.Failed:
       return 'red';
     case PaymentStatus.Refunded:

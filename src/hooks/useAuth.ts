@@ -4,6 +4,7 @@ import { OtpLoginCredentials, VerifyOtpRequest, ResendOtpRequest } from '@/types
 import { message } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@/constants';
+import { useQueryClient } from '@tanstack/react-query';
 
 /**
  * useAuth Hook
@@ -11,6 +12,7 @@ import { ROUTES } from '@/constants';
  */
 export const useAuth = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { user, token, isAuthenticated, isLoading, setAuth, clearAuth, setLoading } = useAuthStore();
 
   /**
@@ -39,7 +41,7 @@ export const useAuth = () => {
       const response = await authService.verifyOtp(data);
       setAuth(response.user, response.token, response.refreshToken);
       message.success('ورود موفقیت‌آمیز بود!');
-      navigate(ROUTES.DASHBOARD.OVERVIEW);
+      navigate(ROUTES.USERS.ROOT);
     } catch (error) {
       message.error('کد نامعتبر است. لطفا دوباره تلاش کنید.');
       throw error;
@@ -68,17 +70,18 @@ export const useAuth = () => {
   /**
    * Logout user
    */
-  const logout = async () => {
-    try {
-      await authService.logout();
-      clearAuth();
-      message.success('خروج با موفقیت انجام شد');
-      navigate(ROUTES.AUTH.LOGIN);
-    } catch (error) {
-      // Clear auth even if logout API fails
-      clearAuth();
-      navigate(ROUTES.AUTH.LOGIN);
-    }
+  const logout = () => {
+    // Clear auth from Zustand store (this also clears localStorage via persist middleware)
+    clearAuth();
+
+    // Clear all React Query cache
+    queryClient.clear();
+
+    // Show success message
+    message.success('خروج با موفقیت انجام شد');
+
+    // Navigate to login page
+    navigate(ROUTES.AUTH.LOGIN);
   };
 
   /**
@@ -95,7 +98,7 @@ export const useAuth = () => {
       const response = await authService.register(data);
       setAuth(response.user, response.token, response.refreshToken);
       message.success('ثبت نام با موفقیت انجام شد!');
-      navigate(ROUTES.DASHBOARD.OVERVIEW);
+      navigate(ROUTES.USERS.ROOT);
     } catch (error) {
       message.error('ثبت نام ناموفق بود. لطفا دوباره تلاش کنید.');
       throw error;

@@ -13,3 +13,4 @@ export * from './payment.service';
 export * from './blog.service';
 export * from './blogCategory.service';
 export * from './blogGallery.service';
+export * from './practice.service';

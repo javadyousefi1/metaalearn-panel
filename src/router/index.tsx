@@ -5,7 +5,7 @@ import { LoginPage } from '@/pages/auth';
 import { DashboardPage } from '@/pages/dashboard';
 import { UsersPage } from '@/pages/users';
 import { TicketsPage, TicketDetailPage } from '@/pages/tickets';
-import { OperatorTicketsPage, OperatorTicketDetailPage } from '@/pages/operators';
+import { OperatorTicketsPage, OperatorTicketDetailPage, OperatorPracticesPage, OperatorPracticeDetailPage } from '@/pages/operators';
 import { CoursesPage, CourseListPage } from '@/pages/courses';
 import { CourseDetailPage, CourseFaqPage, CourseSessionsPage, CourseIntroductionPage, CourseSchedulePage, CourseGalleryPage } from '@/pages/course';
 import { CategoriesPage, SubCategoriesPage } from '@/pages/categories';
@@ -75,6 +75,14 @@ export const router = createBrowserRouter([
       {
         path: ROUTES.OPERATORS.DETAIL_PATH,
         element: <OperatorTicketDetailPage />,
+      },
+      {
+        path: ROUTES.OPERATORS.PRACTICES,
+        element: <OperatorPracticesPage />,
+      },
+      {
+        path: ROUTES.OPERATORS.PRACTICE_DETAIL_PATH,
+        element: <OperatorPracticeDetailPage />,
       },
 
       // Finance Management
