@@ -26,6 +26,7 @@
   font-display: swap;
 }
 
+
 @font-face {
   font-family: 'IRANYekanX';
   src: url('./assets/fonts/Woff2/IRANYekanXFaNum-Regular.woff2') format('woff2'),
@@ -149,4 +150,9 @@ body {
   transition-property: background-color, border-color, color, fill, stroke;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
+}
+
+
+.ant-message-notice-content {
+    font-family: 'IRANYekanX'!important;
 }
