@@ -108,6 +108,11 @@ export const OperatorPracticeDetailPage: React.FC = () => {
       return;
     }
 
+    if (!feedback || feedback.trim() === "") {
+      message.error("بازخورد الزامی است");
+      return;
+    }
+
     updateGradeMutation.mutate({
       id: selectedPractice.id,
       grade,
@@ -311,13 +316,14 @@ export const OperatorPracticeDetailPage: React.FC = () => {
 
           <div>
             <label className="block text-sm font-medium mb-2">
-              بازخورد (اختیاری)
+              بازخورد <span className="text-red-500">*</span>
             </label>
             <Input.TextArea
               value={feedback}
               onChange={(e) => setFeedback(e.target.value)}
               placeholder="بازخورد خود را وارد کنید"
               rows={4}
+              required
             />
           </div>
 

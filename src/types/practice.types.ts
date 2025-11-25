@@ -1,5 +1,12 @@
 // Practice-related type definitions
 
+export enum UpdateEnrollmentActionType {
+  ResetUpload = 1,
+  ResetGrade = 2,
+  ResetBoth = 3,
+  SetGrade = 4
+}
+
 export interface PracticeSubmission {
   id: string;
   courseId: string;
@@ -30,6 +37,7 @@ export interface PracticeListResponse {
 
 export interface UpdatePracticeGradePayload {
   id: string;
-  grade?: number | null;
+  actionType: UpdateEnrollmentActionType;
+  grade?: number;
   feedback?: string;
 }

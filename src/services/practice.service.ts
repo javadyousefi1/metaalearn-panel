@@ -1,5 +1,5 @@
 import { httpService } from './http.service';
-import { PracticeListResponse, PracticeListParams, UpdatePracticeGradePayload } from '@/types/practice.types';
+import { PracticeListResponse, PracticeListParams, UpdatePracticeGradePayload, UpdateEnrollmentActionType } from '@/types/practice.types';
 
 /**
  * Practice Service
@@ -25,19 +25,24 @@ export const practiceService = {
    * @param data - Practice grade update data
    * @returns Promise<void>
    */
-  updateGrade: async (data: UpdatePracticeGradePayload): Promise<void> => {
-    await httpService.post('/CourseScheduleEnrollment/Update', data);
+  updateGrade: async (data: Omit<UpdatePracticeGradePayload, 'actionType'>): Promise<void> => {
+    await httpService.post('/CourseScheduleEnrollment/Update', {
+      ...data,
+      actionType: UpdateEnrollmentActionType.SetGrade,
+    });
   },
 
   /**
-   * Reset practice grade
+   * Reset practice grade and upload (ResetBoth)
    * @param id - Practice submission ID
    * @returns Promise<void>
    */
   resetGrade: async (id: string): Promise<void> => {
     await httpService.post('/CourseScheduleEnrollment/Update', {
       id,
-      resetUpload: true,
+      actionType: UpdateEnrollmentActionType.ResetBoth,
+      grade: 0,
+      feedback: '',
     });
   },
 };
