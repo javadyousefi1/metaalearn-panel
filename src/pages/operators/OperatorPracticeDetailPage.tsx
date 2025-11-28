@@ -13,13 +13,14 @@ import {
 import { Home, UserCircle, Download, Edit2, RotateCcw } from "lucide-react";
 import type { ColumnsType } from "antd/es/table";
 import { useParams, useNavigate } from "react-router-dom";
-import { PageHeader, DataTable } from "@/components/common";
-import { useTable } from "@/hooks";
+import { PageHeader, DataTable, CourseSessionFilter } from "@/components/common";
+import { useTable, useTableFilters } from "@/hooks";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { practiceService, courseService } from "@/services";
 import { PracticeSubmission } from "@/types";
 import { formatDate } from "@/utils";
 import { ROUTES } from "@/constants";
+import { useGetAllSessions } from "@/hooks/useCourseSessions";
 
 
 /**
@@ -36,12 +37,23 @@ export const OperatorPracticeDetailPage: React.FC = () => {
   const [grade, setGrade] = useState<number | null>(null);
   const [feedback, setFeedback] = useState<string>("");
 
+  // Table filters
+  const { filters, setFilter, resetFilters } = useTableFilters({
+    CourseSessionId: null,
+  });
+
   // Fetch course details
   const { data: courseData } = useQuery({
     queryKey: ["course", courseId],
     queryFn: () => courseService.getById(courseId!),
     enabled: !!courseId,
   });
+
+  // Fetch course sessions for filter
+  const { data: courseSessions = [], isLoading: isLoadingSessions } = useGetAllSessions(
+    !!courseId,
+    courseId
+  );
 
   // Fetch practice submissions using useTable
   const {
@@ -50,10 +62,11 @@ export const OperatorPracticeDetailPage: React.FC = () => {
     isLoading,
     pagination,
   } = useTable<PracticeSubmission>({
-    queryKey: ["practices", courseId],
+    queryKey: ["practices", courseId, filters],
     fetchFn: (params) =>
       practiceService.getAll({
         CourseId: courseId!,
+        ...filters,
         ...params,
       }),
     initialPageSize: 20,
@@ -290,6 +303,18 @@ export const OperatorPracticeDetailPage: React.FC = () => {
           },
         ]}
       />
+
+      {/* Filters */}
+      <div className="mb-6 bg-white p-4 rounded-lg shadow-sm">
+        <div className="flex flex-wrap gap-4">
+          <CourseSessionFilter
+            value={filters.CourseSessionId as string}
+            onChange={(value) => setFilter('CourseSessionId', value)}
+            sessions={courseSessions}
+            loading={isLoadingSessions}
+          />
+        </div>
+      </div>
 
       <DataTable<PracticeSubmission>
         columns={columns}
