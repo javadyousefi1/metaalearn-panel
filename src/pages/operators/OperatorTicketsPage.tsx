@@ -157,23 +157,12 @@ export const OperatorTicketsPage: React.FC = () => {
       ),
     },
     {
-      title: "شناسه دوره",
-      dataIndex: "courseId",
-      key: "courseId",
+      title: " نام دوره",
+      dataIndex: "course",
+      key: "course",
       width: 150,
-      render: (courseId: string) => (
-        <span className="text-sm font-mono">{courseId.substring(0, 8)}...</span>
-      ),
-    },
-    {
-      title: "شناسه برنامه",
-      dataIndex: "courseScheduleId",
-      key: "courseScheduleId",
-      width: 150,
-      render: (courseScheduleId: string | null) => (
-        <span className="text-sm font-mono">
-          {courseScheduleId ? `${courseScheduleId.substring(0, 8)}...` : "-"}
-        </span>
+      render: (course: string) => (
+        <span className="text-sm">{course?.name}</span>
       ),
     },
     {

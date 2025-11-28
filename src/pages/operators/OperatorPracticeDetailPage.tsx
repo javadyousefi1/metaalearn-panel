@@ -203,6 +203,17 @@ export const OperatorPracticeDetailPage: React.FC = () => {
           <span className="text-gray-400 text-sm">-</span>
         ),
     },
+      {
+          title: "بازخورد",
+          dataIndex: "notes",
+          key: "notes",
+          render: (notes: string | undefined) =>
+              notes ? (
+                  <span className="text-sm">{notes}</span>
+              ) : (
+                  <span className="text-gray-400 text-sm">-</span>
+              ),
+      },
     {
       title: "عملیات",
       key: "actions",
