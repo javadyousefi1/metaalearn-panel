@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Tag, Avatar, Tooltip, Button } from 'antd';
+import { Tag, Avatar, Tooltip, Button, Input } from 'antd';
 import { Home, UserCircle, CheckCircle } from 'lucide-react';
+import { SearchOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { PageHeader, DataTable } from '@/components/common';
 import { useTable, useTableFilters, usePaymentVerification } from '@/hooks';
@@ -39,6 +40,9 @@ export const TransactionsPage: React.FC = () => {
       paymentService.getAll({
         ...params,
         Status: filters.Status as PaymentStatus | undefined,
+        Method: filters.Method as PaymentMethod | undefined,
+        Type: filters.Type as PaymentType | undefined,
+        ReferralCode: filters.ReferralCode as string | undefined,
       }),
     initialPageSize: 10,
     initialPageIndex: 1,
@@ -102,6 +106,13 @@ export const TransactionsPage: React.FC = () => {
       key: 'method',
       width: 130,
       align: 'center',
+      filters: [
+        { text: 'کیف پول', value: PaymentMethod.Wallet },
+        { text: 'کارت به کارت', value: PaymentMethod.CardToCard },
+        { text: 'پرداخت آنلاین', value: PaymentMethod.OnlinePayment },
+      ],
+      filterMultiple: false,
+      filteredValue: filters.Method ? [filters.Method as number] : null,
       render: (method: number) => (
         <Tag color={getPaymentMethodColor(method)}>
           {getPaymentMethodName(method)}
@@ -114,6 +125,14 @@ export const TransactionsPage: React.FC = () => {
       key: 'type',
       width: 130,
       align: 'center',
+      filters: [
+        { text: 'هیچ', value: PaymentType.None },
+        { text: 'رایگان', value: PaymentType.Free },
+        { text: 'اقساطی', value: PaymentType.Installment },
+        { text: 'پرداخت کامل', value: PaymentType.FullyPayment },
+      ],
+      filterMultiple: false,
+      filteredValue: filters.Type ? [filters.Type as number] : null,
       render: (type: number) => (
         <Tag color={getPaymentTypeColor(type)}>
           {getPaymentTypeName(type)}
@@ -132,6 +151,7 @@ export const TransactionsPage: React.FC = () => {
         { text: 'ناموفق', value: PaymentStatus.Failed },
         { text: 'بازگشت داده شده', value: PaymentStatus.Refunded },
         { text: 'لغو شده', value: PaymentStatus.Cancelled },
+        { text: 'رد شده توسط ادمین', value: PaymentStatus.Rejected },
       ],
       filterMultiple: false,
       filteredValue: filters.Status ? [filters.Status as number] : null,
@@ -147,6 +167,27 @@ export const TransactionsPage: React.FC = () => {
       key: 'referralCode',
       width: 120,
       align: 'center',
+      filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+        <div style={{ padding: 8 }}>
+          <Input
+            placeholder="جستجوی کد رهگیری"
+            value={selectedKeys[0]}
+            onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+            onPressEnter={() => confirm()}
+            style={{ marginBottom: 8, display: 'block' }}
+          />
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Button type="primary" onClick={() => confirm()} icon={<SearchOutlined />} size="small" style={{ width: 90 }}>
+              جستجو
+            </Button>
+            <Button onClick={() => clearFilters && clearFilters()} size="small" style={{ width: 90 }}>
+              پاک کردن
+            </Button>
+          </div>
+        </div>
+      ),
+      filterIcon: (filtered) => <SearchOutlined style={{ color: filtered ? '#4B26AD' : undefined }} />,
+      filteredValue: filters.ReferralCode ? [filters.ReferralCode as string] : null,
       render: (code: string) => (
         <span className="font-mono text-xs bg-gray-100 px-2 py-1 rounded">
           {code}
@@ -227,6 +268,9 @@ export const TransactionsPage: React.FC = () => {
         tableProps={{
           onChange: handleTableChange({
             status: 'Status',
+            method: 'Method',
+            type: 'Type',
+            referralCode: 'ReferralCode',
           }),
         }}
       />

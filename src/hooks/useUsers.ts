@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { message } from 'antd';
 import { userService } from '@/services';
 import { queryKeys } from '@/config';
-import { UserListParams, UpdateUserIdentityPayload } from '@/types';
+import { UserListParams, UpdateUserIdentityPayload, PurchasedCoursesParams } from '@/types';
 
 /**
  * Custom hook for getting users by role
@@ -52,4 +52,18 @@ export const useUpdateUserIdentity = () => {
     updateUserIdentity: (data: UpdateUserIdentityPayload) => mutation.mutateAsync(data),
     isUpdating: mutation.isPending,
   };
+};
+
+/**
+ * Custom hook for getting users who purchased a specific course
+ * @param params - Query parameters (CourseId, PageIndex, PageSize)
+ * @param enabled - Whether the query should run (optional, defaults to true)
+ */
+export const useGetPurchasedCourseUsers = (params: PurchasedCoursesParams, enabled = true) => {
+  return useQuery({
+    queryKey: queryKeys.users.purchasedCourses(params.CourseId),
+    queryFn: () => userService.getAllPurchasedCourses(params),
+    enabled: !!params.CourseId && enabled,
+    select: (data) => data?.courses?.items?.map(item => item.userInfo) || []
+  });
 };

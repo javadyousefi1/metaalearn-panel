@@ -98,6 +98,7 @@ export const CourseCreateModal: React.FC<CourseCreateModalProps> = ({
         })) || [],
         discountPercentage: fullCourseData.discountPercentage || 0,
         requiresIdentityVerification: fullCourseData.requiresIdentityVerification ?? false,
+        defaultScheduleAsReserveHolder: fullCourseData.defaultScheduleAsReserveHolder ?? false,
       });
     } else if (open && !isEditMode) {
       form.resetFields();
@@ -160,6 +161,7 @@ export const CourseCreateModal: React.FC<CourseCreateModalProps> = ({
       installments,
       discountPercentage: values.discountPercentage || 0,
       requiresIdentityVerification: values.requiresIdentityVerification ?? false,
+      defaultScheduleAsReserveHolder: values.defaultScheduleAsReserveHolder ?? false,
     };
 
     if (isEditMode && course) {
@@ -234,6 +236,7 @@ export const CourseCreateModal: React.FC<CourseCreateModalProps> = ({
             installmentInterval: 0,
             discountPercentage: 0,
             requiresIdentityVerification: false,
+            defaultScheduleAsReserveHolder: false,
             installments: [],
           }}
         >
@@ -496,6 +499,15 @@ export const CourseCreateModal: React.FC<CourseCreateModalProps> = ({
             <Form.Item
               name="requiresIdentityVerification"
               label="نیاز به احراز هویت"
+              valuePropName="checked"
+            >
+              <Switch checkedChildren="بله" unCheckedChildren="خیر" />
+            </Form.Item>
+
+            {/* Default Schedule As Reserve Holder */}
+            <Form.Item
+              name="defaultScheduleAsReserveHolder"
+              label="زمان‌بندی پیش‌فرض به عنوان رزرو"
               valuePropName="checked"
             >
               <Switch checkedChildren="بله" unCheckedChildren="خیر" />

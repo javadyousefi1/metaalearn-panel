@@ -79,6 +79,7 @@ export interface GetAllPaymentsParams {
   Status?: PaymentStatus;
   Method?: PaymentMethod;
   Type?: PaymentType;
+  ReferralCode?: string;
 }
 
 export interface AllPaymentsResponse {

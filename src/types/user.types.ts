@@ -268,3 +268,59 @@ export const getRoleTypeFromString = (roleString: string): RoleType | null => {
   };
   return roleMap[roleString] ?? null;
 };
+
+// Purchased Courses Types
+export interface PurchasedCoursesParams {
+  CourseId: string;
+  PageIndex: number;
+  PageSize: number;
+}
+
+export interface CourseScheduleInfo {
+  name: string;
+  typeId: number;
+  id: string;
+}
+
+export interface InvoiceInfo {
+  price: number;
+  paymentType: number;
+  isSettled: boolean;
+  hasAccess: boolean;
+  upcomingDueTransaction: any | null;
+  id: string;
+}
+
+export interface PurchasedUserInfo {
+  fullNameFa: string;
+  imageUrl: string;
+  id: string;
+}
+
+export interface CategoryInfo {
+  name: string;
+  id: string;
+}
+
+export interface PurchasedCourseItem {
+  name: string;
+  imageUrl: string;
+  status: number;
+  enrollmentCount: number;
+  requiresIdentityVerification: boolean;
+  category: CategoryInfo;
+  invoice: InvoiceInfo;
+  schedules: CourseScheduleInfo[];
+  userInfo: PurchasedUserInfo;
+  id: string;
+}
+
+export interface PurchasedCoursesData {
+  items: PurchasedCourseItem[];
+  totalCount: number;
+}
+
+export interface PurchasedCoursesResponse {
+  courseCategories: CategoryInfo[];
+  courses: PurchasedCoursesData;
+}

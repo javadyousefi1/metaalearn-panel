@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
-import { Modal, Form, Input, Select, Switch } from 'antd';
+import { Modal, Form, Input, InputNumber, Select, Switch } from 'antd';
 import { Users } from 'lucide-react';
-import { useGetUsersByRole } from '@/hooks';
+import { useGetUsersByRole, useGetPurchasedCourseUsers } from '@/hooks';
 import { CourseScheduleStatus } from '@/enums';
 import type { CourseSchedule } from '@/types';
 
@@ -20,6 +20,7 @@ export const CourseScheduleModal: React.FC<CourseScheduleModalProps> = ({
   onSubmit,
   loading = false,
   schedule,
+                                                                            courseId,
 }) => {
   const [form] = Form.useForm();
 
@@ -40,13 +41,15 @@ export const CourseScheduleModal: React.FC<CourseScheduleModalProps> = ({
     IncludeIdentity: false,
   });
 
-  const { data: students = [] } = useGetUsersByRole({
-    role: '3',
-    PageIndex: 1,
-    PageSize: 1000,
-    IncludeProfile: false,
-    IncludeIdentity: false,
-  });
+  // Fetch students who purchased this course
+  const { data: students = [] } = useGetPurchasedCourseUsers(
+    {
+      CourseId: courseId,
+      PageIndex: 1,
+      PageSize: 10000
+    },
+    !!courseId && open
+  );
 
   // Initialize form with existing schedule data
   useEffect(() => {
@@ -56,6 +59,7 @@ export const CourseScheduleModal: React.FC<CourseScheduleModalProps> = ({
         description: schedule.description,
         isVisible: schedule.isVisible,
         status: schedule.status,
+        typeId: schedule.typeId ?? 0,
         instructorIds: schedule.instructors?.map(i => i.id) || [],
         operatorIds: schedule.operators?.map(o => o.id) || [],
         studentIds: schedule.students?.map(s => s.id) || [],
@@ -65,6 +69,7 @@ export const CourseScheduleModal: React.FC<CourseScheduleModalProps> = ({
       form.setFieldsValue({
         isVisible: true,
         status: 0,
+        typeId: 0,
         instructorIds: [],
         operatorIds: [],
         studentIds: [],
@@ -146,7 +151,24 @@ export const CourseScheduleModal: React.FC<CourseScheduleModalProps> = ({
             />
           </Form.Item>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Type ID */}
+            <Form.Item
+              name="typeId"
+              label="شناسه نوع"
+              rules={[
+                { required: true, message: 'لطفاً شناسه نوع را وارد کنید' },
+              ]}
+              className="mb-0"
+            >
+              <InputNumber
+                className="w-full"
+                placeholder="0"
+                min={0}
+                disabled={schedule?.typeId === 1}
+              />
+            </Form.Item>
+
             {/* IsVisible */}
             <Form.Item
               name="isVisible"
@@ -219,7 +241,7 @@ export const CourseScheduleModal: React.FC<CourseScheduleModalProps> = ({
           {/* Students */}
           <Form.Item
             name="studentIds"
-            label="دانشجویان"
+            label="دانشجویان (خریداران دوره)"
             // rules={[
             //   { required: true, message: 'لطفاً حداقل یک دانشجو را انتخاب کنید' },
             // ]}

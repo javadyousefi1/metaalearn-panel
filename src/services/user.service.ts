@@ -1,6 +1,6 @@
 import { httpService } from './http.service';
 import { UserListResponse, UserListParams } from '@/types/courseSchedule.types';
-import { GetAllUsersParams, AllUsersResponse, UpdateUserIdentityPayload, RoleManagementPayload } from '@/types/user.types';
+import { GetAllUsersParams, AllUsersResponse, UpdateUserIdentityPayload, RoleManagementPayload, PurchasedCoursesParams, PurchasedCoursesResponse } from '@/types/user.types';
 
 /**
  * User Service
@@ -50,5 +50,18 @@ export const userService = {
    */
   manageRole: async (payload: RoleManagementPayload): Promise<void> => {
     await httpService.post('/User/RoleManagement', payload);
+  },
+
+  /**
+   * Get all users who purchased a specific course
+   * @param params - Query parameters (CourseId, PageIndex, PageSize)
+   * @returns Promise with purchased courses response
+   */
+  getAllPurchasedCourses: async (params: PurchasedCoursesParams): Promise<PurchasedCoursesResponse> => {
+    const response = await httpService.get<PurchasedCoursesResponse>(
+      `/User/GetAllPurchasedCourses`,
+      { params }
+    );
+    return response.data;
   },
 };

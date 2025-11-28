@@ -44,6 +44,7 @@ export const CourseSchedulePage: React.FC = () => {
         description: values.description,
         isVisible: values.isVisible,
         status: values.status,
+        typeId: values.typeId,
         instructorIds: values.instructorIds,
         operatorIds: values.operatorIds,
         studentIds: values.studentIds,
@@ -56,6 +57,7 @@ export const CourseSchedulePage: React.FC = () => {
         description: values.description,
         isVisible: values.isVisible,
         status: values.status,
+        typeId: values.typeId,
         instructorIds: values.instructorIds,
         operatorIds: values.operatorIds,
         studentIds: values.studentIds,
@@ -107,6 +109,9 @@ export const CourseSchedulePage: React.FC = () => {
         </Descriptions.Item>
         <Descriptions.Item label="توضیحات">
           {schedule.description || 'بدون توضیحات'}
+        </Descriptions.Item>
+        <Descriptions.Item label="شناسه نوع">
+          <Tag color="purple">{schedule.typeId ?? 0}</Tag>
         </Descriptions.Item>
         <Descriptions.Item label="وضعیت">
           <Space direction="horizontal" size="small">

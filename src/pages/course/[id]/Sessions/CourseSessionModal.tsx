@@ -94,7 +94,8 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
         practiceDueTime: session.practiceDueTime
           ? moment(session.practiceDueTime).format('YYYY-MM-DD')
           : null,
-        onlineMeetingUrls: session.onlineMeetingUrls || [],
+        onlineMeetingUrls: session.onlineMeetingUrls || null,
+        courseScheduleIds: session.courseScheduleIds || null,
       });
     } else if (open) {
       // Determine level based on provided parentId
@@ -120,6 +121,7 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
         index: nextIndex,
         isPracticeAvailable: false,
         isTopic: false,
+        courseScheduleIds: [],
       });
     }
   }, [open, session, form, nextIndex, parentId, level1ParentId, allSessions]);
@@ -140,13 +142,14 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
       ...values,
       occurrenceTime: values.occurrenceTime
         ? moment(values.occurrenceTime).toISOString()
-        : "",
+        : null,
       practiceDueTime: values.practiceDueTime
         ? moment(values.practiceDueTime).toISOString()
-        : "",
+        : null,
       parentId: finalParentId,
       index: values.index ?? nextIndex,
-      onlineMeetingUrls: values.onlineMeetingUrls || [],
+      onlineMeetingUrls: values.onlineMeetingUrls || null,
+      courseScheduleIds: values.courseScheduleIds || null,
     };
 
     await onSubmit(formattedValues);
@@ -418,7 +421,6 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
             label={"زمان برگزاری"}
             isFormItem
             name={"occurrenceTime"}
-            isRequired
           />
 
           {/* Practice Due Time */}
@@ -430,8 +432,30 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
             label="مهلت تمرین"
             isFormItem
             name={"practiceDueTime"}
-            isRequired
           />
+
+          {/* Course Schedules */}
+          <Form.Item
+            name="courseScheduleIds"
+            label="گروه‌های دوره"
+          >
+            <Select
+              mode="multiple"
+              placeholder="انتخاب گروه‌ها"
+              size="large"
+              showSearch
+              optionFilterProp="children"
+              filterOption={(input, option) =>
+                (option?.children as string)?.toLowerCase().includes(input.toLowerCase())
+              }
+            >
+              {schedules.map((schedule) => (
+                <Select.Option key={schedule.id} value={schedule.id}>
+                  {schedule.name}
+                </Select.Option>
+              ))}
+            </Select>
+          </Form.Item>
 
           {/* Schedule Online Meeting URLs */}
           <Form.Item label="لینک‌های جلسه آنلاین">

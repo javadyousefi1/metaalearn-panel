@@ -44,6 +44,7 @@ export const queryKeys = {
     list: (filters?: Record<string, unknown>) =>
       [...queryKeys.users.lists(), { ...filters }] as const,
     byRole: (role: string) => [...queryKeys.users.all, 'role', role] as const,
+    purchasedCourses: (courseId: string) => [...queryKeys.users.all, 'purchased', courseId] as const,
   },
   gallery: {
     all: ['gallery'] as const,

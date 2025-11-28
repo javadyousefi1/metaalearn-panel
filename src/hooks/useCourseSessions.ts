@@ -17,9 +17,6 @@ export const useCourseSessions = () => {
       message.success('جلسه با موفقیت ایجاد شد');
       queryClient.invalidateQueries({ queryKey: queryKeys.sessions.all });
     },
-    onError: () => {
-      message.error('خطا در ایجاد جلسه');
-    },
   });
 
   // Update course session mutation

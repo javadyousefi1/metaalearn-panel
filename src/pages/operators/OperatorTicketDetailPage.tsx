@@ -208,12 +208,12 @@ export const OperatorTicketDetailPage: React.FC = () => {
                 <div
                   key={msg.id}
                   className={`flex ${
-                    !msg.isOperator ? "justify-start" : "justify-end"
+                    msg.isOperator ? "justify-start" : "justify-end"
                   }`}
                 >
                   <div
                     className={`flex gap-3 max-w-[70%] ${
-                      !msg.isOperator ? "flex-row" : "flex-row-reverse"
+                      msg.isOperator ? "flex-row" : "flex-row-reverse"
                     }`}
                   >
                     {/* User Avatar */}
@@ -225,7 +225,7 @@ export const OperatorTicketDetailPage: React.FC = () => {
                           size={40}
                           icon={<UserCircle />}
                           style={{
-                            backgroundColor: !msg.isOperator
+                            backgroundColor: msg.isOperator
                               ? "#4B26AD"
                               : "#52c41a",
                           }}
@@ -239,14 +239,14 @@ export const OperatorTicketDetailPage: React.FC = () => {
                         <span className="font-medium">
                           {msg.userInfo.fullNameFa || "بدون نام"}
                         </span>
-                        {!msg.isOperator && (
+                        {msg.isOperator && (
                           <span className="mr-2 text-purple-600">(اپراتور)</span>
                         )}
                       </div>
 
                       <div
                         className={`p-3 rounded-lg shadow-sm text-right ${
-                          !msg.isOperator
+                          msg.isOperator
                             ? "bg-purple-100"
                             : "bg-gray-100"
                         }`}
@@ -274,11 +274,11 @@ export const OperatorTicketDetailPage: React.FC = () => {
 
                         <div className="flex items-center justify-between mt-2">
                           <div className="text-xs text-gray-400 text-right">
-                            {formatDate(msg.createdTime)}
+                            {formatDate(msg.createdTime,true)}
                           </div>
 
                           {/* Admin actions - only for operator messages */}
-                          {!msg.isOperator && (
+                          {msg.isOperator && (
                             <Space size="small">
                               <Button
                                 type="text"
