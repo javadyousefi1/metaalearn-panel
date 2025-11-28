@@ -44,7 +44,7 @@ export const CourseSchedulePage: React.FC = () => {
         description: values.description,
         isVisible: values.isVisible,
         status: values.status,
-        typeId: values.typeId,
+        typeId: values.typeId || null,
         instructorIds: values.instructorIds,
         operatorIds: values.operatorIds,
         studentIds: values.studentIds,

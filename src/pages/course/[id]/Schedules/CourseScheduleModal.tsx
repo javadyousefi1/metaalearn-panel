@@ -20,7 +20,7 @@ export const CourseScheduleModal: React.FC<CourseScheduleModalProps> = ({
   onSubmit,
   loading = false,
   schedule,
-                                                                            courseId,
+  courseId,
 }) => {
   const [form] = Form.useForm();
 
@@ -59,7 +59,7 @@ export const CourseScheduleModal: React.FC<CourseScheduleModalProps> = ({
         description: schedule.description,
         isVisible: schedule.isVisible,
         status: schedule.status,
-        typeId: schedule.typeId ?? 0,
+        typeId: schedule.typeId ?? null,
         instructorIds: schedule.instructors?.map(i => i.id) || [],
         operatorIds: schedule.operators?.map(o => o.id) || [],
         studentIds: schedule.students?.map(s => s.id) || [],

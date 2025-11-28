@@ -95,7 +95,7 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
           ? moment(session.practiceDueTime).format('YYYY-MM-DD')
           : null,
         onlineMeetingUrls: session.onlineMeetingUrls || null,
-        courseScheduleIds: session.courseScheduleIds || null,
+        courseScheduleIds: session.schedules?.map(item => item.id) || null,
       });
     } else if (open) {
       // Determine level based on provided parentId
