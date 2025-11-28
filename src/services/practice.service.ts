@@ -15,7 +15,7 @@ export const practiceService = {
   getAll: async (params: PracticeListParams): Promise<PracticeListResponse> => {
     const { CourseId, PageIndex = 1, PageSize = 100 } = params;
     const response = await httpService.get<PracticeListResponse>(
-      `/CourseScheduleEnrollment/GetAll?CourseId=${CourseId}&PageIndex=${PageIndex}&PageSize=${PageSize}`
+      `/CourseSessionEnrollment/GetAll?CourseId=${CourseId}&PageIndex=${PageIndex}&PageSize=${PageSize}`
     );
     return response.data;
   },
@@ -26,7 +26,7 @@ export const practiceService = {
    * @returns Promise<void>
    */
   updateGrade: async (data: Omit<UpdatePracticeGradePayload, 'actionType'>): Promise<void> => {
-    await httpService.post('/CourseScheduleEnrollment/Update', {
+    await httpService.post('/CourseSessionEnrollment/Update', {
       ...data,
       actionType: UpdateEnrollmentActionType.SetGrade,
     });
@@ -38,7 +38,7 @@ export const practiceService = {
    * @returns Promise<void>
    */
   resetGrade: async (id: string): Promise<void> => {
-    await httpService.post('/CourseScheduleEnrollment/Update', {
+    await httpService.post('/CourseSessionEnrollment/Update', {
       id,
       actionType: UpdateEnrollmentActionType.ResetBoth,
       grade: 0,
