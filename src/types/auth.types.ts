@@ -28,16 +28,65 @@ export interface LoginResponse {
   user: User;
 }
 
-export interface User {
+export interface UserInfo {
+  fullNameFa: string;
+  firstNameFa: string;
+  lastNameFa: string;
+  phoneNumber: string;
+  imageUrl: string;
+  username: string;
+  address: string | null;
+  referralId: string;
+  isProfileComplete: boolean;
+  identityStatusType: number;
+  identityMessage: string;
   id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  avatar?: string;
-  role: UserRole;
-  permissions: Permission[];
-  createdAt: string;
-  updatedAt: string;
+}
+
+export interface CreditCard {
+  pan: string;
+  shaba: string;
+  imageUrl: string;
+  identityImageUrl: string;
+  identityStatusType: number;
+  message: string;
+  id: string;
+}
+
+export interface Transaction {
+  amount: number;
+  dueDate: string;
+  installmentStep: number;
+  isPaid: boolean;
+  paymentId: string;
+  paidTime: string;
+  createdTime: string;
+  updatedTime: string;
+  id: string;
+}
+
+export interface Invoice {
+  paymentType: number;
+  valueType: number;
+  valueId: string;
+  valuePrice: number;
+  valueInstallmentCount: number;
+  valueMinimumInstallmentToPay: number;
+  isSettled: boolean;
+  settledTime: string;
+  transactions: Transaction[];
+  createdTime: string;
+  updatedTime: string;
+  valueInfo: any | null;
+  id: string;
+}
+
+export interface User {
+  info: UserInfo;
+  profile: any | null;
+  creditCards: CreditCard[];
+  wallet: any | null;
+  invoices: Invoice[];
 }
 
 export enum UserRole {

@@ -64,38 +64,17 @@ class HttpService {
       async (error: AxiosError) => {
         const originalRequest = error.config as AxiosRequestConfig & { _retry?: boolean };
 
-        // Handle 401 Unauthorized
-        if (error.response?.status === 401 && !originalRequest._retry) {
-          originalRequest._retry = true;
+        // Handle 401 Unauthorized - Clear auth and redirect
+        if (error.response?.status === 401) {
+          // Clear authentication state
+          useAuthStore.getState().clearAuth();
 
-          try {
-            // Try to refresh token
-            const refreshToken = useAuthStore.getState().refreshToken;
-            if (refreshToken) {
-              const response = await this.post<{ token: string; refreshToken: string }>(
-                '/auth/refresh',
-                { refreshToken }
-              );
-              const { token, refreshToken: newRefreshToken } = response.data;
-
-              useAuthStore.getState().setAuth(
-                useAuthStore.getState().user!,
-                token,
-                newRefreshToken
-              );
-
-              // Retry original request
-              if (originalRequest.headers) {
-                originalRequest.headers.Authorization = `Bearer ${token}`;
-              }
-              return this.client(originalRequest);
-            }
-          } catch (refreshError) {
-            // Refresh failed, logout user
-            useAuthStore.getState().clearAuth();
-            window.location.href = '/auth/login';
-            return Promise.reject(refreshError);
+          // Redirect to login page
+          if (window.location.pathname !== ROUTES.AUTH.LOGIN) {
+            window.location.href = ROUTES.AUTH.LOGIN;
           }
+
+          return Promise.reject(error);
         }
 
         // Handle other errors

@@ -86,10 +86,13 @@ export const MainLayout: React.FC = () => {
   // Get user full name safely
   const getUserFullName = () => {
     if (!user) return 'کاربر';
-    const firstName = user.firstName || '';
-    const lastName = user.lastName || '';
-    const fullName = `${firstName} ${lastName}`.trim();
-    return fullName || user.email || 'کاربر';
+    return user.info?.fullNameFa || user.info?.username || 'کاربر';
+  };
+
+  // Get user phone number
+  const getUserPhone = () => {
+    if (!user) return '';
+    return user.info?.phoneNumber || '';
   };
 
   // Handle logout with confirmation
@@ -111,16 +114,54 @@ export const MainLayout: React.FC = () => {
     return false;
   })?.key || '';
 
-  // Menu content (shared between Sider and Drawer)
-  const menuContent = (
+  // Menu content for desktop sidebar
+  const desktopMenuContent = (
     <div className="flex flex-col h-full">
       <div className="h-16 flex items-center justify-center border-b border-gray-200 px-4">
-        <img
-          src="/images/metaaLearn-logo.png"
-          alt="MetaaLearn"
-          className="h-10 w-auto"
-        />
+        {!collapsed && (
+          <img
+            src="/images/metaaLearn-logo.png"
+            alt="MetaaLearn"
+            className="h-10 w-auto"
+          />
+        )}
       </div>
+      <Menu
+        mode="inline"
+        selectedKeys={[selectedKey]}
+        items={menuItems}
+        className="border-r-0 flex-1"
+      />
+      <div className="border-t border-gray-200 p-4">
+        {collapsed ? (
+          <Button
+            type="primary"
+            danger
+            icon={<LogOut size={18} />}
+            onClick={handleLogout}
+            block
+            size="large"
+            className="!px-0"
+          />
+        ) : (
+          <Button
+            type="primary"
+            danger
+            icon={<LogOut size={16} />}
+            onClick={handleLogout}
+            block
+            size="large"
+          >
+            خروج از حساب
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+
+  // Menu content for mobile drawer
+  const mobileMenuContent = (
+    <div className="flex flex-col h-full">
       <Menu
         mode="inline"
         selectedKeys={[selectedKey]}
@@ -154,7 +195,7 @@ export const MainLayout: React.FC = () => {
           width={250}
           style={{ position: 'fixed', height: '100vh', right: 0, top: 0 }}
         >
-          {menuContent}
+          {desktopMenuContent}
         </Sider>
       )}
 
@@ -181,25 +222,7 @@ export const MainLayout: React.FC = () => {
             <X size={20} />
           </button>
         </div>
-        <Menu
-          mode="inline"
-          selectedKeys={[selectedKey]}
-          items={menuItems}
-          className="border-r-0 flex-1"
-          style={{ flex: 1 }}
-        />
-        <div className="border-t border-gray-200 p-4">
-          <Button
-            type="primary"
-            danger
-            icon={<LogOut size={16} />}
-            onClick={handleLogout}
-            block
-            size="large"
-          >
-            خروج از حساب
-          </Button>
-        </div>
+        {mobileMenuContent}
       </Drawer>
 
       {/* Logout Confirmation Modal */}
@@ -257,7 +280,7 @@ export const MainLayout: React.FC = () => {
               <div className="text-sm font-medium text-gray-900">
                 {getUserFullName()}
               </div>
-              <div className="text-xs text-gray-500">{user?.role || 'نقش'}</div>
+              <div className="text-xs text-gray-500">{getUserPhone()}</div>
             </div>
             <Avatar size={36} className="bg-primary-500">
               {getInitials(getUserFullName())}

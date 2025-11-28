@@ -3,7 +3,7 @@ import { authService } from '@/services';
 import { OtpLoginCredentials, VerifyOtpRequest, ResendOtpRequest } from '@/types';
 import { message } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import { ROUTES } from '@/constants';
+import { ROUTES, QUERY_KEYS } from '@/constants';
 import { useQueryClient } from '@tanstack/react-query';
 
 /**
@@ -39,7 +39,13 @@ export const useAuth = () => {
     try {
       setLoading(true);
       const response = await authService.verifyOtp(data);
+
+      // Set auth with token (user data will be fetched by useUser hook)
       setAuth(response.user, response.token, response.refreshToken);
+
+      // Trigger user profile fetch via React Query
+      await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.USER.PROFILE });
+
       message.success('ورود موفقیت‌آمیز بود!');
       navigate(ROUTES.USERS.ROOT);
     } catch (error) {

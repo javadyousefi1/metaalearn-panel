@@ -1,6 +1,7 @@
 import { httpService } from './http.service';
 import { UserListResponse, UserListParams } from '@/types/courseSchedule.types';
 import { GetAllUsersParams, AllUsersResponse, UpdateUserIdentityPayload, RoleManagementPayload, PurchasedCoursesParams, PurchasedCoursesResponse } from '@/types/user.types';
+import { User } from '@/types/auth.types';
 
 /**
  * User Service
@@ -61,6 +62,18 @@ export const userService = {
     const response = await httpService.get<PurchasedCoursesResponse>(
       `/User/GetAllPurchasedCourses`,
       { params }
+    );
+    return response.data;
+  },
+
+  /**
+   * Get current user profile
+   * @returns Promise with user profile data
+   */
+  getUserProfile: async (): Promise<User> => {
+    const response = await httpService.get<User>(
+      `/User/Get`,
+      { params: { includeProfile: true } }
     );
     return response.data;
   },
