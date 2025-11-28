@@ -146,6 +146,12 @@ export const OperatorPracticeDetailPage: React.FC = () => {
         </div>
       ),
     },
+      {
+          title: "نام جلسه",
+          dataIndex: "courseSession",
+          key: "courseSession",
+          render: (courseSession: string | undefined) => <span>{courseSession?.name}</span>
+      },
     {
       title: "فایل تمرین",
       dataIndex: "practiceFileUrl",
