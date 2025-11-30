@@ -75,10 +75,10 @@ export const useCourseSessions = () => {
  * Custom hook for getting all course sessions
  * @param enabled - Whether the query should run (optional, defaults to true)
  */
-export const useGetAllSessions = (enabled = true, courseId) => {
+export const useGetAllSessions = (enabled = true, params: {courseId:string,isPracticeAvailable:boolean}) => {
   return useQuery({
     queryKey: queryKeys.sessions.all,
-    queryFn: () => courseSessionService.getAll({courseId}),
+    queryFn: () => courseSessionService.getAll(params),
     enabled,
       select :(data) => data?.items
   });

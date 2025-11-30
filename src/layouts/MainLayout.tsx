@@ -41,7 +41,7 @@ export const MainLayout: React.FC = () => {
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
-
+    console.log(user ,"user")
   // Close drawer when route changes on mobile
   useEffect(() => {
     if (isMobile) {

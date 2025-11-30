@@ -122,6 +122,7 @@ class HttpService {
   }
 
   private handleError(error: AxiosError): void {
+      console.error(error);
     if (error.response) {
       // Server responded with error
       const status = error.response.status;

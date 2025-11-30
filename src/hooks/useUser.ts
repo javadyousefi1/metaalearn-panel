@@ -16,6 +16,7 @@ export const useUser = () => {
       const userData = await userService.getUserProfile();
       // Update user data in store after fetching
       const currentState = useAuthStore.getState();
+      console.log(userData);
       if (currentState.token && currentState.refreshToken) {
         setAuth(userData, currentState.token, currentState.refreshToken);
       }

@@ -29,7 +29,7 @@ export const CourseCreateModal: React.FC<CourseCreateModalProps> = ({
   onSuccess,
 }) => {
   const [form] = Form.useForm();
-
+    console.log(course);
   const isEditMode = !!course;
 
   // Use custom hooks

@@ -14,7 +14,7 @@ export const CourseSessionsPage: React.FC = () => {
   const [selectedParentId, setSelectedParentId] = useState<string | null>(null);
   const [selectedLevel1ParentId, setSelectedLevel1ParentId] = useState<string | null>(null);
 
-  const { data: allSessions = [], refetch, isLoading } = useGetAllSessions(true,id);
+  const { data: allSessions = [], refetch, isLoading } = useGetAllSessions(true, {courseId:id});
   const { createSession, updateSession, deleteSession, uploadFile, isCreating, isUpdating, isDeleting, isUploading } = useCourseSessions();
 
   // Flatten all sessions for easier lookup

@@ -12,8 +12,11 @@ export const courseSessionService = {
    * @returns Promise with session list response
    */
   getAll: async (params): Promise<SessionListResponse> => {
+      console.log(params)
     const response = await httpService.get<SessionListResponse>(
-      `/CourseSession/GetAll` , {params}
+      `/CourseSession/GetAll` , {
+          params
+        }
     );
     return response.data;
   },

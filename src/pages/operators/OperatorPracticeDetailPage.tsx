@@ -52,7 +52,7 @@ export const OperatorPracticeDetailPage: React.FC = () => {
   // Fetch course sessions for filter
   const { data: courseSessions = [], isLoading: isLoadingSessions } = useGetAllSessions(
     !!courseId,
-    courseId
+      {courseId,isPracticeAvailable:true}
   );
 
   // Fetch practice submissions using useTable
