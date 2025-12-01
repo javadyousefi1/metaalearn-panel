@@ -90,7 +90,6 @@ export const CourseCreateModal: React.FC<CourseCreateModalProps> = ({
         progressPercentage: fullCourseData.progressPercentage || 0,
         installmentType: fullCourseData.installmentType ?? InstallmentTypeEnum.Auto,
         installmentCount: fullCourseData.installmentCount || fullCourseData.installments?.length || 0,
-        minimumInstallmentToPay: fullCourseData.minimumInstallmentToPay || 0,
         installmentInterval: fullCourseData.installmentInterval || 0,
         installments: fullCourseData.installments?.map(inst => ({
           ...inst,
@@ -136,7 +135,7 @@ export const CourseCreateModal: React.FC<CourseCreateModalProps> = ({
       installments = values.installments.map((inst: any) => ({
         step: inst.step,
         amount: inst.amount,
-        dueTime: inst.dueTime ? moment(inst.dueTime, 'YYYY-MM-DD').toISOString() : '',
+        dueTime: inst.dueTime ? moment(inst.dueTime, 'YYYY-MM-DD').toISOString() : null,
       }));
     }
 
@@ -156,7 +155,6 @@ export const CourseCreateModal: React.FC<CourseCreateModalProps> = ({
       progressPercentage: values.progressPercentage || 0,
       installmentType: showInstallmentSection ? values.installmentType : InstallmentTypeEnum.None,
       installmentCount: values.installmentCount || null,
-      minimumInstallmentToPay: values.minimumInstallmentToPay || null,
       installmentInterval: values.installmentInterval || null,
       installments,
       discountPercentage: values.discountPercentage || 0,
@@ -232,7 +230,6 @@ export const CourseCreateModal: React.FC<CourseCreateModalProps> = ({
             progressPercentage: 0,
             installmentType: InstallmentTypeEnum.Auto,
             installmentCount: 0,
-            minimumInstallmentToPay: 0,
             installmentInterval: 0,
             discountPercentage: 0,
             requiresIdentityVerification: false,
@@ -358,21 +355,6 @@ export const CourseCreateModal: React.FC<CourseCreateModalProps> = ({
                   />
                 </Form.Item>
 
-                {/* Minimum Installment To Pay - Always visible in installment mode */}
-                <Form.Item
-                  name="minimumInstallmentToPay"
-                  label="حداقل پیش پرداخت"
-                  rules={[{ required: true, message: 'حداقل پیش پرداخت را وارد کنید' }]}
-                >
-                  <InputNumber
-                    className="w-full"
-                    min={0}
-                    placeholder="مبلغ به تومان"
-                    formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                    parser={(value) => Number(value!.replace(/\$\s?|(,*)/g, '')) as any}
-                  />
-                </Form.Item>
-
                 {/* Auto Mode Fields */}
                 {installmentType === InstallmentTypeEnum.Auto && (
                   <>
@@ -462,7 +444,8 @@ export const CourseCreateModal: React.FC<CourseCreateModalProps> = ({
                                 label={index === 0 ? 'تاریخ سررسید' : undefined}
                                 isFormItem
                                 name={[field.name, 'dueTime']}
-                                isRequired
+                                isRequired={index !== 0}
+                                disabled={index === 0}
                               />
                             </div>
                           </div>

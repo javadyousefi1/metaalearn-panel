@@ -19,6 +19,7 @@ interface Props {
   isRequired?: boolean;
   format?: 'jYYYY-jMM-jDD' | 'jYYYY/jMM/jDD';
   type: 'birth-date';
+  disabled :boolean;
 }
 
 function DatePicker(props: Props) {
@@ -35,6 +36,7 @@ function DatePicker(props: Props) {
     isRequired,
     type,
     format,
+      disabled,
   } = props;
 
   const dateFormat = format || 'YYYY-MM-DD';
@@ -117,6 +119,7 @@ function DatePicker(props: Props) {
           placeholder={placeholder}
           format="YYYY/MM/DD"
           inputReadOnly={true}
+          disabled={disabled}
           disabledDate={disableDate[type]}
           // defaultPickerValue={defaultPickerValues[type]}
         />
