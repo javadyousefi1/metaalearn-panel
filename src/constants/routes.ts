@@ -53,6 +53,8 @@ export const ROUTES = {
     SCHEDULES_PATH: '/course/:id/schedules',
     GALLERY: (id: string) => `/course/${id}/gallery`,
     GALLERY_PATH: '/course/:id/gallery',
+    COMMENTS: (id: string) => `/course/${id}/comments`,
+    COMMENTS_PATH: '/course/:id/comments',
   },
 
 
@@ -148,6 +150,7 @@ export const PAGE_TITLES: Record<string, string> = {
   [ROUTES.COURSE.FAQ_PATH]: 'سوالات متداول',
   [ROUTES.COURSE.SCHEDULES_PATH]: 'گروه‌بندی',
   [ROUTES.COURSE.GALLERY_PATH]: 'گالری دوره',
+  [ROUTES.COURSE.COMMENTS_PATH]: 'کامنت‌ها',
   [ROUTES.BLOGS.LIST]: 'لیست مقالات',
   [ROUTES.BLOGS.CATEGORIES]: 'دسته‌بندی‌های مقالات',
   [ROUTES.BLOGS.CREATE]: 'ایجاد مقاله جدید',

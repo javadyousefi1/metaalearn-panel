@@ -72,4 +72,11 @@ export const queryKeys = {
       [...queryKeys.blogGallery.lists(), { ...filters }] as const,
     byBlog: (blogId: string) => [...queryKeys.blogGallery.all, 'blog', blogId] as const,
   },
+  courseComments: {
+    all: ['courseComments'] as const,
+    lists: () => [...queryKeys.courseComments.all, 'list'] as const,
+    list: (courseId: string, filters?: Record<string, unknown>) =>
+      [...queryKeys.courseComments.lists(), courseId, { ...filters }] as const,
+    byCourse: (courseId: string) => [...queryKeys.courseComments.all, 'course', courseId] as const,
+  },
 } as const;

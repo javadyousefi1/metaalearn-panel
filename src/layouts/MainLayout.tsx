@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Layout, Menu, Avatar, Drawer, theme, Button, Modal } from 'antd';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { LogOut, ChevronLeft, ChevronRight, Menu as MenuIcon, X } from 'lucide-react';
 import { useAuth } from '@/hooks';
 import { MENU_ITEMS } from '@/constants';
-import { getInitials } from '@/utils';
+import { getInitials, filterMenuByRoles } from '@/utils';
 
 const { Header, Sider, Content } = Layout;
 
@@ -38,10 +38,10 @@ export const MainLayout: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuth();
+    console.log(user ,"javad")
   const {
     token: { colorBgContainer, borderRadiusLG },
-  } = theme.useToken();
-    console.log(user ,"user")
+  } = theme.useToken()
   // Close drawer when route changes on mobile
   useEffect(() => {
     if (isMobile) {
@@ -49,8 +49,19 @@ export const MainLayout: React.FC = () => {
     }
   }, [location.pathname, isMobile]);
 
-  // Map menu items without permission filtering
-  const menuItems = MENU_ITEMS.map((item) => {
+  // Filter menu items based on user roles
+  const filteredMenuItems = useMemo(() => {
+    console.log('🔑 User:', user);
+    console.log('🔑 User roles:', user?.info?.roles);
+
+    const filtered = filterMenuByRoles(MENU_ITEMS, user?.info?.roles);
+    console.log('✅ Filtered menu items:', filtered.length);
+
+    return filtered;
+  }, [user?.info?.roles]);
+
+  // Map menu items for Ant Design Menu component
+  const menuItems = filteredMenuItems.map((item) => {
     if (item.divider) {
       return { type: 'divider' as const, key: item.key };
     }
@@ -105,8 +116,8 @@ export const MainLayout: React.FC = () => {
     logout();
   };
 
-  // Get current selected menu key from location
-  const selectedKey = MENU_ITEMS.find((item) => {
+  // Get current selected menu key from location (use filtered menu items)
+  const selectedKey = filteredMenuItems.find((item) => {
     if (item.path === location.pathname) return true;
     if (item.children) {
       return item.children.some((child) => child.path === location.pathname);

@@ -7,6 +7,7 @@ export * from './category.types';
 export * from './course.types';
 export * from './session.types';
 export * from './courseSchedule.types';
+export * from './courseComment.types';
 export * from './practice.types';
 // Selective export to avoid CourseGalleryItem conflict with course.types
 export {

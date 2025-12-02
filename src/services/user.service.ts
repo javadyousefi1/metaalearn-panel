@@ -75,6 +75,8 @@ export const userService = {
       `/User/Get`,
       { params: { includeProfile: true } }
     );
+
+    console.log(response , "javad user response");
     return response.data;
   },
 };

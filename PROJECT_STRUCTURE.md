@@ -34,7 +34,7 @@ metaalearn-panel/
 │   │   └── index.ts         # Exports
 │   │
 │   ├── hooks/               # Custom React hooks
-│   │   ├── useAuth.ts       # Authentication hook
+│   │   ├── useAuth.tsx       # Authentication hook
 │   │   ├── usePermissions.ts # Permission checking hook
 │   │   └── index.ts         # Exports
 │   │
@@ -164,7 +164,7 @@ State management with Zustand:
 
 #### `src/hooks/`
 Custom React hooks:
-- **useAuth.ts**: Authentication operations
+- **useAuth.tsx**: Authentication operations
   - login(), logout(), register()
   - User state and loading state
 - **usePermissions.ts**: Permission checking

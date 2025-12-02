@@ -40,6 +40,7 @@ export interface UserInfo {
   isProfileComplete: boolean;
   identityStatusType: number;
   identityMessage: string;
+  roles: string[];
   id: string;
 }
 
@@ -90,11 +91,11 @@ export interface User {
 }
 
 export enum UserRole {
-  SUPER_ADMIN = 'super_admin',
-  ADMIN = 'admin',
-  TEACHER = 'teacher',
+  SUPER_ADMIN = 'super-admin',
+  OPERATOR_ADMIN = 'operator-admin',
+  OPERATOR = 'operator',
+  INSTRUCTOR = 'instructor',
   STUDENT = 'student',
-  MODERATOR = 'moderator',
 }
 
 export enum Permission {

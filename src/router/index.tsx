@@ -7,7 +7,7 @@ import { UsersPage } from '@/pages/users';
 import { TicketsPage, TicketDetailPage } from '@/pages/tickets';
 import { OperatorTicketsPage, OperatorTicketDetailPage, OperatorPracticesPage, OperatorPracticeDetailPage } from '@/pages/operators';
 import { CoursesPage, CourseListPage } from '@/pages/courses';
-import { CourseDetailPage, CourseFaqPage, CourseSessionsPage, CourseIntroductionPage, CourseSchedulePage, CourseGalleryPage } from '@/pages/course';
+import { CourseDetailPage, CourseFaqPage, CourseSessionsPage, CourseIntroductionPage, CourseSchedulePage, CourseGalleryPage, CourseCommentsPage } from '@/pages/course';
 import { CategoriesPage, SubCategoriesPage } from '@/pages/categories';
 import { BlogListPage, BlogCategoryPage, BlogDetailPage, BlogInfoPage, BlogGalleryPage } from '@/pages/blogs';
 import { BankCardsPage, TransactionsPage } from '@/pages/finance';
@@ -143,6 +143,10 @@ export const router = createBrowserRouter([
           {
             path: ROUTES.COURSE.GALLERY_PATH,
             element: <CourseGalleryPage />,
+          },
+          {
+            path: ROUTES.COURSE.COMMENTS_PATH,
+            element: <CourseCommentsPage />,
           },
         ],
       },

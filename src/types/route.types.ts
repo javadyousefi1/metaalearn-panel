@@ -17,6 +17,7 @@ export interface MenuItemConfig {
   label: string;
   icon?: LucideIcon;
   permissions?: Permission[];
+  roles?: string[]; // Array of roles that can access this menu item
   children?: MenuItemConfig[];
   divider?: boolean;
 }

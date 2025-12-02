@@ -27,6 +27,9 @@ export const CourseDetailPage: React.FC = () => {
     if (location.pathname.endsWith('/gallery')) {
       return 'gallery';
     }
+    if (location.pathname.endsWith('/comments')) {
+      return 'comments';
+    }
     // Default to Introduction when on the base course detail page
     return 'introduction';
   };
@@ -63,6 +66,9 @@ export const CourseDetailPage: React.FC = () => {
         break;
       case 'gallery':
         navigate(ROUTES.COURSE.GALLERY(id));
+        break;
+      case 'comments':
+        navigate(ROUTES.COURSE.COMMENTS(id));
         break;
       default:
         navigate(ROUTES.COURSE.INTRODUCTION(id));
@@ -115,6 +121,10 @@ export const CourseDetailPage: React.FC = () => {
                   {
                       label: 'گالری',
                       value: 'gallery',
+                  },
+                  {
+                      label: 'کامنت‌ها',
+                      value: 'comments',
                   },
               ]}
               size="large"

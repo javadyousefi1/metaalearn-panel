@@ -1,5 +1,4 @@
-export * from './useAuth';
-export * from './useUser';
+export * from './useAuth.tsx';
 export * from './usePermissions';
 export * from './useCategories';
 export * from './useCourses';
@@ -16,3 +15,4 @@ export * from './usePaymentVerification';
 export * from './useBlogs';
 export * from './useBlogCategories';
 export * from './useBlogGallery';
+export * from './useCourseComments';

@@ -1,29 +1,40 @@
 import { RouterProvider } from 'react-router-dom';
-import { QueryClientProvider } from '@tanstack/react-query';
-import { ConfigProvider } from 'antd';
+import { QueryClientProvider, useQuery } from '@tanstack/react-query';
+import { ConfigProvider, Spin } from 'antd';
 import faIR from 'antd/locale/fa_IR';
 import { queryClient } from '@/config';
 import { router } from '@/router';
-import { useAuthStore } from '@/store';
-import { useUser } from '@/hooks';
-import { FullScreenLoader } from '@/components/common';
+import { QUERY_KEYS } from '@/constants';
+import { userService } from '@/services';
 
 /**
- * Auth Checker Component
- * Handles user profile fetching with React Query
+ * Auth Loader Component
+ * Fetches user data on app load if token exists
  */
-const AuthChecker = ({ children }: { children: React.ReactNode }) => {
-  const { token, isAuthenticated, user } = useAuthStore();
-  const { isLoading, isFetching } = useUser();
+const AuthLoader = ({ children }: { children: React.ReactNode }) => {
+  const token = localStorage.getItem('auth_token');
 
-  // Show loader when:
-  // 1. User has token and is authenticated
-  // 2. No user data loaded yet
-  // 3. React Query is loading or fetching
-  const shouldShowLoader = token && isAuthenticated && !user && (isLoading || isFetching);
+  // Only fetch user if token exists
+  const { isLoading } = useQuery({
+    queryKey: QUERY_KEYS.USER.PROFILE,
+    queryFn: userService.getUserProfile,
+    enabled: !!token,
+    staleTime: 5 * 60 * 1000,
+    retry: false,
+  });
 
-  if (shouldShowLoader) {
-    return <FullScreenLoader />;
+  // Show loader only if we have a token and are fetching user data
+  if (token && isLoading) {
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh'
+      }}>
+        <Spin size="large" />
+      </div>
+    );
   }
 
   return <>{children}</>;
@@ -46,9 +57,9 @@ function App() {
           },
         }}
       >
-        <AuthChecker>
+        <AuthLoader>
           <RouterProvider router={router} />
-        </AuthChecker>
+        </AuthLoader>
       </ConfigProvider>
     </QueryClientProvider>
   );

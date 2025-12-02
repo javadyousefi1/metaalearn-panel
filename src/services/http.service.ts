@@ -1,6 +1,5 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 import { env } from '@/config';
-import { useAuthStore } from '@/store';
 import { message } from 'antd';
 import {ROUTES} from "@/constants";
 
@@ -46,7 +45,7 @@ class HttpService {
     // Request interceptor - Add auth token
     this.client.interceptors.request.use(
       (config) => {
-        const token = useAuthStore.getState().token;
+        const token = localStorage.getItem('auth_token');
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }
@@ -66,8 +65,9 @@ class HttpService {
 
         // Handle 401 Unauthorized - Clear auth and redirect
         if (error.response?.status === 401) {
-          // Clear authentication state
-          useAuthStore.getState().clearAuth();
+          // Clear tokens from localStorage
+          localStorage.removeItem('auth_token');
+          localStorage.removeItem('refresh_token');
 
           // Redirect to login page
           if (window.location.pathname !== ROUTES.AUTH.LOGIN) {
