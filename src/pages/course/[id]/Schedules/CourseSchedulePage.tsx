@@ -44,10 +44,10 @@ export const CourseSchedulePage: React.FC = () => {
         description: values.description,
         isVisible: values.isVisible,
         status: values.status,
-        typeId: values.typeId || null,
         instructorIds: values.instructorIds,
         operatorIds: values.operatorIds,
         studentIds: values.studentIds,
+        ...(values.typeId === 1 ? {} : {typeId: values.typeId || null} ),
       });
     } else {
       // Create new schedule
