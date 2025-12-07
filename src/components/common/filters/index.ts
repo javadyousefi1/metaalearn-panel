@@ -5,6 +5,7 @@ export * from './PhoneNumberFilter';
 export * from './FullNameFaFilter';
 export * from './RoleFilter';
 export * from './CourseSessionFilter';
+export * from './CourseScheduleFilter';
 
 // New dynamic filter system (recommended)
 export * from './types';

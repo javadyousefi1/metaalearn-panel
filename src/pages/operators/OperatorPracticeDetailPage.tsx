@@ -13,7 +13,7 @@ import {
 import { Home, UserCircle, Download, Edit2, RotateCcw } from "lucide-react";
 import type { ColumnsType } from "antd/es/table";
 import { useParams, useNavigate } from "react-router-dom";
-import { PageHeader, DataTable, CourseSessionFilter } from "@/components/common";
+import { PageHeader, DataTable, CourseSessionFilter, CourseScheduleFilter } from "@/components/common";
 import { useTable, useTableFilters } from "@/hooks";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { practiceService, courseService } from "@/services";
@@ -21,6 +21,7 @@ import { PracticeSubmission } from "@/types";
 import { formatDate } from "@/utils";
 import { ROUTES } from "@/constants";
 import { useGetAllSessions } from "@/hooks/useCourseSessions";
+import { useGetAllSchedules } from "@/hooks";
 
 
 /**
@@ -40,6 +41,7 @@ export const OperatorPracticeDetailPage: React.FC = () => {
   // Table filters
   const { filters, setFilter, resetFilters } = useTableFilters({
     CourseSessionId: null,
+    CourseScheduleId: null,
   });
 
   // Fetch course details
@@ -53,6 +55,12 @@ export const OperatorPracticeDetailPage: React.FC = () => {
   const { data: courseSessions = [], isLoading: isLoadingSessions } = useGetAllSessions(
     !!courseId,
       {courseId,isPracticeAvailable:true}
+  );
+
+  // Fetch course schedules for filter
+  const { data: courseSchedules = [], isLoading: isLoadingSchedules } = useGetAllSchedules(
+    { CourseId: courseId, PageIndex: 1, PageSize: 100 },
+    !!courseId
   );
 
   // Flatten nested subsessions (up to 2 levels deep) and filter by isPracticeAvailable and !isTopic
@@ -339,6 +347,12 @@ export const OperatorPracticeDetailPage: React.FC = () => {
       {/* Filters */}
       <div className="mb-6 bg-white p-4 rounded-lg shadow-sm">
         <div className="flex flex-wrap gap-4">
+          <CourseScheduleFilter
+            value={filters.CourseScheduleId as string}
+            onChange={(value) => setFilter('CourseScheduleId', value)}
+            schedules={courseSchedules}
+            loading={isLoadingSchedules}
+          />
           <CourseSessionFilter
             value={filters.CourseSessionId as string}
             onChange={(value) => setFilter('CourseSessionId', value)}
