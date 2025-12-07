@@ -258,3 +258,10 @@ export interface CreateTicketMessagePayload {
   content: string;
   files?: File[];
 }
+
+// Update Ticket Message Types
+export interface UpdateTicketMessagePayload {
+  id: string;
+  content: string;
+  files?: File[];
+}

@@ -1,7 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { message as antdMessage } from 'antd';
 import { ticketService } from '@/services';
-import type { TicketMessage, CreateTicketMessagePayload } from '@/types/ticket.types';
+import type {
+  TicketMessage,
+  CreateTicketMessagePayload,
+  UpdateTicketMessagePayload,
+} from '@/types/ticket.types';
 
 interface UseTicketMessagesParams {
   ticketId: string | undefined;
@@ -14,7 +18,11 @@ interface UseTicketMessagesReturn {
   error: Error | null;
   refetch: () => void;
   sendMessage: (payload: CreateTicketMessagePayload) => Promise<void>;
+  updateMessage: (payload: UpdateTicketMessagePayload) => Promise<void>;
+  deleteMessage: (id: string) => Promise<void>;
   isSending: boolean;
+  isUpdating: boolean;
+  isDeleting: boolean;
 }
 
 /**
@@ -60,12 +68,40 @@ export const useTicketMessages = ({
     },
   });
 
+  // Update message mutation
+  const updateMessageMutation = useMutation({
+    mutationFn: ticketService.updateMessage,
+    onSuccess: () => {
+      antdMessage.success('پیام با موفقیت ویرایش شد');
+      queryClient.invalidateQueries({ queryKey: ['ticket-messages', ticketId] });
+    },
+    onError: () => {
+      antdMessage.error('خطا در ویرایش پیام');
+    },
+  });
+
+  // Delete message mutation
+  const deleteMessageMutation = useMutation({
+    mutationFn: ticketService.deleteMessage,
+    onSuccess: () => {
+      antdMessage.success('پیام با موفقیت حذف شد');
+      queryClient.invalidateQueries({ queryKey: ['ticket-messages', ticketId] });
+    },
+    onError: () => {
+      antdMessage.error('خطا در حذف پیام');
+    },
+  });
+
   return {
     messages: data?.items || [],
     isLoading,
     error: error as Error | null,
     refetch,
     sendMessage: (payload: CreateTicketMessagePayload) => sendMessageMutation.mutateAsync(payload),
+    updateMessage: (payload: UpdateTicketMessagePayload) => updateMessageMutation.mutateAsync(payload),
+    deleteMessage: (id: string) => deleteMessageMutation.mutateAsync(id),
     isSending: sendMessageMutation.isPending,
+    isUpdating: updateMessageMutation.isPending,
+    isDeleting: deleteMessageMutation.isPending,
   };
 };

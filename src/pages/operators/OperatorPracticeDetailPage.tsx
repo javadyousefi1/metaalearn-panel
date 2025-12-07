@@ -55,6 +55,38 @@ export const OperatorPracticeDetailPage: React.FC = () => {
       {courseId,isPracticeAvailable:true}
   );
 
+  // Flatten nested subsessions (up to 2 levels deep) and filter by isPracticeAvailable and !isTopic
+  const flatCourseSessionsHasParctive = React.useMemo(() => {
+    const result: any[] = [];
+
+    courseSessions.forEach(session => {
+      // Check parent session
+      if (!session.isTopic && session.isPracticeAvailable) {
+        result.push(session);
+      }
+
+      // Check first level subsessions
+      if (session.subSessions && Array.isArray(session.subSessions)) {
+        session.subSessions.forEach(subSession => {
+          if (!subSession.isTopic && subSession.isPracticeAvailable) {
+            result.push(subSession);
+          }
+
+          // Check second level subsessions
+          if (subSession.subSessions && Array.isArray(subSession.subSessions)) {
+            subSession.subSessions.forEach(nestedSubSession => {
+              if (!nestedSubSession.isTopic && nestedSubSession.isPracticeAvailable) {
+                result.push(nestedSubSession);
+              }
+            });
+          }
+        });
+      }
+    });
+
+    return result;
+  }, [courseSessions]);
+
   // Fetch practice submissions using useTable
   const {
     data: practices,
@@ -310,7 +342,7 @@ export const OperatorPracticeDetailPage: React.FC = () => {
           <CourseSessionFilter
             value={filters.CourseSessionId as string}
             onChange={(value) => setFilter('CourseSessionId', value)}
-            sessions={courseSessions}
+            sessions={flatCourseSessionsHasParctive}
             loading={isLoadingSessions}
           />
         </div>

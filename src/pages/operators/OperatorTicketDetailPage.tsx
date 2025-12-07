@@ -240,7 +240,7 @@ export const OperatorTicketDetailPage: React.FC = () => {
                           {msg.userInfo.fullNameFa || "بدون نام"}
                         </span>
                         {msg.isOperator && (
-                          <span className="mr-2 text-purple-600">(اپراتور)</span>
+                          <span className="mr-2 text-purple-600">(ادمین سایت)</span>
                         )}
                       </div>
 

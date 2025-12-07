@@ -1,24 +1,36 @@
 import React, { useState, useRef, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { Card, Avatar, Spin, Button, Empty, Input, Upload, message } from "antd";
-import { Home, ArrowLeft, UserCircle, Send, Paperclip, X } from "lucide-react";
+import { useParams } from "react-router-dom";
+import { Card, Avatar, Spin, Button, Empty, Input, Upload, message, Popconfirm, Modal, Space } from "antd";
+import { Home, UserCircle, Send, Paperclip, X, Edit2, Trash2 } from "lucide-react";
 import { PageHeader } from "@/components/common";
 import { useTicketMessages } from "@/hooks";
 import { formatDate } from "@/utils";
 import type { UploadFile } from "antd";
+import type { TicketMessage } from "@/types/ticket.types";
 
 /**
  * TicketDetailPage Component - Display ticket messages in a chat interface
  */
 export const TicketDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const [messageContent, setMessageContent] = useState("");
   const [fileList, setFileList] = useState<UploadFile[]>([]);
+  const [editingMessage, setEditingMessage] = useState<TicketMessage | null>(null);
+  const [editContent, setEditContent] = useState("");
+  const [editFileList, setEditFileList] = useState<UploadFile[]>([]);
 
-  const { messages, isLoading, sendMessage, isSending } = useTicketMessages({
+  const {
+    messages,
+    isLoading,
+    sendMessage,
+    updateMessage,
+    deleteMessage,
+    isSending,
+    isUpdating,
+    isDeleting,
+  } = useTicketMessages({
     ticketId: id,
     pageSize: 1000,
   });
@@ -43,6 +55,22 @@ export const TicketDetailPage: React.FC = () => {
     });
 
     setFileList(validFiles);
+  };
+
+  // Handle edit file upload
+  const handleEditFileChange = ({ fileList: newFileList }: { fileList: UploadFile[] }) => {
+    const validFiles = newFileList.filter((file) => {
+      const isImage = file.type?.startsWith("image/");
+      const isZip = file.type === "application/zip" || file.type === "application/x-zip-compressed";
+
+      if (!isImage && !isZip) {
+        message.error(`فقط فایل‌های تصویری و ZIP مجاز هستند`);
+        return false;
+      }
+      return true;
+    });
+
+    setEditFileList(validFiles);
   };
 
   // Handle send message
@@ -74,6 +102,49 @@ export const TicketDetailPage: React.FC = () => {
     }
   };
 
+  // Handle edit message
+  const handleEditMessage = (msg: TicketMessage) => {
+    setEditingMessage(msg);
+    setEditContent(msg.content);
+    setEditFileList([]);
+  };
+
+  // Handle update message
+  const handleUpdateMessage = async () => {
+    if (!editContent.trim() && editFileList.length === 0) {
+      message.warning("لطفا پیام یا فایل خود را وارد کنید");
+      return;
+    }
+
+    if (!editingMessage) return;
+
+    try {
+      const files = editFileList.map((file) => file.originFileObj as File);
+
+      await updateMessage({
+        id: editingMessage.id,
+        content: editContent.trim(),
+        files: files.length > 0 ? files : undefined,
+      });
+
+      // Clear edit state
+      setEditingMessage(null);
+      setEditContent("");
+      setEditFileList([]);
+    } catch (error) {
+      console.error("Error updating message:", error);
+    }
+  };
+
+  // Handle delete message
+  const handleDeleteMessage = async (messageId: string) => {
+    try {
+      await deleteMessage(messageId);
+    } catch (error) {
+      console.error("Error deleting message:", error);
+    }
+  };
+
   // Handle Enter key press
   const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -86,7 +157,7 @@ export const TicketDetailPage: React.FC = () => {
     <div className="h-full flex flex-col">
       <PageHeader
         title="جزئیات تیکت"
-        description="مشاهده پیام‌های تیکت"
+        description="مشاهده و مدیریت پیام‌های تیکت"
         breadcrumbItems={[
           {
             title: (
@@ -133,28 +204,28 @@ export const TicketDetailPage: React.FC = () => {
                 maxHeight: 'calc(100vh - 400px)'
               }}
             >
-              {messages.map((message) => (
+              {messages.map((msg) => (
                 <div
-                  key={message.id}
+                  key={msg.id}
                   className={`flex ${
-                    message.isOperator ? "justify-start" : "justify-end"
+                    msg.isOperator ? "justify-start" : "justify-end"
                   }`}
                 >
                   <div
                     className={`flex gap-3 max-w-[70%] ${
-                      message.isOperator ? "flex-row" : "flex-row-reverse"
+                      msg.isOperator ? "flex-row" : "flex-row-reverse"
                     }`}
                   >
                     {/* User Avatar */}
                     <div className="flex-shrink-0">
-                      {message.userInfo.imageUrl ? (
-                        <Avatar size={40} src={message.userInfo.imageUrl} />
+                      {msg.userInfo.imageUrl ? (
+                        <Avatar size={40} src={msg.userInfo.imageUrl} />
                       ) : (
                         <Avatar
                           size={40}
                           icon={<UserCircle />}
                           style={{
-                            backgroundColor: message.isOperator
+                            backgroundColor: msg.isOperator
                               ? "#4B26AD"
                               : "#52c41a",
                           }}
@@ -164,34 +235,30 @@ export const TicketDetailPage: React.FC = () => {
 
                     {/* Message Content */}
                     <div className="flex-1">
-                      <div
-                        className={`mb-1 text-xs text-gray-500 ${
-                          message.isOperator ? "text-right" : "text-left"
-                        }`}
-                      >
+                      <div className="mb-1 text-xs text-gray-500 text-right">
                         <span className="font-medium">
-                          {message.userInfo.fullNameFa || "بدون نام"}
+                          {msg.userInfo.fullNameFa || "بدون نام"}
                         </span>
-                        {message.isOperator && (
-                          <span className="mr-2 text-purple-600">(اپراتور)</span>
+                        {msg.isOperator && (
+                          <span className="mr-2 text-purple-600">(ادمین سایت)</span>
                         )}
                       </div>
 
                       <div
                         className={`p-3 rounded-lg shadow-sm text-right ${
-                          message.isOperator
+                          msg.isOperator
                             ? "bg-purple-100"
                             : "bg-gray-100"
                         }`}
                       >
                         <p className="text-sm whitespace-pre-wrap">
-                          {message.content}
+                          {msg.content}
                         </p>
 
                         {/* Attachments */}
-                        {message.attachments && message.attachments.length > 0 && (
+                        {msg.attachments && msg.attachments.length > 0 && (
                           <div className="mt-2 space-y-1">
-                            {message.attachments.map((attachment) => (
+                            {msg.attachments.map((attachment) => (
                               <a
                                 key={attachment.id}
                                 href={attachment.url}
@@ -205,8 +272,38 @@ export const TicketDetailPage: React.FC = () => {
                           </div>
                         )}
 
-                        <div className="mt-2 text-xs text-gray-400 text-right">
-                          {formatDate(message.createdTime)}
+                        <div className="flex items-center justify-between mt-2">
+                          <div className="text-xs text-gray-400 text-right">
+                            {formatDate(msg.createdTime, true)}
+                          </div>
+
+                          {/* Admin actions - only for operator messages */}
+                          {msg.isOperator && (
+                            <Space size="small">
+                              <Button
+                                type="text"
+                                size="small"
+                                icon={<Edit2 size={14} />}
+                                onClick={() => handleEditMessage(msg)}
+                                disabled={isUpdating || isDeleting}
+                              />
+                              <Popconfirm
+                                title="حذف پیام"
+                                description="آیا از حذف این پیام اطمینان دارید؟"
+                                onConfirm={() => handleDeleteMessage(msg.id)}
+                                okText="بله"
+                                cancelText="خیر"
+                              >
+                                <Button
+                                  type="text"
+                                  danger
+                                  size="small"
+                                  icon={<Trash2 size={14} />}
+                                  disabled={isUpdating || isDeleting}
+                                />
+                              </Popconfirm>
+                            </Space>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -289,6 +386,69 @@ export const TicketDetailPage: React.FC = () => {
           </>
         )}
       </Card>
+
+      {/* Edit Message Modal */}
+      <Modal
+        title="ویرایش پیام"
+        open={!!editingMessage}
+        onOk={handleUpdateMessage}
+        onCancel={() => {
+          setEditingMessage(null);
+          setEditContent("");
+          setEditFileList([]);
+        }}
+        okText="ذخیره"
+        cancelText="انصراف"
+        confirmLoading={isUpdating}
+      >
+        <div className="py-4 space-y-4">
+          {/* Edit File Preview */}
+          {editFileList.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {editFileList.map((file) => (
+                <div
+                  key={file.uid}
+                  className="bg-blue-50 border border-blue-200 rounded-lg px-3 py-2 flex items-center gap-2"
+                >
+                  <Paperclip size={14} className="text-blue-600" />
+                  <span className="text-sm text-blue-900">{file.name}</span>
+                  <button
+                    onClick={() =>
+                      setEditFileList(editFileList.filter((f) => f.uid !== file.uid))
+                    }
+                    className="text-red-500 hover:text-red-700 transition-colors"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <Upload
+            fileList={editFileList}
+            onChange={handleEditFileChange}
+            beforeUpload={() => false}
+            accept="image/*,.zip"
+            showUploadList={false}
+            multiple
+          >
+            <Button icon={<Paperclip size={18} />}>
+              افزودن فایل
+            </Button>
+          </Upload>
+
+          <Input.TextArea
+            value={editContent}
+            onChange={(e) => setEditContent(e.target.value)}
+            placeholder="پیام خود را بنویسید..."
+            autoSize={{ minRows: 3, maxRows: 6 }}
+            style={{
+              fontSize: '14px',
+            }}
+          />
+        </div>
+      </Modal>
     </div>
   );
 };

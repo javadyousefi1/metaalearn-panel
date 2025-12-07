@@ -5,6 +5,7 @@ import type {
   GetAllTicketMessagesParams,
   AllTicketMessagesResponse,
   CreateTicketMessagePayload,
+  UpdateTicketMessagePayload,
 } from '@/types/ticket.types';
 
 /**
@@ -47,6 +48,36 @@ export const ticketService = {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
+    });
+  },
+
+  /**
+   * Update a ticket message
+   */
+  async updateMessage(payload: UpdateTicketMessagePayload): Promise<void> {
+    const formData = new FormData();
+    formData.append('id', payload.id);
+    formData.append('content', payload.content);
+
+    if (payload.files && payload.files.length > 0) {
+      payload.files.forEach((file) => {
+        formData.append('files', file);
+      });
+    }
+
+    await httpService.put('/TicketMessage/Update', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  },
+
+  /**
+   * Delete a ticket message
+   */
+  async deleteMessage(id: string): Promise<void> {
+    await httpService.delete('/TicketMessage/Delete', {
+      params: { id },
     });
   },
 };

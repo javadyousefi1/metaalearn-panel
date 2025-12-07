@@ -20,6 +20,7 @@ interface Props {
   format?: 'jYYYY-jMM-jDD' | 'jYYYY/jMM/jDD';
   type: 'birth-date';
   disabled :boolean;
+  showTime :boolean;
 }
 
 function DatePicker(props: Props) {
@@ -37,6 +38,7 @@ function DatePicker(props: Props) {
     type,
     format,
       disabled,
+      showTime
   } = props;
 
   const dateFormat = format || 'YYYY-MM-DD';
@@ -68,7 +70,7 @@ function DatePicker(props: Props) {
     }
     // Ensure we format the date in Gregorian YYYY-MM-DD format with English locale
     // Clone and set locale to 'en' to get ASCII numerals instead of Persian numerals
-    const formattedDate = date.clone().locale('en').format('YYYY-MM-DD');
+    const formattedDate = date.clone().locale('en').format(showTime ? "YYYY/MM/DD HH:mm" : "YYYY/MM/DD");
     console.log('formattedDate:', formattedDate);
     if (!isFormItem) setInternalValue(formattedDate);
     onChange?.(formattedDate);
@@ -77,8 +79,9 @@ function DatePicker(props: Props) {
 
   function valueIsValid(value?: string | null) {
     if (!value) return false;
-    // Strictly parse the date in YYYY-MM-DD format
-    const isValid = moment(value, 'YYYY-MM-DD', true).isValid();
+    // Check both formats: with and without time
+    const formats = ['YYYY-MM-DD', 'YYYY/MM/DD HH:mm', 'YYYY/MM/DD'];
+    const isValid = moment(value, formats, true).isValid();
     console.log('valueIsValid:', value, isValid);
     return isValid;
   }
@@ -86,9 +89,10 @@ function DatePicker(props: Props) {
   function getValue(value?: string | null) {
     console.log('getValue called with:', value);
     if (!valueIsValid(value)) return { value: null };
-    // Parse the Gregorian date string
-    const momentValue = moment(value, 'YYYY-MM-DD', true);
-    console.log('getValue returning moment:', momentValue.format('YYYY-MM-DD'));
+    // Parse the Gregorian date string with multiple format support
+    const formats = ['YYYY-MM-DD', 'YYYY/MM/DD HH:mm', 'YYYY/MM/DD'];
+    const momentValue = moment(value, formats, true);
+    console.log('getValue returning moment:', momentValue.format(showTime ? 'YYYY/MM/DD HH:mm' : 'YYYY/MM/DD'));
     return { value: momentValue };
   }
 
@@ -117,10 +121,11 @@ function DatePicker(props: Props) {
           onChange={handleChange}
           onClick={(e: MouseEvent<HTMLInputElement>) => e.stopPropagation()}
           placeholder={placeholder}
-          format="YYYY/MM/DD"
+          format={showTime ? "YYYY-MM-DD HH:mm" : "YYYY/MM/DD"  }
           inputReadOnly={true}
           disabled={disabled}
           disabledDate={disableDate[type]}
+          showTime={showTime}
           // defaultPickerValue={defaultPickerValues[type]}
         />
       </Form.Item>
@@ -136,9 +141,11 @@ function DatePicker(props: Props) {
       onChange={handleChange}
       onClick={(e: MouseEvent<HTMLInputElement>) => e.stopPropagation()}
       placeholder={placeholder}
-      format="YYYY/MM/DD"
+      format={showTime ? "YYYY-MM-DD HH:mm" : "YYYY/MM/DD"}
       inputReadOnly={true}
+      disabled={disabled}
       disabledDate={disableDate[type]}
+      showTime={showTime}
       defaultPickerValue={defaultPickerValues[type]}
     />
   );

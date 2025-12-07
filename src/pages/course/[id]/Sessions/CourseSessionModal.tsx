@@ -89,10 +89,10 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
         ...session,
         sessionLevel: level,
         occurrenceTime: session.occurrenceTime
-          ? moment(session.occurrenceTime).format('YYYY-MM-DD')
+          ? moment(session.occurrenceTime).format('YYYY/MM/DD HH:mm')
           : null,
         practiceDueTime: session.practiceDueTime
-          ? moment(session.practiceDueTime).format('YYYY-MM-DD')
+          ? moment(session.practiceDueTime).format('YYYY/MM/DD HH:mm')
           : null,
         onlineMeetingUrls: session.onlineMeetingUrls || null,
         courseScheduleIds: session.schedules?.map(item => item.id) || null,
@@ -421,6 +421,7 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
             label={"زمان برگزاری"}
             isFormItem
             name={"occurrenceTime"}
+            showTime
           />
 
           {/* Practice Due Time */}
