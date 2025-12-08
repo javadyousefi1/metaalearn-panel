@@ -4,6 +4,9 @@ FROM node:20-alpine AS builder
 # Enable corepack and prepare pnpm
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
+# Set npm registry to a faster mirror for Iran
+RUN npm config set registry https://registry.npmmirror.com
+
 # Set working directory
 WORKDIR /app
 
