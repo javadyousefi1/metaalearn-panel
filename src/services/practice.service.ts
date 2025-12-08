@@ -15,7 +15,7 @@ export const practiceService = {
   getAll: async (params: PracticeListParams): Promise<PracticeListResponse> => {
     const { CourseId, PageIndex = 1, PageSize = 100 } = params;
     const response = await httpService.get<PracticeListResponse>(
-      `/CourseSessionEnrollment/GetAll?CourseId=${CourseId}&PageIndex=${PageIndex}&PageSize=${PageSize}`
+      `/CourseSessionEnrollment/GetAll`, { params }
     );
     return response.data;
   },
