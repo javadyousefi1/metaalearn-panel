@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Card, Form, Input, Button, Select, Switch, Space } from 'antd';
+import { Card, Form, Input, Button, Select, Switch, Space, Modal, message } from 'antd';
 import { BookOpen, Save } from 'lucide-react';
 import { useGetBlogById, useBlogs, useGetAllBlogCategories } from '@/hooks';
-import ReactQuill from 'react-quill';
+import ReactQuill, { Quill } from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import moment from 'moment-jalaali';
 import DatePicker from '@/components/datePicker/DatePicker';
@@ -14,6 +14,8 @@ export const BlogInfoPage: React.FC = () => {
   const [form] = Form.useForm();
   const [fullTextValue, setFullTextValue] = useState('');
   const [keywords, setKeywords] = useState<string[]>([]);
+  const [htmlModalOpen, setHtmlModalOpen] = useState(false);
+  const [htmlInput, setHtmlInput] = useState('');
   const quillRef = useRef<ReactQuill>(null);
 
   const { data: blogData, isLoading: isBlogLoading, refetch } = useGetBlogById(id || '', !!id);
@@ -78,29 +80,69 @@ export const BlogInfoPage: React.FC = () => {
     }
   };
 
+  // Custom HTML insertion handler
+  const htmlHandler = () => {
+    setHtmlModalOpen(true);
+    setHtmlInput('');
+  };
+
+  // Insert HTML into editor
+  const handleInsertHtml = () => {
+    const quill = quillRef.current?.getEditor();
+    if (quill && htmlInput.trim()) {
+      try {
+        const range = quill.getSelection();
+        const position = range ? range.index : quill.getLength();
+
+        // Use dangerouslyPasteHTML to insert HTML at cursor position
+        quill.clipboard.dangerouslyPasteHTML(position, htmlInput);
+
+        // Move cursor to end of inserted content
+        quill.setSelection(position + 1, 0);
+
+        message.success('HTML با موفقیت درج شد');
+        setHtmlModalOpen(false);
+        setHtmlInput('');
+      } catch (error) {
+        message.error('خطا در پردازش HTML');
+        console.error('HTML insertion error:', error);
+      }
+    }
+  };
+
   // Quill editor modules configuration
   const modules = useMemo(() => ({
     toolbar: {
       container: [
-        [{ 'header': [1, 2, 3, false] }],
+        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+        [{ 'font': [] }],
+        [{ 'size': ['small', false, 'large', 'huge'] }],
         ['bold', 'italic', 'underline', 'strike'],
-        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-        [{ 'align': [] }],
         [{ 'color': [] }, { 'background': [] }],
-        ['link', 'image'],
+        [{ 'script': 'sub'}, { 'script': 'super' }],
+        [{ 'list': 'ordered'}, { 'list': 'bullet' }, { 'indent': '-1'}, { 'indent': '+1' }],
+        ['blockquote', 'code-block'],
+        [{ 'align': [] }],
+        ['link', 'image', 'video'],
         [{ 'direction': 'rtl' }],
         ['clean']
       ],
     },
+    clipboard: {
+      // Allow pasted HTML content
+      matchVisual: false,
+    },
   }), []);
 
   const formats = [
-    'header',
+    'header', 'font', 'size',
     'bold', 'italic', 'underline', 'strike',
-    'list', 'bullet',
-    'align',
     'color', 'background',
-    'link', 'image',
+    'script',
+    'list', 'bullet', 'indent',
+    'blockquote', 'code-block',
+    'align',
+    'link', 'image', 'video',
     'direction'
   ];
 
@@ -203,7 +245,7 @@ export const BlogInfoPage: React.FC = () => {
           showTime
           className="w-full"
           placeholder="زمان انتشار را انتخاب کنید"
-          format="jYYYY/jMM/jDD HH:mm"
+          format="jYYYY/jMM/jDD"
           label="زمان انتشار"
           isFormItem
           name="publishTime"
@@ -232,7 +274,21 @@ export const BlogInfoPage: React.FC = () => {
           </Space>
         )}
 
-        <Form.Item label="متن کامل">
+        <Form.Item
+          label={
+            <div className="flex items-center justify-between w-full">
+              <span>متن کامل</span>
+              <Button
+                type="link"
+                size="small"
+                onClick={htmlHandler}
+                className="text-blue-500"
+              >
+                درج HTML
+              </Button>
+            </div>
+          }
+        >
           <ReactQuill
             ref={quillRef}
             theme="snow"
@@ -260,6 +316,33 @@ export const BlogInfoPage: React.FC = () => {
           </Button>
         </div>
       </Form>
+
+      {/* HTML Input Modal */}
+      <Modal
+        title="درج HTML"
+        open={htmlModalOpen}
+        onOk={handleInsertHtml}
+        onCancel={() => {
+          setHtmlModalOpen(false);
+          setHtmlInput('');
+        }}
+        okText="درج"
+        cancelText="انصراف"
+        width={600}
+      >
+        <div className="space-y-2">
+          <p className="text-sm text-gray-600">
+            کد HTML خود را در زیر وارد کنید. این کد به فرمت مناسب تبدیل و در ویرایشگر درج خواهد شد.
+          </p>
+          <Input.TextArea
+            value={htmlInput}
+            onChange={(e) => setHtmlInput(e.target.value)}
+            placeholder="<h1>عنوان</h1>&#10;<p>متن شما...</p>"
+            rows={10}
+            style={{ fontFamily: 'monospace' }}
+          />
+        </div>
+      </Modal>
     </Card>
   );
 };
