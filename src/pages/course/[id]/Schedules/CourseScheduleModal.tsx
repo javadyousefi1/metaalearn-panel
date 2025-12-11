@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Modal, Form, Input, InputNumber, Select, Switch } from 'antd';
-import { Users } from 'lucide-react';
+import { Users, Link } from 'lucide-react';
 import { useGetUsersByRole, useGetPurchasedCourseUsers } from '@/hooks';
 import { CourseScheduleStatus } from '@/enums';
 import type { CourseSchedule } from '@/types';
@@ -57,6 +57,7 @@ export const CourseScheduleModal: React.FC<CourseScheduleModalProps> = ({
       form.setFieldsValue({
         name: schedule.name,
         description: schedule.description,
+        onlineMeetingUrl: schedule.onlineMeetingUrl || null,
         isVisible: schedule.isVisible,
         status: schedule.status,
         typeId: schedule.typeId ?? null,
@@ -70,6 +71,7 @@ export const CourseScheduleModal: React.FC<CourseScheduleModalProps> = ({
         isVisible: true,
         status: 0,
         typeId: 0,
+        onlineMeetingUrl: null,
         instructorIds: [],
         operatorIds: [],
         studentIds: [],
@@ -148,6 +150,20 @@ export const CourseScheduleModal: React.FC<CourseScheduleModalProps> = ({
             <Input.TextArea
               rows={3}
               placeholder="توضیحات کامل درباره این گروه‌بندی را وارد کنید"
+            />
+          </Form.Item>
+
+          {/* Online Meeting URL */}
+          <Form.Item
+            name="onlineMeetingUrl"
+            label="لینک جلسه آنلاین"
+            rules={[
+              { type: 'url', message: 'لطفاً یک آدرس معتبر وارد کنید' }
+            ]}
+          >
+            <Input
+              prefix={<Link size={16} />}
+              placeholder="https://meet.google.com/..."
             />
           </Form.Item>
 

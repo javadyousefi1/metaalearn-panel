@@ -12,6 +12,7 @@ import {
     Receipt,
     FileText,
     ClipboardList,
+    Bell,
     LucideIcon,
 } from 'lucide-react';
 import { ROUTES } from './routes';
@@ -45,6 +46,13 @@ export const MENU_ITEMS: MenuItemConfig[] = [
       label: 'کاربران',
       icon: Users,
       roles: ['super-admin'], // Only admins can manage users
+    },
+    {
+      key: 'notifications',
+      path: ROUTES.NOTIFICATIONS.ROOT,
+      label: 'اعلانات',
+      icon: Bell,
+      roles: ['super-admin', 'operator-admin'], // Admins can send notifications
     },
     {
       key: 'tickets',
@@ -131,6 +139,13 @@ export const MENU_ITEMS: MenuItemConfig[] = [
                 key: 'credit-cards',
                 path: ROUTES.FINANCE.CREDIT_CARDS,
                 label: 'کارت‌های بانکی',
+                icon: CreditCard,
+                roles: ['super-admin'],
+            },
+            {
+                key: 'payment-instructions',
+                path: ROUTES.FINANCE.PAYMENT_INSTRUCTIONS,
+                label: 'کارت ها',
                 icon: CreditCard,
                 roles: ['super-admin'],
             },

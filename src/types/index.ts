@@ -34,3 +34,7 @@ export type {
   BlogGalleryListResponse,
   UploadBlogGalleryPayload,
 } from './blogGallery.types';
+// Payment Instruction types
+export * from './paymentInstruction.types';
+// Notification types
+export * from './notification.types';

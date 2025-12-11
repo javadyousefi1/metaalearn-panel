@@ -1,10 +1,5 @@
 // Course Session-related type definitions
 
-export interface OnlineMeetingUrl {
-  scheduleId: string;
-  url: string;
-}
-
 export interface CourseSession {
   id: string;
   course: {
@@ -20,7 +15,6 @@ export interface CourseSession {
   videoCoverUrl: string | null;
   fileUrl: string;
   onlineMeetingUrl: string;
-  onlineMeetingUrls: OnlineMeetingUrl[] | null;
   parentId: string | null;
   parentName: string | null;
   subSessions: CourseSession[] | null;
@@ -40,7 +34,6 @@ export interface CreateSessionPayload {
   videoUrl: string;
   fileUrl: string;
   onlineMeetingUrl: string;
-  onlineMeetingUrls?: OnlineMeetingUrl[];
   parentId: string | null;
   isPracticeAvailable: boolean;
   isTopic: boolean;
@@ -57,7 +50,6 @@ export interface UpdateSessionPayload {
   videoUrl: string;
   fileUrl: string;
   onlineMeetingUrl: string;
-  onlineMeetingUrls?: OnlineMeetingUrl[];
   parentId: string | null;
   isPracticeAvailable: boolean;
   isTopic: boolean;

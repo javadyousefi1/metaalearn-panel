@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Card, Empty, Button, Collapse, Popconfirm, Space, Tag, Avatar, Descriptions } from 'antd';
-import { Users, Plus, Trash2, Edit, Eye, EyeOff } from 'lucide-react';
+import { Users, Plus, Trash2, Edit, Eye, EyeOff, Link } from 'lucide-react';
 import { useGetAllSchedules, useCourseSchedules } from '@/hooks';
 import { CourseScheduleStatus } from '@/enums';
 import { CourseScheduleModal } from './CourseScheduleModal';
@@ -42,6 +42,7 @@ export const CourseSchedulePage: React.FC = () => {
         courseId: id,
         name: values.name,
         description: values.description,
+        onlineMeetingUrl: values.onlineMeetingUrl || null,
         isVisible: values.isVisible,
         status: values.status,
         instructorIds: values.instructorIds,
@@ -55,6 +56,7 @@ export const CourseSchedulePage: React.FC = () => {
         courseId: id,
         name: values.name,
         description: values.description,
+        onlineMeetingUrl: values.onlineMeetingUrl || null,
         isVisible: values.isVisible,
         status: values.status,
         typeId: values.typeId,
@@ -110,6 +112,16 @@ export const CourseSchedulePage: React.FC = () => {
         <Descriptions.Item label="توضیحات">
           {schedule.description || 'بدون توضیحات'}
         </Descriptions.Item>
+        {schedule.onlineMeetingUrl && (
+          <Descriptions.Item label="لینک جلسه آنلاین">
+            <a href={schedule.onlineMeetingUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+              <Space>
+                <Link size={16} />
+                {schedule.onlineMeetingUrl}
+              </Space>
+            </a>
+          </Descriptions.Item>
+        )}
         <Descriptions.Item label="شناسه نوع">
           <Tag color="purple">{schedule.typeId ?? 0}</Tag>
         </Descriptions.Item>

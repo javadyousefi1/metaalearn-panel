@@ -81,6 +81,7 @@ export const ROUTES = {
   FINANCE: {
     ROOT: '/finance',
     CREDIT_CARDS: '/finance/credit-cards',
+    PAYMENT_INSTRUCTIONS: '/finance/payment-instructions',
     TRANSACTIONS: '/finance/transactions',
   },
 
@@ -101,6 +102,11 @@ export const ROUTES = {
     INFO_PATH: '/blogs/:id/info',
     GALLERY: (id: string) => `/blogs/${id}/gallery`,
     GALLERY_PATH: '/blogs/:id/gallery',
+  },
+
+  // Notifications Routes
+  NOTIFICATIONS: {
+    ROOT: '/notifications',
   },
 
   // Settings Routes
@@ -142,6 +148,7 @@ export const PAGE_TITLES: Record<string, string> = {
   [ROUTES.OPERATORS.LIST]: 'اپراتورها',
   [ROUTES.OPERATORS.DETAIL_PATH]: 'جزئیات تیکت اپراتور',
   [ROUTES.FINANCE.CREDIT_CARDS]: 'کارت‌های بانکی',
+  [ROUTES.FINANCE.PAYMENT_INSTRUCTIONS]: 'کارت ها',
   [ROUTES.FINANCE.TRANSACTIONS]: 'تاریخچه تراکنش‌ها',
   [ROUTES.COURSES.COURSE_LIST]: 'لیست دوره‌ها',
   [ROUTES.COURSES.CATEGORIES.ROOT]: 'مدیریت دسته‌بندی‌ها',
@@ -157,6 +164,7 @@ export const PAGE_TITLES: Record<string, string> = {
   [ROUTES.BLOG.DETAIL]: 'جزئیات مقاله',
   [ROUTES.BLOG.INFO_PATH]: 'اطلاعات مقاله',
   [ROUTES.BLOG.GALLERY_PATH]: 'گالری مقاله',
+  [ROUTES.NOTIFICATIONS.ROOT]: 'اعلانات',
   [ROUTES.SETTINGS.PROFILE]: 'Profile Settings',
   [ROUTES.SETTINGS.ACCOUNT]: 'Account Settings',
   [ROUTES.SETTINGS.SECURITY]: 'Security Settings',

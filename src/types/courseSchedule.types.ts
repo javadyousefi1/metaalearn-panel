@@ -18,6 +18,8 @@ export interface CourseSchedule {
   description: string;
   isVisible: boolean;
   status: number;
+  typeId?: number;
+  onlineMeetingUrl?: string;
   instructors: ScheduleUser[];
   operators: ScheduleUser[];
   students: ScheduleUser[];
@@ -31,6 +33,8 @@ export interface CreateCourseSchedulePayload {
   description: string;
   isVisible: boolean;
   status: number;
+  typeId?: number;
+  onlineMeetingUrl?: string;
   instructorIds: string[];
   operatorIds: string[];
   studentIds: string[];
@@ -43,6 +47,8 @@ export interface UpdateCourseSchedulePayload {
   description?: string;
   isVisible?: boolean;
   status?: number;
+  typeId?: number;
+  onlineMeetingUrl?: string;
   instructorIds?: string[];
   operatorIds?: string[];
   studentIds?: string[];

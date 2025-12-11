@@ -10,7 +10,8 @@ import { CoursesPage, CourseListPage } from '@/pages/courses';
 import { CourseDetailPage, CourseFaqPage, CourseSessionsPage, CourseIntroductionPage, CourseSchedulePage, CourseGalleryPage, CourseCommentsPage } from '@/pages/course';
 import { CategoriesPage, SubCategoriesPage } from '@/pages/categories';
 import { BlogListPage, BlogCategoryPage, BlogDetailPage, BlogInfoPage, BlogGalleryPage } from '@/pages/blogs';
-import { BankCardsPage, TransactionsPage } from '@/pages/finance';
+import { BankCardsPage, PaymentInstructionsPage, TransactionsPage } from '@/pages/finance';
+import { NotificationsPage } from '@/pages/notifications';
 import { SettingsPage } from '@/pages/settings';
 import { ROUTES } from '@/constants';
 import { Permission } from '@/types';
@@ -89,6 +90,10 @@ export const router = createBrowserRouter([
       {
         path: ROUTES.FINANCE.CREDIT_CARDS,
         element: <BankCardsPage />,
+      },
+      {
+        path: ROUTES.FINANCE.PAYMENT_INSTRUCTIONS,
+        element: <PaymentInstructionsPage />,
       },
       {
         path: ROUTES.FINANCE.TRANSACTIONS,
@@ -186,6 +191,12 @@ export const router = createBrowserRouter([
             element: <BlogInfoPage />,
           },
         ],
+      },
+
+      // Notifications
+      {
+        path: ROUTES.NOTIFICATIONS.ROOT,
+        element: <NotificationsPage />,
       },
 
       // Settings

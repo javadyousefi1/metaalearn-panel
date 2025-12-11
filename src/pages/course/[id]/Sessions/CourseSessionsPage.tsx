@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { Card, Empty, Button, Collapse, Popconfirm, Space, Tag, Descriptions } from 'antd';
-import { Calendar, Plus, Trash2, Edit, Clock, FileText, Video, Link as LinkIcon } from 'lucide-react';
+import { Calendar, Plus, Trash2, Edit, Clock, FileText, Video } from 'lucide-react';
 import { useGetAllSessions, useCourseSessions } from '@/hooks';
 import { CourseSessionModal } from './CourseSessionModal';
 import type { CourseSession } from '@/types/session.types';
@@ -82,7 +82,6 @@ export const CourseSessionsPage: React.FC = () => {
         occurrenceTime: values.occurrenceTime!,
         practiceDueTime: values.practiceDueTime!,
         onlineMeetingUrl: values.onlineMeetingUrl || null,
-        onlineMeetingUrls: values.onlineMeetingUrls || null,
         courseScheduleIds: values.courseScheduleIds || null,
         parentId: editingSession.parentId,
         isPracticeAvailable: values.isPracticeAvailable ?? false,
@@ -112,7 +111,6 @@ export const CourseSessionsPage: React.FC = () => {
         occurrenceTime: values.occurrenceTime!,
         practiceDueTime: values.practiceDueTime!,
         onlineMeetingUrl: values.onlineMeetingUrl || null,
-        onlineMeetingUrls: values.onlineMeetingUrls || null,
         courseScheduleIds: values.courseScheduleIds || null,
         parentId: targetParentId,
         isPracticeAvailable: values.isPracticeAvailable ?? false,
@@ -158,7 +156,6 @@ export const CourseSessionsPage: React.FC = () => {
       videoUrl: updatedVideoUrl,
       fileUrl: updatedFileUrl,
       onlineMeetingUrl: session.onlineMeetingUrl || null,
-      onlineMeetingUrls: session.onlineMeetingUrls || null,
       parentId: session.parentId,
       isPracticeAvailable: session.isPracticeAvailable ?? false,
     });
@@ -208,22 +205,6 @@ export const CourseSessionsPage: React.FC = () => {
                 دانلود فایل
               </Space>
             </a>
-          </Descriptions.Item>
-        )}
-        {session.onlineMeetingUrls && session.onlineMeetingUrls.length > 0 && (
-          <Descriptions.Item label="لینک‌های جلسه آنلاین">
-            <div className="space-y-1">
-              {session.onlineMeetingUrls.map((item, index) => (
-                <div key={index}>
-                  <a href={item.url} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                    <Space>
-                      <LinkIcon size={16} />
-                      {item.url}
-                    </Space>
-                  </a>
-                </div>
-              ))}
-            </div>
           </Descriptions.Item>
         )}
         <Descriptions.Item label="وضعیت تمرین">

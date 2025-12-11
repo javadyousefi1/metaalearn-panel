@@ -79,4 +79,10 @@ export const queryKeys = {
       [...queryKeys.courseComments.lists(), courseId, { ...filters }] as const,
     byCourse: (courseId: string) => [...queryKeys.courseComments.all, 'course', courseId] as const,
   },
+  paymentInstructions: {
+    all: ['paymentInstructions'] as const,
+    lists: () => [...queryKeys.paymentInstructions.all, 'list'] as const,
+    list: (filters?: Record<string, unknown>) =>
+      [...queryKeys.paymentInstructions.lists(), { ...filters }] as const,
+  },
 } as const;
