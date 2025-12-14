@@ -393,7 +393,7 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
             name="description"
             label="توضیحات"
             rules={[
-              { required: true, message: "لطفاً توضیحات را وارد کنید" },
+              // { required: true, message: "لطفاً توضیحات را وارد کنید" },
               { min: 10, message: "توضیحات باید حداقل ۱۰ کاراکتر باشد" },
             ]}
           >

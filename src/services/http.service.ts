@@ -77,6 +77,20 @@ class HttpService {
           return Promise.reject(error);
         }
 
+        // Handle 404 on /User/Get endpoint - User doesn't exist, clear auth
+        if (error.response?.status === 404 && error.config?.url?.includes('/User/Get')) {
+          // Clear tokens from localStorage
+          localStorage.removeItem('auth_token');
+          localStorage.removeItem('refresh_token');
+
+          // Redirect to login page
+          if (window.location.pathname !== ROUTES.AUTH.LOGIN) {
+            window.location.href = ROUTES.AUTH.LOGIN;
+          }
+
+          return Promise.reject(error);
+        }
+
         // Handle other errors
         this.handleError(error);
         return Promise.reject(error);
@@ -128,6 +142,10 @@ class HttpService {
       const status = error.response.status;
       const data = error.response.data as BackendErrorResponse;
 
+      // Skip error message for 404 on /User/Get (already handled in interceptor)
+      if (status === 404 && error.config?.url?.includes('/User/Get')) {
+        return;
+      }
 
       // Extract formatted error message
       const errorMessage = this.extractErrorMessage(data);

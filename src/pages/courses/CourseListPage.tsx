@@ -157,6 +157,7 @@ export const CourseListPage: React.FC = () => {
       dataIndex: 'preRequisites',
       key: 'preRequisites',
       ellipsis: true,
+      render : (preRequisites: string) => preRequisites || "-"
     },
     {
       title: 'جزئیات',
