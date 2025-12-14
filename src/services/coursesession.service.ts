@@ -76,7 +76,10 @@ export const courseSessionService = {
     // Don't set Content-Type header - the interceptor will handle it automatically with boundary
     const response = await httpService.post<{ url: string }>(
       '/CourseSession/Upload',
-      formData
+      formData,
+        {
+            timeout : 60 * 20 * 1000
+        }
     );
     return response.data;
   },
