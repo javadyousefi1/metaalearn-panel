@@ -59,9 +59,7 @@ export const PaymentInstructionModal: React.FC<PaymentInstructionModalProps> = (
         cardNumber: values.cardNumber,
         ownerName: values.ownerName,
         bankName: values.bankName,
-        cardExpireTime: values.cardExpireTime
-          ? moment(values.cardExpireTime, 'jYYYY/jMM/jDD').toISOString()
-          : moment().toISOString(),
+        cardExpireTime: moment(values.cardExpireTime, 'YYYY-MM-DD')
       };
 
       if (isEditMode && paymentInstruction) {

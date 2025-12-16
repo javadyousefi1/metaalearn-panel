@@ -113,7 +113,7 @@ export const PaymentInstructionsPage: React.FC = () => {
       key: 'cardNumber',
       width: 200,
       render: (cardNumber: string) => (
-        <span className="font-mono text-sm bg-gray-100 px-3 py-1 rounded whitespace-nowrap " dir={"ltr"}>
+        <span className="font-mono text-sm bg-gray-100 px-3 py-1 rounded whitespace-nowrap " dir={"ltr"} style={{direction:"ltr"}}>
           {(cardNumber)}
         </span>
       ),
@@ -124,7 +124,7 @@ export const PaymentInstructionsPage: React.FC = () => {
       key: 'shaba',
       width: 280,
       render: (shaba: string) => (
-        <span className="font-mono text-xs bg-gray-100 px-3 py-1 rounded whitespace-nowrap " dir={"ltr"}>
+        <span className="font-mono text-xs bg-gray-100 px-3 py-1 rounded whitespace-nowrap " style={{direction:"ltr"}}>
           {(shaba)}
         </span>
       ),

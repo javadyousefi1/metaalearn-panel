@@ -15,7 +15,7 @@ export const CoursePaymentType = {
 export const CourseStatus = {
     0: "تعیین نشده",
     1: "عادی",
-    2: "تمام شده",
+    2: "تکمیل شده",
     3: "پیش ثبت نام",
     4: "غیر فعال",
     5: "تمام شده",

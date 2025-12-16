@@ -200,7 +200,7 @@ export const NotificationsPage: React.FC = () => {
                 (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
               }
               options={users.map(user => ({
-                label: user.fullNameFa || user.mobileNumber,
+                label: `${user.fullNameFa} - ${user.phoneNumber}`,
                 value: user.id,
               }))}
             />

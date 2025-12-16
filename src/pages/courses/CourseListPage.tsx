@@ -152,13 +152,13 @@ export const CourseListPage: React.FC = () => {
       align: 'center',
       render: (value: boolean) => (value ? <Tag color={"blue"}>دارد</Tag> : <Tag color={"red"}>ندارد</Tag>),
     },
-    {
-      title: 'پیش‌نیازها',
-      dataIndex: 'preRequisites',
-      key: 'preRequisites',
-      ellipsis: true,
-      render : (preRequisites: string) => preRequisites || "-"
-    },
+    // {
+    //   title: 'پیش‌نیازها',
+    //   dataIndex: 'preRequisites',
+    //   key: 'preRequisites',
+    //   ellipsis: true,
+    //   render : (preRequisites: string) => preRequisites || "-"
+    // },
     {
       title: 'جزئیات',
       key: 'details',
