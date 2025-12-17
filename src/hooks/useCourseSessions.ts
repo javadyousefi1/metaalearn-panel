@@ -77,7 +77,7 @@ export const useCourseSessions = () => {
  */
 export const useGetAllSessions = (enabled = true, params: {courseId:string,isPracticeAvailable:boolean}) => {
   return useQuery({
-    queryKey: queryKeys.sessions.all,
+    queryKey: queryKeys.sessions.detail(params.courseId),
     queryFn: () => courseSessionService.getAll(params),
     enabled,
       select :(data) => data?.items

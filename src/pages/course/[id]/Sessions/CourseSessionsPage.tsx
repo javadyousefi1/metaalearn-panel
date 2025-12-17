@@ -172,9 +172,6 @@ export const CourseSessionsPage: React.FC = () => {
   const renderSessionDetails = (session: CourseSession, level: 1 | 2 | 3, level1ParentId?: string) => (
     <div className="space-y-4">
       <Descriptions column={1} size="small">
-        <Descriptions.Item label="توضیحات">
-          {session.description}
-        </Descriptions.Item>
         <Descriptions.Item label="زمان برگزاری">
           <Space>
             <Clock size={16} />
@@ -379,7 +376,7 @@ export const CourseSessionsPage: React.FC = () => {
         {parentSessions.length > 0 ? (
           <Collapse
             items={collapseItems}
-            defaultActiveKey={[parentSessions[0]?.id]}
+            // defaultActiveKey={[parentSessions[0]?.id]}
           />
         ) : (
           <div className="flex flex-col items-center justify-center py-12">

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import { Modal, Form, Input, Switch, Select, Space, Alert, Upload, Button, Segmented, message } from "antd";
 import { Video, FileText, FileEdit, Folder, Upload as UploadIcon, Image } from 'lucide-react';
 import type { UploadFile, SegmentedValue } from 'antd';
@@ -7,6 +7,8 @@ import DatePicker from "@/components/datePicker/DatePicker";
 import type { CourseSession } from "@/types/session.types";
 import { useGetAllSchedules } from '@/hooks';
 import moment from 'moment-jalaali';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 // Upload Type Enum
 enum CourseSessionUploadType {
@@ -50,12 +52,50 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
   const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [uploadType, setUploadType] = useState<CourseSessionUploadType>(CourseSessionUploadType.Video);
   const [activeTab, setActiveTab] = useState<SegmentedValue>('info');
+  const [descriptionValue, setDescriptionValue] = useState<string>('');
+  const quillRef = useRef<ReactQuill>(null);
 
   // Fetch course schedules
   const { data: schedules = [] } = useGetAllSchedules(
     { CourseId: courseId, PageIndex: 1, PageSize: 100 },
     !!courseId && open
   );
+
+  // Quill editor modules configuration
+  const modules = useMemo(() => ({
+    toolbar: {
+      container: [
+        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+        [{ 'font': [] }],
+        [{ 'size': ['small', false, 'large', 'huge'] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ 'color': [] }, { 'background': [] }],
+        [{ 'script': 'sub'}, { 'script': 'super' }],
+        [{ 'list': 'ordered'}, { 'list': 'bullet' }, { 'indent': '-1'}, { 'indent': '+1' }],
+        ['blockquote', 'code-block'],
+        [{ 'align': [] }],
+        ['link', 'image', 'video'],
+        [{ 'direction': 'rtl' }], // RTL support
+        ['clean']
+      ],
+    },
+    clipboard: {
+      // Allow pasted HTML content
+      matchVisual: false,
+    },
+  }), []);
+
+  const formats = [
+    'header', 'font', 'size',
+    'bold', 'italic', 'underline', 'strike',
+    'color', 'background',
+    'script',
+    'list', 'bullet', 'indent',
+    'blockquote', 'code-block',
+    'align',
+    'link', 'image', 'video',
+    'direction'
+  ];
 
   // Get hierarchy information for existing session
   const getSessionLevel = (session: CourseSession | null): 1 | 2 | 3 => {
@@ -96,6 +136,7 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
           : null,
         courseScheduleIds: session.schedules?.map(item => item.id) || null,
       });
+      setDescriptionValue(session.description || '');
     } else if (open) {
       // Determine level based on provided parentId
       let level: 1 | 2 | 3 = 1;
@@ -122,6 +163,7 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
         isTopic: false,
         courseScheduleIds: [],
       });
+      setDescriptionValue('');
     }
   }, [open, session, form, nextIndex, parentId, level1ParentId, allSessions]);
 
@@ -139,6 +181,7 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
     // Format dates to ISO string
     const formattedValues = {
       ...values,
+      description: descriptionValue,
       occurrenceTime: values.occurrenceTime
         ? moment(values.occurrenceTime).toISOString()
         : null,
@@ -157,6 +200,7 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
     setSelectedLevel2(null);
     setFileList([]);
     setUploadType(CourseSessionUploadType.Video);
+    setDescriptionValue('');
   };
 
   const handleUploadMedia = async () => {
@@ -185,6 +229,7 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
     setFileList([]);
     setUploadType(CourseSessionUploadType.Video);
     setActiveTab('info');
+    setDescriptionValue('');
     onClose();
   };
 
@@ -390,14 +435,20 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
 
           {/* Description */}
           <Form.Item
-            name="description"
             label="توضیحات"
-            rules={[
-              // { required: true, message: "لطفاً توضیحات را وارد کنید" },
-              { min: 10, message: "توضیحات باید حداقل ۱۰ کاراکتر باشد" },
-            ]}
           >
-            <Input.TextArea rows={3} placeholder="توضیحات جلسه را وارد کنید" />
+            <div className="rounded-lg overflow-hidden">
+              <ReactQuill
+                ref={quillRef}
+                theme="snow"
+                value={descriptionValue}
+                onChange={setDescriptionValue}
+                modules={modules}
+                formats={formats}
+                placeholder="توضیحات جلسه را وارد کنید..."
+                style={{ minHeight: '200px', direction: 'rtl' }}
+              />
+            </div>
           </Form.Item>
 
           {/* Index */}

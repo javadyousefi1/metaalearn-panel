@@ -161,3 +161,31 @@ body {
 .ant-modal-confirm-btns {
     font-family: 'IRANYekanX'!important;
 }
+
+.ql-editor {
+    /*text-align: right;*/
+    font-family: 'IRANYekanX'!important;
+    min-height: 150px;
+    line-height: 1.8;
+}
+
+.ql-editor p {
+    margin: 0;
+    padding: 0;
+    line-height: 1.8;
+}
+
+.ql-editor p + p {
+    margin-top: 0;
+}
+
+/* Ensure empty paragraphs are visible */
+.ql-editor p br {
+    display: block;
+    content: "";
+    margin: 0.5em 0;
+}
+
+.ql-container {
+    font-family: 'IRANYekanX'!important;
+}

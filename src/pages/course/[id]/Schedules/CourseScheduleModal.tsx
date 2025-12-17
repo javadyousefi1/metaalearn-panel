@@ -144,7 +144,7 @@ export const CourseScheduleModal: React.FC<CourseScheduleModalProps> = ({
             label="توضیحات"
             rules={[
               { required: true, message: 'لطفاً توضیحات را وارد کنید' },
-              { min: 10, message: 'توضیحات باید حداقل ۱۰ کاراکتر باشد' },
+              { min: 5, message: 'توضیحات باید حداقل 5 کاراکتر باشد' },
             ]}
           >
             <Input.TextArea
