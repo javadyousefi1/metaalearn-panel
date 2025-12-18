@@ -106,6 +106,7 @@ export const OperatorPracticeDetailPage: React.FC = () => {
     fetchFn: (params) =>
       practiceService.getAll({
         CourseId: courseId!,
+          IsPracticeAvailable :true,
         ...filters,
         ...params,
       }),
