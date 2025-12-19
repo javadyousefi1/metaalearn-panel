@@ -73,7 +73,7 @@ export const MENU_ITEMS: MenuItemConfig[] = [
           path: ROUTES.OPERATORS.LIST,
           label: 'تیکت‌ها',
           icon: Ticket,
-          roles: ['super-admin', 'operator-admin', 'operator'],
+          roles: ['super-admin', 'operator-admin', 'operator','instructor'],
         },
         {
           key: 'operators-practices',
