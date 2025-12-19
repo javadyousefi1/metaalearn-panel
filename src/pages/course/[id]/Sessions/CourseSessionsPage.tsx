@@ -126,40 +126,9 @@ export const CourseSessionsPage: React.FC = () => {
     if (!id) return;
     console.log(file ,"file")
     // Upload file
-    const result = await uploadFile(file, sessionId, uploadType);
+    await uploadFile(file, sessionId, uploadType);
 
-    // Find the session to preserve existing data
-    const session = flatSessions.find(s => s.id === sessionId);
-    if (!session) return;
-
-    // Determine which URL field to update based on upload type
-    let updatedVideoUrl = session.videoUrl;
-    let updatedFileUrl = session.fileUrl;
-
-    if (uploadType === 1) { // Video
-      updatedVideoUrl = result.url;
-    } else if (uploadType === 2) { // File
-      updatedFileUrl = result.url;
-    } else if (uploadType === 3) { // VideoCover
-      updatedVideoUrl = result.url; // Store cover in videoUrl for now
-    }
-
-    // Update session with new file URL
-    await updateSession({
-      id: sessionId,
-      courseId: id,
-      name: session.name,
-      description: session.description,
-      index: session.index,
-      occurrenceTime: session.occurrenceTime,
-      practiceDueTime: session.practiceDueTime,
-      videoUrl: updatedVideoUrl,
-      fileUrl: updatedFileUrl,
-      onlineMeetingUrl: session.onlineMeetingUrl || null,
-      parentId: session.parentId,
-      isPracticeAvailable: session.isPracticeAvailable ?? false,
-    });
-
+    // Refetch to get updated session data
     await refetch();
   };
 

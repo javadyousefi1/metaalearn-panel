@@ -43,6 +43,8 @@ export const TransactionsPage: React.FC = () => {
         Method: filters.Method as PaymentMethod | undefined,
         Type: filters.Type as PaymentType | undefined,
         ReferralCode: filters.ReferralCode as string | undefined,
+        UserPhoneNumber: filters.UserPhoneNumber as string | undefined,
+        UserFullName: filters.UserFullName as string | undefined,
       }),
     initialPageSize: 10,
     initialPageIndex: 1,
@@ -69,9 +71,30 @@ export const TransactionsPage: React.FC = () => {
 
   const columns: ColumnsType<PaymentListItem> = [
     {
-      title: 'کاربر',
-      key: 'user',
-      width: 220,
+      title: 'نام کاربر',
+      key: 'userFullName',
+      width: 180,
+      filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+        <div style={{ padding: 8 }}>
+          <Input
+            placeholder="جستجوی نام کاربر"
+            value={selectedKeys[0]}
+            onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+            onPressEnter={() => confirm()}
+            style={{ marginBottom: 8, display: 'block' }}
+          />
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Button type="primary" onClick={() => confirm()} icon={<SearchOutlined />} size="small" style={{ width: 90 }}>
+              جستجو
+            </Button>
+            <Button onClick={() => clearFilters && clearFilters()} size="small" style={{ width: 90 }}>
+              پاک کردن
+            </Button>
+          </div>
+        </div>
+      ),
+      filterIcon: (filtered) => <SearchOutlined style={{ color: filtered ? '#4B26AD' : undefined }} />,
+      filteredValue: filters.UserFullName ? [filters.UserFullName as string] : null,
       render: (_: any, payment: PaymentListItem) => (
         <div className="flex items-center gap-3">
           {payment.user.imageUrl ? (
@@ -83,11 +106,37 @@ export const TransactionsPage: React.FC = () => {
               style={{ backgroundColor: '#4B26AD' }}
             />
           )}
-          <div>
-            <div className="font-medium text-sm">{payment.user.fullNameFa}</div>
-            <div className="text-xs text-gray-500">{payment.user.phoneNumber}</div>
+          <div className="font-medium text-sm">{payment.user.fullNameFa}</div>
+        </div>
+      ),
+    },
+    {
+      title: 'شماره تماس',
+      key: 'userPhoneNumber',
+      width: 140,
+      filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+        <div style={{ padding: 8 }}>
+          <Input
+            placeholder="جستجوی شماره تماس"
+            value={selectedKeys[0]}
+            onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+            onPressEnter={() => confirm()}
+            style={{ marginBottom: 8, display: 'block' }}
+          />
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Button type="primary" onClick={() => confirm()} icon={<SearchOutlined />} size="small" style={{ width: 90 }}>
+              جستجو
+            </Button>
+            <Button onClick={() => clearFilters && clearFilters()} size="small" style={{ width: 90 }}>
+              پاک کردن
+            </Button>
           </div>
         </div>
+      ),
+      filterIcon: (filtered) => <SearchOutlined style={{ color: filtered ? '#4B26AD' : undefined }} />,
+      filteredValue: filters.UserPhoneNumber ? [filters.UserPhoneNumber as string] : null,
+      render: (_: any, payment: PaymentListItem) => (
+        <span className="text-sm text-gray-600">{payment.user.phoneNumber}</span>
       ),
     },
     {
@@ -200,7 +249,7 @@ export const TransactionsPage: React.FC = () => {
       key: 'createdTime',
       width: 150,
       render: (date: string) => (
-        <div className="text-sm text-gray-600">{formatDate(date)}</div>
+        <div className="text-sm text-gray-600">{formatDate(date , true)}</div>
       ),
     },
     {
@@ -271,6 +320,8 @@ export const TransactionsPage: React.FC = () => {
             method: 'Method',
             type: 'Type',
             referralCode: 'ReferralCode',
+            userPhoneNumber: 'UserPhoneNumber',
+            userFullName: 'UserFullName',
           }),
         }}
       />
