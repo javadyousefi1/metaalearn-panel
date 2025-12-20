@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { message } from 'antd';
+import { useState, useCallback } from 'react';
 import { courseSessionService } from '@/services';
 import { queryKeys } from '@/config';
 import { CreateSessionPayload, UpdateSessionPayload } from '@/types/session.types';
@@ -9,6 +10,7 @@ import { CreateSessionPayload, UpdateSessionPayload } from '@/types/session.type
  */
 export const useCourseSessions = () => {
   const queryClient = useQueryClient();
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
 
   // Create course session mutation
   const createMutation = useMutation({
@@ -45,29 +47,50 @@ export const useCourseSessions = () => {
 
   // Upload file mutation
   const uploadMutation = useMutation({
-    mutationFn: ({ file, courseSessionId, uploadType }: { file: File; courseSessionId: string; uploadType: number }) =>
-      courseSessionService.upload(file, courseSessionId, uploadType),
+    mutationFn: ({ file, courseSessionId, uploadType, onProgress }: { 
+      file: File; 
+      courseSessionId: string; 
+      uploadType: number;
+      onProgress?: (progress: number) => void;
+    }) => {
+      setUploadProgress(0);
+      return courseSessionService.upload(file, courseSessionId, uploadType, (progress) => {
+        setUploadProgress(progress);
+        if (onProgress) {
+          onProgress(progress);
+        }
+      });
+    },
     onSuccess: () => {
       message.success('فایل با موفقیت آپلود شد');
+      setUploadProgress(0);
     },
     onError: () => {
       message.error('خطا در آپلود فایل');
+      setUploadProgress(0);
     },
   });
+
+  const uploadFile = useCallback(
+    (file: File, courseSessionId: string, uploadType: number, onProgress?: (progress: number) => void) => {
+      return uploadMutation.mutateAsync({ file, courseSessionId, uploadType, onProgress });
+    },
+    [uploadMutation]
+  );
 
   return {
     // Mutations
     createSession: (data: CreateSessionPayload) => createMutation.mutateAsync(data),
     updateSession: (data: UpdateSessionPayload) => updateMutation.mutateAsync(data),
     deleteSession: (id: string) => deleteMutation.mutateAsync(id),
-    uploadFile: (file: File, courseSessionId: string, uploadType: number) =>
-      uploadMutation.mutateAsync({ file, courseSessionId, uploadType }),
+    uploadFile,
 
     // Loading states
     isCreating: createMutation.isPending,
     isUpdating: updateMutation.isPending,
     isDeleting: deleteMutation.isPending,
     isUploading: uploadMutation.isPending,
+    uploadProgress,
   };
 };
 

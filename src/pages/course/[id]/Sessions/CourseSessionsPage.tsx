@@ -15,7 +15,7 @@ export const CourseSessionsPage: React.FC = () => {
   const [selectedLevel1ParentId, setSelectedLevel1ParentId] = useState<string | null>(null);
 
   const { data: allSessions = [], refetch, isLoading } = useGetAllSessions(true, {courseId:id});
-  const { createSession, updateSession, deleteSession, uploadFile, isCreating, isUpdating, isDeleting, isUploading } = useCourseSessions();
+  const { createSession, updateSession, deleteSession, uploadFile, isCreating, isUpdating, isDeleting, isUploading, uploadProgress } = useCourseSessions();
 
   // Flatten all sessions for easier lookup
   const flatSessions = useMemo(() => {
@@ -376,6 +376,7 @@ export const CourseSessionsPage: React.FC = () => {
         onUploadMedia={handleUploadMedia}
         loading={isCreating || isUpdating}
         uploadLoading={isUploading}
+        uploadProgress={uploadProgress}
         session={editingSession}
         parentId={selectedParentId}
         level1ParentId={selectedLevel1ParentId}

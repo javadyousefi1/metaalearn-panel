@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useMemo } from "react";
-import { Modal, Form, Input, Switch, Select, Space, Alert, Upload, Button, Segmented, message } from "antd";
+import { Modal, Form, Input, Switch, Select, Space, Alert, Upload, Button, Segmented, message, Progress } from "antd";
 import { Video, FileText, FileEdit, Folder, Upload as UploadIcon, Image } from 'lucide-react';
 import type { UploadFile, SegmentedValue } from 'antd';
 import { useParams } from 'react-router-dom';
@@ -24,6 +24,7 @@ interface CourseSessionModalProps {
   onUploadMedia?: (sessionId: string, file: File, uploadType: CourseSessionUploadType) => Promise<void>;
   loading?: boolean;
   uploadLoading?: boolean;
+  uploadProgress?: number;
   session?: CourseSession | null;
   parentId?: string | null;
   level1ParentId?: string | null; // For level 3 sessions
@@ -38,6 +39,7 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
   onUploadMedia,
   loading = false,
   uploadLoading = false,
+  uploadProgress = 0,
   session = null,
   parentId = null,
   level1ParentId = null,
@@ -627,7 +629,7 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
                       ? 'image/*'
                       : '*'
                   }
-                  disabled={!session}
+                  disabled={!session || uploadLoading}
                 >
                   <Button
                     icon={
@@ -639,7 +641,7 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
                     }
                     size="large"
                     block
-                    disabled={!session}
+                    disabled={!session || uploadLoading}
                   >
                     {uploadType === CourseSessionUploadType.Video
                       ? 'انتخاب ویدیو'
@@ -649,6 +651,25 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
                   </Button>
                 </Upload>
               </Form.Item>
+
+              {/* Upload Progress */}
+              {uploadLoading && uploadProgress > 0 && (
+                <div className="mt-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm text-gray-600">در حال آپلود...</span>
+                    <span className="text-sm font-medium text-primary">{uploadProgress}%</span>
+                  </div>
+                  <Progress
+                    percent={uploadProgress}
+                    status={uploadProgress === 100 ? 'success' : 'active'}
+                    strokeColor={{
+                      '0%': '#108ee9',
+                      '100%': '#87d068',
+                    }}
+                    showInfo={false}
+                  />
+                </div>
+              )}
             </>
           )}
         </Form>

@@ -65,9 +65,15 @@ export const courseSessionService = {
    * @param file - File to upload
    * @param courseSessionId - Course Session ID
    * @param uploadType - Upload type (1=Video, 2=File, 3=VideoCover)
+   * @param onUploadProgress - Optional callback for upload progress
    * @returns Promise with file URL
    */
-  upload: async (file: File, courseSessionId: string, uploadType: number): Promise<{ url: string }> => {
+  upload: async (
+    file: File,
+    courseSessionId: string,
+    uploadType: number,
+    onUploadProgress?: (progress: number) => void
+  ): Promise<{ url: string }> => {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('courseSessionId', courseSessionId);
@@ -77,9 +83,17 @@ export const courseSessionService = {
     const response = await httpService.post<{ url: string }>(
       '/CourseSession/Upload',
       formData,
-        {
-            timeout : 60 * 20 * 1000
-        }
+      {
+        timeout: 60 * 20 * 1000,
+        onUploadProgress: (progressEvent) => {
+          if (progressEvent.total && onUploadProgress) {
+            const percentCompleted = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total
+            );
+            onUploadProgress(percentCompleted);
+          }
+        },
+      }
     );
     return response.data;
   },
