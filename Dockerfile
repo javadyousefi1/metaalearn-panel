@@ -1,11 +1,14 @@
 # Stage 1: Build the React application
 FROM node:20-alpine AS builder
 
-# Enable corepack and prepare pnpm
-RUN corepack enable && corepack prepare pnpm@latest --activate
-
-# Set npm registry to a faster mirror for Iran
+# Set npm registry to a faster mirror for Iran (do this first!)
 RUN npm config set registry https://registry.npmmirror.com
+
+# Install pnpm directly from npm (more reliable than corepack in restricted networks)
+RUN npm install -g pnpm@9.15.0
+
+# Configure pnpm to use the same registry mirror
+RUN pnpm config set registry https://registry.npmmirror.com
 
 # Set working directory
 WORKDIR /app
