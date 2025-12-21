@@ -133,7 +133,21 @@ export const CourseSessionsPage: React.FC = () => {
 
     // Update editingSession with fresh data from refetch
     if (editingSession && result.data) {
-      const updatedSession = flatSessions.find(s => s.id === sessionId);
+      // Flatten the fresh data to find the updated session
+      const freshSessions: CourseSession[] = [];
+      (result.data as CourseSession[]).forEach(parent => {
+        freshSessions.push(parent);
+        if (parent.subSessions) {
+          parent.subSessions.forEach(child => {
+            freshSessions.push(child);
+            if (child.subSessions) {
+              freshSessions.push(...child.subSessions);
+            }
+          });
+        }
+      });
+
+      const updatedSession = freshSessions.find(s => s.id === sessionId);
       if (updatedSession) {
         setEditingSession(updatedSession);
       }
