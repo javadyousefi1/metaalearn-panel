@@ -129,7 +129,15 @@ export const CourseSessionsPage: React.FC = () => {
     await uploadFile(file, sessionId, uploadType);
 
     // Refetch to get updated session data
-    await refetch();
+    const result = await refetch();
+
+    // Update editingSession with fresh data from refetch
+    if (editingSession && result.data) {
+      const updatedSession = flatSessions.find(s => s.id === sessionId);
+      if (updatedSession) {
+        setEditingSession(updatedSession);
+      }
+    }
   };
 
   const handleDeleteSession = async (sessionId: string) => {
