@@ -155,7 +155,7 @@ export const CourseSessionsPage: React.FC = () => {
         </Descriptions.Item>
         {session.videoUrl && (
           <Descriptions.Item label="ویدیو">
-            <a href={session.videoUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+            <a href={`https://new.metaalearn.com/course/${id}/session?sessionId=${session.id}`} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
               <Space>
                 <Video size={16} />
                 مشاهده ویدیو
