@@ -25,6 +25,9 @@ interface CourseSessionModalProps {
   loading?: boolean;
   uploadLoading?: boolean;
   uploadProgress?: number;
+  isUploadSuccess?: boolean;
+  isUploadError?: boolean;
+  onResetUploadState?: () => void;
   session?: CourseSession | null;
   parentId?: string | null;
   level1ParentId?: string | null; // For level 3 sessions
@@ -40,6 +43,9 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
   loading = false,
   uploadLoading = false,
   uploadProgress = 0,
+  isUploadSuccess = false,
+  isUploadError = false,
+  onResetUploadState,
   session = null,
   parentId = null,
   level1ParentId = null,
@@ -109,6 +115,14 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
 
     return 2;
   };
+
+  // Reset upload state when tab changes
+  useEffect(() => {
+    if (onResetUploadState && activeTab === 'media') {
+      onResetUploadState();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab]);
 
   // Initialize form with session data when editing
   useEffect(() => {
@@ -232,6 +246,9 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
     setUploadType(CourseSessionUploadType.Video);
     setActiveTab('info');
     setDescriptionValue('');
+    if (onResetUploadState) {
+      onResetUploadState();
+    }
     onClose();
   };
 
@@ -255,9 +272,9 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
   return (
     <Modal
       title={
-        <span className="text-xl font-bold">
-          {session ? "ویرایش جلسه" : "افزودن جلسه جدید"}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className={"text-lg"}>{session ? "ویرایش جلسه" : "افزودن جلسه جدید"}</span> <span className={"text-sm text-gray-500 font-medium"}>{session?.name}</span>
+        </div>
       }
       open={open}
       onCancel={handleCancel}
@@ -550,12 +567,37 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
                 />
               )}
 
+              {/* Upload Status Alerts */}
+              {isUploadSuccess && (
+                <Alert
+                  message="فایل با موفقیت آپلود شد"
+                  description="فایل شما با موفقیت آپلود شد و در لیست فایل‌های فعلی قابل مشاهده است."
+                  type="success"
+                  showIcon
+                  closable
+                  onClose={() => onResetUploadState?.()}
+                  className="mb-4"
+                />
+              )}
+
+              {isUploadError && (
+                <Alert
+                  message="خطا در آپلود فایل"
+                  description="متأسفانه در آپلود فایل خطایی رخ داد. لطفاً دوباره تلاش کنید."
+                  type="error"
+                  showIcon
+                  closable
+                  onClose={() => onResetUploadState?.()}
+                  className="mb-4"
+                />
+              )}
+
               {/* Current Files Display */}
               {session && (
                 <div className="mb-6 p-4 bg-gray-50 rounded-lg">
                   <h4 className="font-semibold mb-3">فایل‌های فعلی:</h4>
                   <Space direction="vertical" className="w-full">
-                    {session.videoUrl && (
+                    {session.hasVideo && (
                       <div className="flex items-center gap-2">
                         <Video size={16} className="text-blue-500" />
                         <span className="text-sm text-gray-600">ویدیو:</span>
@@ -573,7 +615,7 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
                         </a>
                       </div>
                     )}
-                    {!session.videoUrl && !session.fileUrl && (
+                    {!session.hasVideo && !session.fileUrl && (
                       <div className="text-sm text-gray-400">هیچ فایلی آپلود نشده است</div>
                     )}
                   </Space>

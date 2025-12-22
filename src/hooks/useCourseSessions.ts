@@ -79,6 +79,10 @@ export const useCourseSessions = () => {
     [uploadMutation]
   );
 
+  const resetUploadState = useCallback(() => {
+    uploadMutation.reset();
+  }, [uploadMutation]);
+
   return {
     // Mutations
     createSession: (data: CreateSessionPayload) => createMutation.mutateAsync(data),
@@ -92,6 +96,12 @@ export const useCourseSessions = () => {
     isDeleting: deleteMutation.isPending,
     isUploading: uploadMutation.isPending,
     uploadProgress,
+
+    // Upload states
+    isUploadSuccess: uploadMutation.isSuccess,
+    isUploadError: uploadMutation.isError,
+    uploadError: uploadMutation.error,
+    resetUploadState,
   };
 };
 
