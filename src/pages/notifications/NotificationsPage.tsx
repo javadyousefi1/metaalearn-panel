@@ -19,6 +19,7 @@ export const NotificationsPage: React.FC = () => {
   const [selectedCourseId, setSelectedCourseId] = useState<string | undefined>();
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [formValues, setFormValues] = useState<CreateNotificationPayload | null>(null);
+  const [allUsers, setAllUsers] = useState(false);
 
   // Fetch courses using the table hook (same pattern as CourseListPage)
   const {
@@ -51,15 +52,29 @@ export const NotificationsPage: React.FC = () => {
     form.setFieldValue('courseScheduleId', undefined);
   };
 
+  // Handle allUsers toggle
+  const handleAllUsersChange = (checked: boolean) => {
+    setAllUsers(checked);
+    if (checked) {
+      // Clear all selection fields when allUsers is enabled
+      form.setFieldsValue({
+        courseId: undefined,
+        courseScheduleId: undefined,
+        userIds: undefined,
+      });
+      setSelectedCourseId(undefined);
+    }
+  };
+
   // Handle form submission - show confirmation modal
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
 
       const payload: CreateNotificationPayload = {
-        userIds: values.userIds || [],
-        courseId: values.courseId || undefined,
-        courseScheduleId: values.courseScheduleId || undefined,
+        userIds: allUsers ? [] : (values.userIds || []),
+        courseId: allUsers ? undefined : (values.courseId || undefined),
+        courseScheduleId: allUsers ? undefined : (values.courseScheduleId || undefined),
         title: values.title,
         message: values.message,
         type: values.type,
@@ -83,6 +98,7 @@ export const NotificationsPage: React.FC = () => {
       form.resetFields();
       setSelectedCourseId(undefined);
       setFormValues(null);
+      setAllUsers(false);
     } catch (error) {
       console.error('Notification send error:', error);
     }
@@ -118,20 +134,40 @@ export const NotificationsPage: React.FC = () => {
           initialValues={{
             type: NotificationType.Financial,
             isForce: false,
+            allUsers: false,
           }}
         >
+          {/* All Users Toggle */}
+          <Form.Item
+            name="allUsers"
+            label="ارسال به همه کاربران"
+            valuePropName="checked"
+            extra="با فعال‌سازی این گزینه، اعلان به تمام کاربران موجود در سایت ارسال می‌شود"
+          >
+            <Switch
+              checkedChildren="بله"
+              unCheckedChildren="خیر"
+              onChange={handleAllUsersChange}
+            />
+          </Form.Item>
+
           <Row gutter={16}>
             {/* Course Selection */}
             <Col xs={24} md={12}>
               <Form.Item
                 name="courseId"
                 label="انتخاب دوره (اختیاری)"
-                extra="با انتخاب دوره، می‌توانید گروه‌بندی مربوط به آن را نیز انتخاب کنید"
+                extra={
+                  allUsers
+                    ? 'در حالت ارسال به همه کاربران، امکان انتخاب دوره وجود ندارد'
+                    : 'با انتخاب دوره، می‌توانید گروه‌بندی مربوط به آن را نیز انتخاب کنید'
+                }
               >
                 <Select
                   placeholder="انتخاب دوره"
                   showSearch
                   allowClear
+                  disabled={allUsers}
                   filterOption={(input, option) =>
                     (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
                   }
@@ -150,18 +186,22 @@ export const NotificationsPage: React.FC = () => {
                 name="courseScheduleId"
                 label="انتخاب گروه‌بندی (اختیاری)"
                 extra={
-                  !selectedCourseId
+                  allUsers
+                    ? 'در حالت ارسال به همه کاربران، امکان انتخاب گروه‌بندی وجود ندارد'
+                    : !selectedCourseId
                     ? 'ابتدا یک دوره را انتخاب کنید'
                     : `${schedules.length} گروه‌بندی در دسترس`
                 }
               >
                 <Select
                   placeholder={
-                    selectedCourseId
+                    allUsers
+                      ? 'ارسال به همه کاربران فعال است'
+                      : selectedCourseId
                       ? 'انتخاب گروه‌بندی'
                       : 'ابتدا دوره را انتخاب کنید'
                   }
-                  disabled={!selectedCourseId}
+                  disabled={allUsers || !selectedCourseId}
                   showSearch
                   allowClear
                   filterOption={(input, option) =>
@@ -182,20 +222,27 @@ export const NotificationsPage: React.FC = () => {
             label="انتخاب کاربران"
             rules={[
               {
-                required: !selectedCourseId,
+                required: !selectedCourseId && !allUsers,
                 message: 'لطفاً حداقل یک کاربر را انتخاب کنید یا یک دوره انتخاب نمایید',
               },
             ]}
             extra={
-              selectedCourseId
+              allUsers
+                ? 'در حالت ارسال به همه کاربران، امکان انتخاب کاربر خاص وجود ندارد'
+                : selectedCourseId
                 ? 'با انتخاب دوره، اعلان به تمام کاربران دوره ارسال می‌شود (اختیاری)'
                 : `${users.length} کاربر در دسترس`
             }
           >
             <Select
               mode="multiple"
-              placeholder="جستجو و انتخاب کاربران"
+              placeholder={
+                allUsers
+                  ? 'ارسال به همه کاربران فعال است'
+                  : 'جستجو و انتخاب کاربران'
+              }
               showSearch
+              disabled={allUsers}
               filterOption={(input, option) =>
                 (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
               }
@@ -319,23 +366,20 @@ export const NotificationsPage: React.FC = () => {
                 </div>
 
                 <div>
-                  <span className="font-semibold text-gray-700">تعداد کاربران:</span>
-                  <p className="text-gray-900 mt-1">{getUsersCount(formValues?.userIds || [])}</p>
+                  <span className="font-semibold text-gray-700">مخاطبان:</span>
+                  <p className="text-gray-900 mt-1">
+                    {allUsers
+                      ? 'همه کاربران موجود در سایت'
+                      : formValues?.courseId
+                      ? `کاربران دوره (${getCourseName(formValues.courseId)})${formValues?.courseScheduleId ? ` - گروه‌بندی: ${getScheduleName(formValues.courseScheduleId)}` : ''}`
+                      : `${getUsersCount(formValues?.userIds || [])} کاربر انتخاب شده`
+                    }
+                  </p>
                 </div>
 
                 <div>
                   <span className="font-semibold text-gray-700">ارسال اجباری:</span>
                   <p className="text-gray-900 mt-1">{formValues?.isForce ? 'بله' : 'خیر'}</p>
-                </div>
-
-                <div>
-                  <span className="font-semibold text-gray-700">دوره:</span>
-                  <p className="text-gray-900 mt-1">{getCourseName(formValues?.courseId)}</p>
-                </div>
-
-                <div>
-                  <span className="font-semibold text-gray-700">گروه‌بندی:</span>
-                  <p className="text-gray-900 mt-1">{getScheduleName(formValues?.courseScheduleId)}</p>
                 </div>
               </div>
 
