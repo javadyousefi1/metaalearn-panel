@@ -1,18 +1,23 @@
 import React, { useState, useRef, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Card, Avatar, Spin, Button, Empty, Input, Upload, message, Popconfirm, Modal, Space } from "antd";
-import { Home, UserCircle, Send, Paperclip, X, Edit2, Trash2 } from "lucide-react";
+import { Home, UserCircle, Send, Paperclip, X, Edit2, Trash2, XCircle } from "lucide-react";
 import { PageHeader } from "@/components/common";
 import { useCourseTicketMessages } from "@/hooks";
 import { formatDate } from "@/utils";
 import type { UploadFile } from "antd";
 import type { CourseTicketMessage } from "@/types/courseTicket.types";
+import { CourseTicketStatus } from "@/types/courseTicket.types";
+import { courseTicketService } from "@/services/courseTicket.service";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 /**
  * OperatorTicketDetailPage Component - Display ticket messages in a chat interface
  */
 export const OperatorTicketDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const [messageContent, setMessageContent] = useState("");
@@ -33,6 +38,25 @@ export const OperatorTicketDetailPage: React.FC = () => {
   } = useCourseTicketMessages({
     courseTicketId: id,
     pageSize: 1000,
+  });
+
+  // Close course ticket mutation
+  const closeCourseTicketMutation = useMutation({
+    mutationFn: async () => {
+      if (!id) throw new Error("Course Ticket ID not found");
+      await courseTicketService.update({
+        id,
+        status: CourseTicketStatus.Closed,
+      });
+    },
+    onSuccess: () => {
+      message.success("تیکت با موفقیت بسته شد");
+      queryClient.invalidateQueries({ queryKey: ["courseTickets"] });
+      navigate("/operators");
+    },
+    onError: () => {
+      message.error("خطا در بستن تیکت");
+    },
   });
 
   // Auto scroll to bottom when new messages arrive
@@ -153,6 +177,11 @@ export const OperatorTicketDetailPage: React.FC = () => {
     }
   };
 
+  // Handle close course ticket
+  const handleCloseCourseTicket = () => {
+    closeCourseTicketMutation.mutate();
+  };
+
   return (
     <div className="h-full flex flex-col">
       <PageHeader
@@ -175,6 +204,25 @@ export const OperatorTicketDetailPage: React.FC = () => {
             title: "جزئیات تیکت",
           },
         ]}
+        actions={
+          <Popconfirm
+            title="بستن تیکت"
+            description="آیا از بستن این تیکت اطمینان دارید؟"
+            onConfirm={handleCloseCourseTicket}
+            okText="بله"
+            cancelText="خیر"
+            okButtonProps={{ loading: closeCourseTicketMutation.isPending }}
+          >
+            <Button
+              type="text"
+              icon={<XCircle size={18} />}
+              loading={closeCourseTicketMutation.isPending}
+              size="large"
+            >
+              بستن تیکت
+            </Button>
+          </Popconfirm>
+        }
       />
 
       <Card

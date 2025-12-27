@@ -1,18 +1,23 @@
 import React, { useState, useRef, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Card, Avatar, Spin, Button, Empty, Input, Upload, message, Popconfirm, Modal, Space } from "antd";
-import { Home, UserCircle, Send, Paperclip, X, Edit2, Trash2 } from "lucide-react";
+import { Home, UserCircle, Send, Paperclip, X, Edit2, Trash2, XCircle } from "lucide-react";
 import { PageHeader } from "@/components/common";
 import { useTicketMessages } from "@/hooks";
 import { formatDate } from "@/utils";
 import type { UploadFile } from "antd";
 import type { TicketMessage } from "@/types/ticket.types";
+import { TicketStatus } from "@/types/ticket.types";
+import { ticketService } from "@/services/ticket.service";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 /**
  * TicketDetailPage Component - Display ticket messages in a chat interface
  */
 export const TicketDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const [messageContent, setMessageContent] = useState("");
@@ -33,6 +38,23 @@ export const TicketDetailPage: React.FC = () => {
   } = useTicketMessages({
     ticketId: id,
     pageSize: 1000,
+  });
+
+  // Close ticket mutation
+  const closeTicketMutation = useMutation({
+    mutationFn: async () => {
+      if (!id) throw new Error("Ticket ID not found");
+      await ticketService.update({
+        id,
+        status: TicketStatus.Closed,
+      });
+    },
+    onSuccess: () => {
+      message.success("تیکت با موفقیت بسته شد");
+      queryClient.invalidateQueries({ queryKey: ["tickets"] });
+      navigate("/tickets");
+    },
+
   });
 
   // Auto scroll to bottom when new messages arrive
@@ -153,6 +175,11 @@ export const TicketDetailPage: React.FC = () => {
     }
   };
 
+  // Handle close ticket
+  const handleCloseTicket = () => {
+    closeTicketMutation.mutate();
+  };
+
   return (
     <div className="h-full flex flex-col">
       <PageHeader
@@ -175,6 +202,25 @@ export const TicketDetailPage: React.FC = () => {
             title: "جزئیات تیکت",
           },
         ]}
+        actions={
+          <Popconfirm
+            title="بستن تیکت"
+            description="آیا از بستن این تیکت اطمینان دارید؟"
+            onConfirm={handleCloseTicket}
+            okText="بله"
+            cancelText="خیر"
+            okButtonProps={{ loading: closeTicketMutation.isPending }}
+          >
+            <Button
+              type="text"
+              icon={<XCircle size={18} />}
+              loading={closeTicketMutation.isPending}
+              size="large"
+            >
+              بستن تیکت
+            </Button>
+          </Popconfirm>
+        }
       />
 
       <Card

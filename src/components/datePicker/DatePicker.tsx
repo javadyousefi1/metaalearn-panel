@@ -92,7 +92,6 @@ function DatePicker(props: Props) {
     // Parse the Gregorian date string with multiple format support
     const formats = ['YYYY-MM-DD', 'YYYY/MM/DD HH:mm', 'YYYY/MM/DD'];
     const momentValue = moment(value, formats, true);
-    console.log('getValue returning moment:', momentValue.format(showTime ? 'YYYY/MM/DD HH:mm' : 'YYYY/MM/DD'));
     return { value: momentValue };
   }
 

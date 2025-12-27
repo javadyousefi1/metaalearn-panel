@@ -159,3 +159,12 @@ export interface UpdateCourseTicketMessagePayload {
   content: string;
   files?: File[];
 }
+
+// Update Course Ticket Types
+export interface UpdateCourseTicketPayload {
+  id: string;
+  title?: string;
+  status?: CourseTicketStatus;
+  score?: number;
+  closeMessage?: string;
+}

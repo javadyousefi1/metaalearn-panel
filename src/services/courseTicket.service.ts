@@ -6,6 +6,7 @@ import type {
   AllCourseTicketMessagesResponse,
   CreateCourseTicketMessagePayload,
   UpdateCourseTicketMessagePayload,
+  UpdateCourseTicketPayload,
 } from '@/types/courseTicket.types';
 
 /**
@@ -79,5 +80,12 @@ export const courseTicketService = {
     await httpService.delete('/CourseTicketMessage/Delete', {
       params: { id },
     });
+  },
+
+  /**
+   * Update a course ticket (e.g., change status)
+   */
+  async update(payload: UpdateCourseTicketPayload): Promise<void> {
+    await httpService.put('/CourseTicket/Update', payload);
   },
 };

@@ -60,9 +60,7 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
   const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [uploadType, setUploadType] = useState<CourseSessionUploadType>(CourseSessionUploadType.Video);
   const [activeTab, setActiveTab] = useState<SegmentedValue>('info');
-  const [descriptionValue, setDescriptionValue] = useState<string>('');
   const quillRef = useRef<ReactQuill>(null);
-
   // Fetch course schedules
   const { data: schedules = [] } = useGetAllSchedules(
     { CourseId: courseId, PageIndex: 1, PageSize: 100 },
@@ -152,7 +150,19 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
           : null,
         courseScheduleIds: session.schedules?.map(item => item.id) || null,
       });
-      setDescriptionValue(session.description || '');
+
+      // Set description using clipboard.convert to preserve HTML structure
+      setTimeout(() => {
+        if (quillRef.current) {
+          const editor = quillRef.current.getEditor();
+          if (session.description) {
+            const delta = editor.clipboard.convert(session.description);
+            editor.setContents(delta, 'silent');
+          } else {
+            editor.setText('');
+          }
+        }
+      }, 100);
     } else if (open) {
       // Determine level based on provided parentId
       let level: 1 | 2 | 3 = 1;
@@ -179,12 +189,21 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
         isTopic: false,
         courseScheduleIds: [],
       });
-      setDescriptionValue('');
+
+      // Clear Quill content for new session
+      setTimeout(() => {
+        if (quillRef.current) {
+          quillRef.current.getEditor().setText('');
+        }
+      }, 100);
     }
-  }, [open, session, form, nextIndex, parentId, level1ParentId, allSessions]);
+  }, [open, session?.id, form, nextIndex, parentId, level1ParentId, allSessions, session]);
 
   const handleSubmitInfo = async () => {
     const values = await form.validateFields();
+
+    // Get description from Quill editor
+    const description = quillRef.current?.getEditor().root.innerHTML || '';
 
     // Determine correct parentId based on session level
     let finalParentId: string | null = null;
@@ -197,7 +216,7 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
     // Format dates to ISO string
     const formattedValues = {
       ...values,
-      description: descriptionValue,
+      description,
       occurrenceTime: values.occurrenceTime
         ? moment(values.occurrenceTime).toISOString()
         : null,
@@ -216,7 +235,11 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
     setSelectedLevel2(null);
     setFileList([]);
     setUploadType(CourseSessionUploadType.Video);
-    setDescriptionValue('');
+
+    // Clear Quill content
+    if (quillRef.current) {
+      quillRef.current.getEditor().setText('');
+    }
   };
 
   const handleUploadMedia = async () => {
@@ -245,7 +268,12 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
     setFileList([]);
     setUploadType(CourseSessionUploadType.Video);
     setActiveTab('info');
-    setDescriptionValue('');
+
+    // Clear Quill content
+    if (quillRef.current) {
+      quillRef.current.getEditor().setText('');
+    }
+
     if (onResetUploadState) {
       onResetUploadState();
     }
@@ -460,8 +488,6 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
               <ReactQuill
                 ref={quillRef}
                 theme="snow"
-                value={descriptionValue}
-                onChange={setDescriptionValue}
                 modules={modules}
                 formats={formats}
                 placeholder="توضیحات جلسه را وارد کنید..."

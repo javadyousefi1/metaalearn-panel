@@ -265,3 +265,13 @@ export interface UpdateTicketMessagePayload {
   content: string;
   files?: File[];
 }
+
+// Update Ticket Types
+export interface UpdateTicketPayload {
+  id: string;
+  title?: string;
+  type?: TicketType;
+  status?: TicketStatus;
+  score?: number;
+  closeMessage?: string;
+}
