@@ -2,10 +2,10 @@
  * Notification Type Enum
  */
 export enum NotificationType {
-  General = 0 ,
   Financial = 1,
   LoginInfo = 2,
   ClassFormation = 3,
+  General = 4 ,
 }
 
 /**
