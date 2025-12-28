@@ -1,9 +1,9 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Card, Avatar, Spin, Button, Empty, Input, Upload, message, Popconfirm, Modal, Space } from "antd";
-import { Home, UserCircle, Send, Paperclip, X, Edit2, Trash2, XCircle } from "lucide-react";
+import { Card, Avatar, Spin, Button, Empty, Input, Upload, message, Popconfirm, Modal, Space, Tag, Collapse } from "antd";
+import { Home, UserCircle, Send, Paperclip, X, Edit2, Trash2, XCircle, BookOpen } from "lucide-react";
 import { PageHeader } from "@/components/common";
-import { useTicketMessages } from "@/hooks";
+import { useTicketMessages, useGetUserPurchasedCourses } from "@/hooks";
 import { formatDate } from "@/utils";
 import type { UploadFile } from "antd";
 import type { TicketMessage } from "@/types/ticket.types";
@@ -39,6 +39,22 @@ export const TicketDetailPage: React.FC = () => {
     ticketId: id,
     pageSize: 1000,
   });
+
+  // Get the user ID from the first non-operator message
+  const userId = useMemo(() => {
+    const firstUserMessage = messages.find(msg => !msg.isOperator);
+    return firstUserMessage?.userInfo?.id;
+  }, [messages]);
+
+  // Fetch user's purchased courses
+  const { data: purchasedCourses = [], isLoading: isLoadingCourses } = useGetUserPurchasedCourses(
+    {
+      UserId: userId,
+      PageIndex: 1,
+      PageSize: 100
+    },
+    !!userId
+  );
 
   // Close ticket mutation
   const closeTicketMutation = useMutation({
@@ -171,7 +187,7 @@ export const TicketDetailPage: React.FC = () => {
   const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      handleSendMessage();
+      // handleSendMessage();
     }
   };
 
@@ -222,6 +238,62 @@ export const TicketDetailPage: React.FC = () => {
           </Popconfirm>
         }
       />
+
+      {/* User's Purchased Courses - Collapsible */}
+      {userId && purchasedCourses.length > 0 && (
+        <Collapse
+          className="!mt-4"
+          items={[
+            {
+              key: '1',
+              label: (
+                <div className="flex items-center gap-2">
+                  <BookOpen size={18} className="text-primary" />
+                  <span>دوره‌های خریداری شده توسط کاربر</span>
+                  <Tag color="blue">{purchasedCourses.length} دوره</Tag>
+                </div>
+              ),
+              children: isLoadingCourses ? (
+                <div className="flex justify-center py-4">
+                  <Spin />
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {purchasedCourses.map((course) => (
+                    <div
+                      key={course.id}
+                      className="flex items-center gap-3 p-3 border rounded-lg hover:shadow-md transition-shadow"
+                    >
+                      {course.imageUrl ? (
+                        <img
+                          src={course.imageUrl}
+                          alt={course.name}
+                          className="w-16 h-16 object-cover rounded"
+                        />
+                      ) : (
+                        <div className="w-16 h-16 flex items-center justify-center bg-gray-100 rounded">
+                          <BookOpen size={32} className="text-gray-400" />
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-medium text-sm truncate">{course.name}</h4>
+                        <p className="text-xs text-gray-500 mt-1">{course.category.name}</p>
+                        {/*{course.invoice && (*/}
+                        {/*  <div className="flex gap-2 mt-1">*/}
+                        {/*    <Tag color={course.invoice.hasAccess ? "green" : "orange"} className="text-xs">*/}
+                        {/*      {course.invoice.hasAccess ? "دسترسی دارد" : "بدون دسترسی"}*/}
+                        {/*    </Tag>*/}
+                        {/*  </div>*/}
+                        {/*)}*/}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ),
+            },
+          ]}
+        />
+      )}
 
       <Card
         className="!mt-4 !flex-1 !flex !flex-col"

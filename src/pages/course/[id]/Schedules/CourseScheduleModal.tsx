@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Modal, Form, Input, InputNumber, Select, Switch } from 'antd';
+import {Modal, Form, Input, InputNumber, Select, Switch, Button} from 'antd';
 import { Users, Link } from 'lucide-react';
 import { useGetUsersByRole, useGetPurchasedCourseUsers } from '@/hooks';
 import { CourseScheduleStatus } from '@/enums';
@@ -34,7 +34,7 @@ export const CourseScheduleModal: React.FC<CourseScheduleModalProps> = ({
   });
 
   const { data: operators = [] } = useGetUsersByRole({
-    role: '2',
+    role: '3',
     PageIndex: 1,
     PageSize: 1000,
     IncludeProfile: false,
@@ -257,7 +257,12 @@ export const CourseScheduleModal: React.FC<CourseScheduleModalProps> = ({
           {/* Students */}
           <Form.Item
             name="studentIds"
-            label="دانشجویان (خریداران دوره)"
+            label={
+              <>
+                  <span>دانشجویان (خریداران دوره)</span>
+                  <Button type={"text"} size={"small"} onClick={()=> form.setFieldsValue({ studentIds: students?.map(item => item.id) })}>انتخاب همه</Button>
+              </>
+            }
             // rules={[
             //   { required: true, message: 'لطفاً حداقل یک دانشجو را انتخاب کنید' },
             // ]}

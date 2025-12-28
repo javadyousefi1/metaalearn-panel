@@ -79,6 +79,7 @@ export const NotificationsPage: React.FC = () => {
         message: values.message,
         type: values.type,
         isForce: values.isForce ?? false,
+        allUsers: allUsers,
       };
 
       setFormValues(payload);
@@ -93,6 +94,8 @@ export const NotificationsPage: React.FC = () => {
     if (!formValues) return;
 
     try {
+        const payload = {...formValues}
+        // if (payload.userIds.length === 0 && payload.) {}
       await createNotification(formValues);
       setConfirmModalOpen(false);
       form.resetFields();
@@ -132,7 +135,7 @@ export const NotificationsPage: React.FC = () => {
           size="large"
           requiredMark={false}
           initialValues={{
-            type: NotificationType.Financial,
+            type: NotificationType.General,
             isForce: false,
             allUsers: false,
           }}
