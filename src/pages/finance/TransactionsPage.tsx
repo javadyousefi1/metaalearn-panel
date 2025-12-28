@@ -3,9 +3,10 @@ import { Tag, Avatar, Tooltip, Button, Input } from 'antd';
 import { Home, UserCircle, CheckCircle } from 'lucide-react';
 import { SearchOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
-import { PageHeader, DataTable } from '@/components/common';
+import { PageHeader, DataTable, CourseFilter } from '@/components/common';
 import { useTable, useTableFilters, usePaymentVerification } from '@/hooks';
-import { paymentService } from '@/services';
+import { paymentService, courseService } from '@/services';
+import { Course } from '@/types/course.types';
 import {
     PaymentListItem,
     PaymentStatus,
@@ -24,10 +25,23 @@ import { PaymentVerificationModal } from './PaymentVerificationModal';
  * TransactionsPage Component - Display payment transactions with verification
  */
 export const TransactionsPage: React.FC = () => {
-  const { filters, handleTableChange } = useTableFilters();
+  const { filters, handleTableChange, setFilter } = useTableFilters({
+    CourseId: null,
+  });
   const { verifyPayment, rejectPayment, isProcessing } = usePaymentVerification();
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState<PaymentListItem | null>(null);
+
+  // Fetch courses for filter
+  const {
+    data: courses = [],
+    isLoading: isLoadingCourses,
+  } = useTable<Course>({
+    queryKey: 'courses',
+    fetchFn: courseService.getAll,
+    initialPageSize: 1000,
+    initialPageIndex: 1,
+  });
 
   const {
     data: payments,
@@ -35,7 +49,7 @@ export const TransactionsPage: React.FC = () => {
     isLoading,
     pagination,
   } = useTable<PaymentListItem>({
-    queryKey: ['payments'],
+    queryKey: ['payments', filters],
     fetchFn: (params) =>
       paymentService.getAll({
         ...params,
@@ -45,6 +59,7 @@ export const TransactionsPage: React.FC = () => {
         ReferralCode: filters.ReferralCode as string | undefined,
         UserPhoneNumber: filters.UserPhoneNumber as string | undefined,
         UserFullName: filters.UserFullName as string | undefined,
+        valueId: filters.CourseId as string | undefined,
       }),
     initialPageSize: 10,
     initialPageIndex: 1,
@@ -304,6 +319,18 @@ export const TransactionsPage: React.FC = () => {
           },
         ]}
       />
+
+      {/* Filters */}
+      <div className="mb-6 bg-white p-4 rounded-lg shadow-sm">
+        <div className="flex flex-wrap gap-4">
+          <CourseFilter
+            value={filters.CourseId as string}
+            onChange={(value) => setFilter('CourseId', value)}
+            courses={courses}
+            loading={isLoadingCourses}
+          />
+        </div>
+      </div>
 
       <DataTable
         columns={columns}
