@@ -98,7 +98,7 @@ export const authService = {
     }
 
     // Real API call
-    const response = await httpService.post<OtpResponse>('/Authentication/resend', data);
+    const response = await httpService.put<OtpResponse>('/Authentication/ResendOtp', data);
     return response.data;
   },
 

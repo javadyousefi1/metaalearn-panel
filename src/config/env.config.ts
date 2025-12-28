@@ -6,6 +6,7 @@ interface EnvConfig {
   tokenKey: string;
   refreshTokenKey: string;
   nodeEnv: string;
+  recaptchaSiteKey: string;
 }
 
 export const env: EnvConfig = {
@@ -16,6 +17,7 @@ export const env: EnvConfig = {
   tokenKey: import.meta.env.VITE_TOKEN_KEY || 'metaalearn_token',
   refreshTokenKey: import.meta.env.VITE_REFRESH_TOKEN_KEY || 'metaalearn_refresh_token',
   nodeEnv: import.meta.env.VITE_NODE_ENV || 'development',
+  recaptchaSiteKey: import.meta.env.VITE_RECAPTCHA_SITE_KEY || '6LdbnjksAAAAAA7i_VdwsCyI1G_hkLqL_uGeyjaP',
 };
 
 export const isDevelopment = env.nodeEnv === 'development';
