@@ -5,12 +5,14 @@ export enum NotificationType {
   Financial = 1,
   LoginInfo = 2,
   ClassFormation = 3,
+  General = 4 ,
 }
 
 /**
  * Notification type labels in Persian
  */
 export const NotificationTypeLabels = {
+  [NotificationType.General]: 'عمومی',
   [NotificationType.Financial]: 'مالی',
   [NotificationType.LoginInfo]: 'اطلاعات ورود',
   [NotificationType.ClassFormation]: 'تشکیل کلاس',
@@ -27,6 +29,7 @@ export interface CreateNotificationPayload {
   message: string;
   type: NotificationType;
   isForce: boolean;
+  allUsers?: boolean;
 }
 
 /**

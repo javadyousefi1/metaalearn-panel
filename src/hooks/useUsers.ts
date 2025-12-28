@@ -67,3 +67,17 @@ export const useGetPurchasedCourseUsers = (params: PurchasedCoursesParams, enabl
     select: (data) => data?.courses?.items?.map(item => item.userInfo) || []
   });
 };
+
+/**
+ * Custom hook for getting courses purchased by a specific user
+ * @param params - Query parameters (UserId, PageIndex, PageSize)
+ * @param enabled - Whether the query should run (optional, defaults to true)
+ */
+export const useGetUserPurchasedCourses = (params: PurchasedCoursesParams, enabled = true) => {
+  return useQuery({
+    queryKey: ['user-purchased-courses', params.UserId],
+    queryFn: () => userService.getAllPurchasedCourses(params),
+    enabled: !!params.UserId && enabled,
+    select: (data) => data?.courses?.items || []
+  });
+};

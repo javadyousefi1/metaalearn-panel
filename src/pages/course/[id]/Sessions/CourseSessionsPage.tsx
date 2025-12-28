@@ -15,7 +15,20 @@ export const CourseSessionsPage: React.FC = () => {
   const [selectedLevel1ParentId, setSelectedLevel1ParentId] = useState<string | null>(null);
 
   const { data: allSessions = [], refetch, isLoading } = useGetAllSessions(true, {courseId:id});
-  const { createSession, updateSession, deleteSession, uploadFile, isCreating, isUpdating, isDeleting, isUploading, uploadProgress } = useCourseSessions();
+  const {
+    createSession,
+    updateSession,
+    deleteSession,
+    uploadFile,
+    isCreating,
+    isUpdating,
+    isDeleting,
+    isUploading,
+    uploadProgress,
+    isUploadSuccess,
+    isUploadError,
+    resetUploadState
+  } = useCourseSessions();
 
   // Flatten all sessions for easier lookup
   const flatSessions = useMemo(() => {
@@ -129,7 +142,29 @@ export const CourseSessionsPage: React.FC = () => {
     await uploadFile(file, sessionId, uploadType);
 
     // Refetch to get updated session data
-    await refetch();
+    const result = await refetch();
+
+    // Update editingSession with fresh data from refetch
+    if (editingSession && result.data) {
+      // Flatten the fresh data to find the updated session
+      const freshSessions: CourseSession[] = [];
+      (result.data as CourseSession[]).forEach(parent => {
+        freshSessions.push(parent);
+        if (parent.subSessions) {
+          parent.subSessions.forEach(child => {
+            freshSessions.push(child);
+            if (child.subSessions) {
+              freshSessions.push(...child.subSessions);
+            }
+          });
+        }
+      });
+
+      const updatedSession = freshSessions.find(s => s.id === sessionId);
+      if (updatedSession) {
+        setEditingSession(updatedSession);
+      }
+    }
   };
 
   const handleDeleteSession = async (sessionId: string) => {
@@ -153,9 +188,9 @@ export const CourseSessionsPage: React.FC = () => {
             {formatDate(session.practiceDueTime)}
           </Space>
         </Descriptions.Item>
-        {session.videoUrl && (
+        {session.hasVideo && (
           <Descriptions.Item label="ویدیو">
-            <a href={session.videoUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+            <a href={`https://new.metaalearn.com/course/${id}/session?sessionId=${session.id}`} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
               <Space>
                 <Video size={16} />
                 مشاهده ویدیو
@@ -377,6 +412,9 @@ export const CourseSessionsPage: React.FC = () => {
         loading={isCreating || isUpdating}
         uploadLoading={isUploading}
         uploadProgress={uploadProgress}
+        isUploadSuccess={isUploadSuccess}
+        isUploadError={isUploadError}
+        onResetUploadState={resetUploadState}
         session={editingSession}
         parentId={selectedParentId}
         level1ParentId={selectedLevel1ParentId}

@@ -189,3 +189,9 @@ body {
 .ql-container {
     font-family: 'IRANYekanX'!important;
 }
+
+.ant-btn-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

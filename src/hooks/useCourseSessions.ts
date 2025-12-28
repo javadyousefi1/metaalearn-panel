@@ -47,9 +47,9 @@ export const useCourseSessions = () => {
 
   // Upload file mutation
   const uploadMutation = useMutation({
-    mutationFn: ({ file, courseSessionId, uploadType, onProgress }: { 
-      file: File; 
-      courseSessionId: string; 
+    mutationFn: ({ file, courseSessionId, uploadType, onProgress }: {
+      file: File;
+      courseSessionId: string;
       uploadType: number;
       onProgress?: (progress: number) => void;
     }) => {
@@ -64,6 +64,7 @@ export const useCourseSessions = () => {
     onSuccess: () => {
       message.success('فایل با موفقیت آپلود شد');
       setUploadProgress(0);
+      queryClient.invalidateQueries({ queryKey: queryKeys.sessions.all });
     },
     onError: () => {
       message.error('خطا در آپلود فایل');
@@ -78,6 +79,10 @@ export const useCourseSessions = () => {
     [uploadMutation]
   );
 
+  const resetUploadState = useCallback(() => {
+    uploadMutation.reset();
+  }, [uploadMutation]);
+
   return {
     // Mutations
     createSession: (data: CreateSessionPayload) => createMutation.mutateAsync(data),
@@ -91,6 +96,12 @@ export const useCourseSessions = () => {
     isDeleting: deleteMutation.isPending,
     isUploading: uploadMutation.isPending,
     uploadProgress,
+
+    // Upload states
+    isUploadSuccess: uploadMutation.isSuccess,
+    isUploadError: uploadMutation.isError,
+    uploadError: uploadMutation.error,
+    resetUploadState,
   };
 };
 

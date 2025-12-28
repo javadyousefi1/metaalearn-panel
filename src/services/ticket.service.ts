@@ -6,6 +6,7 @@ import type {
   AllTicketMessagesResponse,
   CreateTicketMessagePayload,
   UpdateTicketMessagePayload,
+  UpdateTicketPayload,
 } from '@/types/ticket.types';
 
 /**
@@ -79,5 +80,12 @@ export const ticketService = {
     await httpService.delete('/TicketMessage/Delete', {
       params: { id },
     });
+  },
+
+  /**
+   * Update a ticket (e.g., change status)
+   */
+  async update(payload: UpdateTicketPayload): Promise<void> {
+    await httpService.put('/Ticket/Update', payload);
   },
 };

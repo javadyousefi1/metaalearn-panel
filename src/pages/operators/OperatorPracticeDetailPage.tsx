@@ -253,7 +253,7 @@ export const OperatorPracticeDetailPage: React.FC = () => {
         ),
     },
     {
-      title: "بازخورد",
+      title: "بازخورد اپراتور",
       dataIndex: "feedback",
       key: "feedback",
       render: (feedback: string | undefined) =>
@@ -264,7 +264,7 @@ export const OperatorPracticeDetailPage: React.FC = () => {
         ),
     },
       {
-          title: "بازخورد",
+          title: "یادداشت کاربر",
           dataIndex: "notes",
           key: "notes",
           render: (notes: string | undefined) =>

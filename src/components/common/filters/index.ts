@@ -6,6 +6,7 @@ export * from './FullNameFaFilter';
 export * from './RoleFilter';
 export * from './CourseSessionFilter';
 export * from './CourseScheduleFilter';
+export * from './CourseFilter';
 
 // New dynamic filter system (recommended)
 export * from './types';

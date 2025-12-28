@@ -271,7 +271,8 @@ export const getRoleTypeFromString = (roleString: string): RoleType | null => {
 
 // Purchased Courses Types
 export interface PurchasedCoursesParams {
-  CourseId: string;
+  CourseId?: string;
+  UserId?: string;
   PageIndex: number;
   PageSize: number;
 }

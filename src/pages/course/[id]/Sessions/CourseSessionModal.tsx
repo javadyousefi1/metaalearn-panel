@@ -25,6 +25,9 @@ interface CourseSessionModalProps {
   loading?: boolean;
   uploadLoading?: boolean;
   uploadProgress?: number;
+  isUploadSuccess?: boolean;
+  isUploadError?: boolean;
+  onResetUploadState?: () => void;
   session?: CourseSession | null;
   parentId?: string | null;
   level1ParentId?: string | null; // For level 3 sessions
@@ -40,6 +43,9 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
   loading = false,
   uploadLoading = false,
   uploadProgress = 0,
+  isUploadSuccess = false,
+  isUploadError = false,
+  onResetUploadState,
   session = null,
   parentId = null,
   level1ParentId = null,
@@ -54,9 +60,7 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
   const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [uploadType, setUploadType] = useState<CourseSessionUploadType>(CourseSessionUploadType.Video);
   const [activeTab, setActiveTab] = useState<SegmentedValue>('info');
-  const [descriptionValue, setDescriptionValue] = useState<string>('');
   const quillRef = useRef<ReactQuill>(null);
-
   // Fetch course schedules
   const { data: schedules = [] } = useGetAllSchedules(
     { CourseId: courseId, PageIndex: 1, PageSize: 100 },
@@ -110,6 +114,14 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
     return 2;
   };
 
+  // Reset upload state when tab changes
+  useEffect(() => {
+    if (onResetUploadState && activeTab === 'media') {
+      onResetUploadState();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab]);
+
   // Initialize form with session data when editing
   useEffect(() => {
     if (open && session) {
@@ -138,7 +150,19 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
           : null,
         courseScheduleIds: session.schedules?.map(item => item.id) || null,
       });
-      setDescriptionValue(session.description || '');
+
+      // Set description using clipboard.convert to preserve HTML structure
+      setTimeout(() => {
+        if (quillRef.current) {
+          const editor = quillRef.current.getEditor();
+          if (session.description) {
+            const delta = editor.clipboard.convert(session.description);
+            editor.setContents(delta, 'silent');
+          } else {
+            editor.setText('');
+          }
+        }
+      }, 100);
     } else if (open) {
       // Determine level based on provided parentId
       let level: 1 | 2 | 3 = 1;
@@ -165,12 +189,21 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
         isTopic: false,
         courseScheduleIds: [],
       });
-      setDescriptionValue('');
+
+      // Clear Quill content for new session
+      setTimeout(() => {
+        if (quillRef.current) {
+          quillRef.current.getEditor().setText('');
+        }
+      }, 100);
     }
-  }, [open, session, form, nextIndex, parentId, level1ParentId, allSessions]);
+  }, [open, session?.id, form, nextIndex, parentId, level1ParentId, allSessions, session]);
 
   const handleSubmitInfo = async () => {
     const values = await form.validateFields();
+
+    // Get description from Quill editor
+    const description = quillRef.current?.getEditor().root.innerHTML || '';
 
     // Determine correct parentId based on session level
     let finalParentId: string | null = null;
@@ -183,7 +216,7 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
     // Format dates to ISO string
     const formattedValues = {
       ...values,
-      description: descriptionValue,
+      description,
       occurrenceTime: values.occurrenceTime
         ? moment(values.occurrenceTime).toISOString()
         : null,
@@ -202,7 +235,11 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
     setSelectedLevel2(null);
     setFileList([]);
     setUploadType(CourseSessionUploadType.Video);
-    setDescriptionValue('');
+
+    // Clear Quill content
+    if (quillRef.current) {
+      quillRef.current.getEditor().setText('');
+    }
   };
 
   const handleUploadMedia = async () => {
@@ -231,7 +268,15 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
     setFileList([]);
     setUploadType(CourseSessionUploadType.Video);
     setActiveTab('info');
-    setDescriptionValue('');
+
+    // Clear Quill content
+    if (quillRef.current) {
+      quillRef.current.getEditor().setText('');
+    }
+
+    if (onResetUploadState) {
+      onResetUploadState();
+    }
     onClose();
   };
 
@@ -255,9 +300,9 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
   return (
     <Modal
       title={
-        <span className="text-xl font-bold">
-          {session ? "ویرایش جلسه" : "افزودن جلسه جدید"}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className={"text-lg"}>{session ? "ویرایش جلسه" : "افزودن جلسه جدید"}</span> <span className={"text-sm text-gray-500 font-medium"}>{session?.name}</span>
+        </div>
       }
       open={open}
       onCancel={handleCancel}
@@ -443,8 +488,6 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
               <ReactQuill
                 ref={quillRef}
                 theme="snow"
-                value={descriptionValue}
-                onChange={setDescriptionValue}
                 modules={modules}
                 formats={formats}
                 placeholder="توضیحات جلسه را وارد کنید..."
@@ -550,16 +593,41 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
                 />
               )}
 
+              {/* Upload Status Alerts */}
+              {isUploadSuccess && (
+                <Alert
+                  message="فایل با موفقیت آپلود شد"
+                  description="فایل شما با موفقیت آپلود شد و در لیست فایل‌های فعلی قابل مشاهده است."
+                  type="success"
+                  showIcon
+                  closable
+                  onClose={() => onResetUploadState?.()}
+                  className="mb-4"
+                />
+              )}
+
+              {isUploadError && (
+                <Alert
+                  message="خطا در آپلود فایل"
+                  description="متأسفانه در آپلود فایل خطایی رخ داد. لطفاً دوباره تلاش کنید."
+                  type="error"
+                  showIcon
+                  closable
+                  onClose={() => onResetUploadState?.()}
+                  className="mb-4"
+                />
+              )}
+
               {/* Current Files Display */}
               {session && (
                 <div className="mb-6 p-4 bg-gray-50 rounded-lg">
                   <h4 className="font-semibold mb-3">فایل‌های فعلی:</h4>
                   <Space direction="vertical" className="w-full">
-                    {session.videoUrl && (
+                    {session.hasVideo && (
                       <div className="flex items-center gap-2">
                         <Video size={16} className="text-blue-500" />
                         <span className="text-sm text-gray-600">ویدیو:</span>
-                        <a href={session.videoUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline text-sm">
+                        <a href={`https://new.metaalearn.com/course/${courseId}/session?sessionId=${session.id}`} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline text-sm">
                           مشاهده
                         </a>
                       </div>
@@ -573,7 +641,7 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
                         </a>
                       </div>
                     )}
-                    {!session.videoUrl && !session.fileUrl && (
+                    {!session.hasVideo && !session.fileUrl && (
                       <div className="text-sm text-gray-400">هیچ فایلی آپلود نشده است</div>
                     )}
                   </Space>
