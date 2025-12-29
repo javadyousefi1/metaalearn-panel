@@ -6,6 +6,7 @@ export interface LoginCredentials {
 
 export interface OtpLoginCredentials {
   phoneNumber: string;
+  recaptchaToken: string;
 }
 
 export interface OtpResponse {
@@ -16,10 +17,12 @@ export interface OtpResponse {
 export interface VerifyOtpRequest {
   phoneNumber: string;
   code: string;
+  recaptchaToken: string;
 }
 
 export interface ResendOtpRequest {
   phoneNumber: string;
+  recaptchaToken: string;
 }
 
 export interface LoginResponse {

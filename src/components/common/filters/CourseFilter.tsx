@@ -1,11 +1,7 @@
 import React from 'react';
 import { Select } from 'antd';
 import { BookOpen } from 'lucide-react';
-
-export interface CourseOption {
-  id: string;
-  name: string;
-}
+import { Course } from '@/types/course.types';
 
 export interface CourseFilterProps {
   /**
@@ -21,7 +17,7 @@ export interface CourseFilterProps {
   /**
    * Courses to display in dropdown
    */
-  courses: CourseOption[];
+  courses: Course[];
 
   /**
    * Loading state
@@ -52,7 +48,7 @@ export interface CourseFilterProps {
  *
  * @example
  * <CourseFilter
- *   value={filters.CourseId}
+ *   value={filters.courseId}
  *   onChange={(value) => setFilter('CourseId', value)}
  *   courses={courses}
  *   loading={isLoadingCourses}

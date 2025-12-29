@@ -5,6 +5,17 @@ import { useAuth } from '@/hooks';
 import { ROUTES } from '@/constants';
 import { useState, useEffect } from 'react';
 import type { OtpLoginCredentials } from '@/types';
+import { env } from '@/config/env.config';
+import { message } from 'antd';
+
+declare global {
+  interface Window {
+    grecaptcha: {
+      ready: (callback: () => void) => void;
+      execute: (siteKey: string, options: { action: string }) => Promise<string>;
+    };
+  }
+}
 
 /**
  * LoginPage Component with OTP
@@ -15,6 +26,23 @@ export const LoginPage: React.FC = () => {
   const [otpSent, setOtpSent] = useState(false);
   const [userPhone, setUserPhone] = useState('');
   const [timer, setTimer] = useState(0);
+  const [isRecaptchaLoaded, setIsRecaptchaLoaded] = useState(false);
+
+  useEffect(() => {
+    if (document.querySelector('script[src*="recaptcha"]')) {
+      setIsRecaptchaLoaded(true);
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.src = `https://www.google.com/recaptcha/api.js?render=${env.recaptchaSiteKey}`;
+    script.async = true;
+    script.defer = true;
+    script.onload = () => {
+      setIsRecaptchaLoaded(true);
+    };
+    document.head.appendChild(script);
+  }, []);
 
   // Timer countdown
   useEffect(() => {
@@ -29,18 +57,52 @@ export const LoginPage: React.FC = () => {
     };
   }, [timer]);
 
+  const executeRecaptchaV3 = async (action: string): Promise<string | null> => {
+    if (!isRecaptchaLoaded || !window.grecaptcha) {
+      return null;
+    }
+
+    return new Promise((resolve) => {
+      window.grecaptcha.ready(() => {
+        window.grecaptcha
+          .execute(env.recaptchaSiteKey, { action })
+          .then((token) => {
+            resolve(token);
+          })
+          .catch(() => {
+            resolve(null);
+          });
+      });
+    });
+  };
+
   const onFinish = async (values: OtpLoginCredentials & { code?: string }) => {
     try {
       if (!otpSent) {
-        // Step 1: Send OTP
-        await login({ phoneNumber: values.phoneNumber });
+        // Step 1: Send OTP - Execute reCAPTCHA v3
+        if (!isRecaptchaLoaded || !window.grecaptcha) {
+          message.error('خطا در تایید reCAPTCHA. لطفاً صفحه را رفرش کنید.');
+          return;
+        }
+        const loginToken = await executeRecaptchaV3('login');
+        if (!loginToken) {
+          message.error('خطا در تایید reCAPTCHA. لطفاً دوباره تلاش کنید.');
+          return;
+        }
+        await login({ phoneNumber: values.phoneNumber, recaptchaToken: loginToken });
         setUserPhone(values.phoneNumber);
         setOtpSent(true);
         setTimer(120); // 120 seconds timer
       } else {
         // Step 2: Verify OTP
         if (values.code) {
-          await verifyOtp({ phoneNumber: userPhone, code: values.code });
+          // Execute reCAPTCHA v3 for verify
+          const verifyToken = await executeRecaptchaV3('verify_otp');
+          if (!verifyToken) {
+            message.error('خطا در تایید reCAPTCHA. لطفاً دوباره تلاش کنید.');
+            return;
+          }
+          await verifyOtp({ phoneNumber: userPhone, code: values.code, recaptchaToken: verifyToken });
         }
       }
     } catch (error) {
@@ -50,7 +112,12 @@ export const LoginPage: React.FC = () => {
 
   const handleResendOtp = async () => {
     try {
-      await resendOtp({ phoneNumber: userPhone });
+      const resendToken = await executeRecaptchaV3('resend_otp');
+      if (!resendToken) {
+        message.error('خطا در تایید reCAPTCHA. لطفاً دوباره تلاش کنید.');
+        return;
+      }
+      await resendOtp({ phoneNumber: userPhone, recaptchaToken: resendToken });
       setTimer(120); // Reset timer
     } catch (error) {
       // Error handled in useAuth hook
@@ -100,7 +167,13 @@ export const LoginPage: React.FC = () => {
             </Form.Item>
 
             <Form.Item>
-              <Button type="primary" htmlType="submit" block loading={isLoading}>
+              <Button 
+                type="primary" 
+                htmlType="submit" 
+                block 
+                loading={isLoading}
+                disabled={!isRecaptchaLoaded}
+              >
                 ارسال کد
               </Button>
             </Form.Item>
