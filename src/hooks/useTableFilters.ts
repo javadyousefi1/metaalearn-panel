@@ -1,4 +1,5 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 /**
  * Generic filter value type - can be string, number, array, or any other value
@@ -26,10 +27,38 @@ export interface UseTableFiltersReturn {
 }
 
 /**
+ * Parse a URL search param value to appropriate type
+ */
+function parseParamValue(value: string | null): FilterValue {
+  if (value === null || value === '') return null;
+
+  // Try to parse as number
+  const num = Number(value);
+  if (!isNaN(num)) return num;
+
+  // Try to parse as boolean
+  if (value === 'true') return true;
+  if (value === 'false') return false;
+
+  // Return as string
+  return value;
+}
+
+/**
+ * Serialize a filter value to string for URL
+ */
+function serializeParamValue(value: FilterValue): string | null {
+  if (value === null || value === undefined) return null;
+  if (Array.isArray(value)) return value.join(',');
+  return String(value);
+}
+
+/**
  * A reusable hook for managing table filters
  *
  * This hook provides a clean interface for managing filter state with proper
  * separation of concerns. It handles filter updates, removals, and clearing.
+ * Filters are automatically synced with URL query parameters.
  *
  * @param initialFilters - Optional initial filter state
  * @returns Filter state and control functions
@@ -49,7 +78,52 @@ export interface UseTableFiltersReturn {
  * clearFilters();
  */
 export function useTableFilters(initialFilters: FilterState = {}): UseTableFiltersReturn {
-  const [filters, setFilters] = useState<FilterState>(initialFilters);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Initialize filters from URL on mount
+  const getInitialFilters = useCallback((): FilterState => {
+    const urlFilters: FilterState = {};
+
+    // Get all params except pagination params
+    searchParams.forEach((value, key) => {
+      if (key !== 'pageIndex' && key !== 'pageSize') {
+        urlFilters[key] = parseParamValue(value);
+      }
+    });
+
+    // Merge URL filters with initial filters (URL takes precedence)
+    return { ...initialFilters, ...urlFilters };
+  }, []);
+
+  const [filters, setFilters] = useState<FilterState>(getInitialFilters);
+
+  // Sync filters to URL whenever they change
+  useEffect(() => {
+    setSearchParams((prev) => {
+      const newParams = new URLSearchParams(prev);
+
+      // Preserve pagination params
+      const pageIndex = newParams.get('pageIndex');
+      const pageSize = newParams.get('pageSize');
+
+      // Clear all non-pagination params
+      Array.from(newParams.keys()).forEach((key) => {
+        if (key !== 'pageIndex' && key !== 'pageSize') {
+          newParams.delete(key);
+        }
+      });
+
+      // Add current filters
+      Object.entries(filters).forEach(([key, value]) => {
+        const serialized = serializeParamValue(value);
+        if (serialized !== null) {
+          newParams.set(key, serialized);
+        }
+      });
+
+      return newParams;
+    }, { replace: true });
+  }, [filters, setSearchParams]);
 
   /**
    * Set or update a single filter

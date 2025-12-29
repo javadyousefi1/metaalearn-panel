@@ -116,7 +116,7 @@ export const TicketsPage: React.FC = () => {
             />
           )}
           <span className="font-medium">
-            {userInfo.fullNameFa || "بدون نام"}
+            {userInfo.fullNameFa || "بدون نام"} - {userInfo?.phoneNumber}
           </span>
         </div>
       ),

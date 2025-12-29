@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useSearchParams } from 'react-router-dom';
 import { FilterState } from './useTableFilters';
 
 // Generic pagination params interface
@@ -70,8 +71,31 @@ export function useTable<T>({
   enabled = true,
   filters = {},
 }: UseTableParams<T>): UseTableReturn<T> {
-  const [pageIndex, setPageIndex] = useState(initialPageIndex);
-  const [pageSize, setPageSize] = useState(initialPageSize);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Initialize pagination from URL params
+  const getInitialPageIndex = (): number => {
+    const urlPageIndex = searchParams.get('pageIndex');
+    return urlPageIndex ? parseInt(urlPageIndex, 10) : initialPageIndex;
+  };
+
+  const getInitialPageSize = (): number => {
+    const urlPageSize = searchParams.get('pageSize');
+    return urlPageSize ? parseInt(urlPageSize, 10) : initialPageSize;
+  };
+
+  const [pageIndex, setPageIndex] = useState(getInitialPageIndex);
+  const [pageSize, setPageSize] = useState(getInitialPageSize);
+
+  // Sync pagination to URL whenever it changes
+  useEffect(() => {
+    setSearchParams((prev) => {
+      const newParams = new URLSearchParams(prev);
+      newParams.set('pageIndex', String(pageIndex));
+      newParams.set('pageSize', String(pageSize));
+      return newParams;
+    }, { replace: true });
+  }, [pageIndex, pageSize, setSearchParams]);
 
   // Build fetch params with pagination and filters
   const fetchParams: TablePaginationParams = {
