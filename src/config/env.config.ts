@@ -10,7 +10,7 @@ interface EnvConfig {
 }
 
 export const env: EnvConfig = {
-  apiBaseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api',
+  apiBaseUrl: import.meta.env.VITE_API_BASE_URL || 'https://api.metaalearn.com/api',
   apiTimeout: Number(import.meta.env.VITE_API_TIMEOUT) || 30000,
   appName: import.meta.env.VITE_APP_NAME || 'MetaaLearn Admin Panel',
   appVersion: import.meta.env.VITE_APP_VERSION || '0.0.1',
