@@ -627,7 +627,7 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
                       <div className="flex items-center gap-2">
                         <Video size={16} className="text-blue-500" />
                         <span className="text-sm text-gray-600">ویدیو:</span>
-                        <a href={`https://new.metaalearn.com/course/${courseId}/session?sessionId=${session.id}`} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline text-sm">
+                        <a href={`https://metaalearn.com/course/${courseId}/session?sessionId=${session.id}`} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline text-sm">
                           مشاهده
                         </a>
                       </div>
