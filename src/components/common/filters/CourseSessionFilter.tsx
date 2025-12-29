@@ -1,10 +1,12 @@
 import React from 'react';
-import { Select } from 'antd';
+import {Select, Tag} from 'antd';
 import { BookOpen } from 'lucide-react';
+import {formatDate} from "@/utils";
 
 export interface CourseSessionOption {
   id: string;
   name: string;
+  practiceDueTime: string;
 }
 
 export interface CourseSessionFilterProps {
@@ -81,6 +83,7 @@ export const CourseSessionFilter: React.FC<CourseSessionFilterProps> = ({
         size="large"
         style={{ width }}
         className="shadow-sm"
+        popupClassName="select-wrap-options"
         loading={loading}
         showSearch
         filterOption={(input, option) =>
@@ -88,7 +91,7 @@ export const CourseSessionFilter: React.FC<CourseSessionFilterProps> = ({
         }
         options={sessions.map((session) => ({
           value: session.id,
-          label: session.name,
+            label: <div className={"break-all"}><span>{session.name}</span> - <Tag>{formatDate(session.practiceDueTime , true)}</Tag></div>,
         }))}
       />
     </div>

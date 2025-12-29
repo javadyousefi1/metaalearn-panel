@@ -195,3 +195,10 @@ body {
     align-items: center;
     justify-content: center;
 }
+
+/* Allow line wrapping in Select dropdown options */
+.select-wrap-options .ant-select-item-option-content {
+    white-space: normal !important;
+    word-wrap: break-word;
+    word-break: break-word;
+}

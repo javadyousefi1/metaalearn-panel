@@ -200,7 +200,7 @@ export const CourseSessionsPage: React.FC = () => {
         )}
         {session.fileUrl && (
           <Descriptions.Item label="فایل">
-            <a href={session.fileUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+            <a href={session.fileUrl.replace("http",'https')} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
               <Space>
                 <FileText size={16} />
                 دانلود فایل

@@ -309,7 +309,7 @@ export const OperatorTicketDetailPage: React.FC = () => {
                             {msg.attachments.map((attachment) => (
                               <a
                                 key={attachment.id}
-                                href={attachment.url}
+                                href={attachment.url.replace("http","https")}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="block text-xs text-blue-600 hover:underline"

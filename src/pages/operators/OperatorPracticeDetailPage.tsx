@@ -177,7 +177,7 @@ export const OperatorPracticeDetailPage: React.FC = () => {
   const handleResetGrade = (practiceId: string) => {
     resetGradeMutation.mutate(practiceId);
   };
-
+  console.log(flatCourseSessionsHasParctive ,"flatCourseSessionsHasParctive")
   const columns: ColumnsType<PracticeSubmission> = [
     {
       title: "دانشجو",
@@ -214,7 +214,7 @@ export const OperatorPracticeDetailPage: React.FC = () => {
       render: (practiceFileUrl: string | undefined) =>
         practiceFileUrl ? (
           <a
-            href={practiceFileUrl}
+            href={practiceFileUrl.replace("http","https")}
             target="_blank"
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
@@ -419,7 +419,7 @@ export const OperatorPracticeDetailPage: React.FC = () => {
           {selectedPractice?.practiceFileUrl && (
             <div className="mt-2">
               <a
-                href={selectedPractice.practiceFileUrl}
+                href={selectedPractice.practiceFileUrl?.replace("http" , "https")}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-purple-600 hover:text-purple-700 flex items-center gap-2"

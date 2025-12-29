@@ -636,7 +636,7 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
                       <div className="flex items-center gap-2">
                         <FileText size={16} className="text-green-500" />
                         <span className="text-sm text-gray-600">فایل:</span>
-                        <a href={session.fileUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline text-sm">
+                        <a href={session.fileUrl.replace("http","https")} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline text-sm">
                           دانلود
                         </a>
                       </div>

@@ -212,7 +212,7 @@ const FA_TEXT = {
         FAILED_PARCELS: "ناموفق ها",
         TITLE: "نام محموله",
         STATUS: "وضعیت",
-        DOWNLOAD_INVOICE: "دانلود فاکتور",
+        DOWNLOAD_INVOICE: "  فاکتور",
     },
     SHIPMENT_STATUSES: {
         PENDING: "در انتظار ارسال",
@@ -234,14 +234,14 @@ const FA_TEXT = {
         INVALID_TYPE_ERR: "نوع فایل نامعتبر است\n فرمت های معتبر: ",
         INVALID_FILE_VOLUME: "حجم فایل بیش از حد مجاز است\n حداکثر حجم فایل: ",
     },
-    DOWNLOAD_BARCODE: "دانلود بارکد",
-    DOWNLOAD_EXCEL: "دانلود اکسل",
+    DOWNLOAD_BARCODE: "  بارکد",
+    DOWNLOAD_EXCEL: "  اکسل",
     SEARCH_BARCODE: "جستجوی بارکد",
     SEARCH: "جستجوی",
     PRINT_BARCODE: "چاپ بارکد",
     PRINT: "چاپ",
-    DOWNLOAD_INVOICE_ALL: "دانلود فاکتور همه",
-    DOWNLOAD_INVOICE_SELECTED: "دانلود فاکتور {count} مورد",
+    DOWNLOAD_INVOICE_ALL: "  فاکتور همه",
+    DOWNLOAD_INVOICE_SELECTED: "  فاکتور {count} مورد",
     GENERATING_INVOICE: "در حال تولید فاکتور...",
     INVOICE_GENERATION_ERROR: "خطا در تولید فاکتور",
     INVOICE_TEMPLATE: {
@@ -288,7 +288,6 @@ const FA_TEXT = {
     CREATE_ORDER_PAGE: {
         TITLE: "ایجاد سفارش",
         DESC: "فايل اكسل يا CSV حاوى سفارشات خود را باركذارى كنيد تا فرآيند ثبت و ارسال آغاز شود",
-        DOWNLOAD_SAMPLE: "دانلود فایل نمونه",
         VALIDATION_RESULT: {
             TITLE: "نتیجه اعتبارسنجی فایل",
             TOTAL_ORDERS: "کل سفارشات",
@@ -311,7 +310,7 @@ const FA_TEXT = {
         TRACKING_CODE: "کد رهگیری",
         PARCEL_INFO: "اطلاعات مرسوله"
     },
-    DOWNLOAD_INVOICE: "دانلود فاکتور",
+    DOWNLOAD_INVOICE: "  فاکتور",
     GRAM: "گرم",
     LOGOUT: {
         TEXT: "آیا از خروج از حساب خود اطمینان دارید؟",

@@ -355,7 +355,7 @@ export const TicketDetailPage: React.FC = () => {
                     <div className="flex-1">
                       <div className="mb-1 text-xs text-gray-500 text-right">
                         <span className="font-medium">
-                          {msg.userInfo.fullNameFa || "بدون نام"}
+                          {msg.userInfo.fullNameFa || "بدون نام"} {!msg.isOperator &&  `- ${msg.userInfo.phoneNumber || "بدون شماره"}`}
                         </span>
                         {msg.isOperator && (
                           <span className="mr-2 text-purple-600">(ادمین سایت)</span>
@@ -379,7 +379,7 @@ export const TicketDetailPage: React.FC = () => {
                             {msg.attachments.map((attachment) => (
                               <a
                                 key={attachment.id}
-                                href={attachment.url}
+                                href={attachment.url.replace("http","https")}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="block text-xs text-blue-600 hover:underline"
