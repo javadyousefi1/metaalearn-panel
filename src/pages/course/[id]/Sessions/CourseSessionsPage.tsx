@@ -179,13 +179,13 @@ export const CourseSessionsPage: React.FC = () => {
         <Descriptions.Item label="زمان برگزاری">
           <Space>
             <Clock size={16} />
-            {formatDate(session.occurrenceTime)}
+            {session.occurrenceTime ? formatDate(session.occurrenceTime) : "ثبت نشده"}
           </Space>
         </Descriptions.Item>
         <Descriptions.Item label="مهلت تمرین">
           <Space>
             <Clock size={16} />
-            {formatDate(session.practiceDueTime)}
+            {session.practiceDueTime ? formatDate(session.practiceDueTime) : "ثبت نشده"}
           </Space>
         </Descriptions.Item>
         {session.hasVideo && (
@@ -223,7 +223,7 @@ export const CourseSessionsPage: React.FC = () => {
           )}
         </Descriptions.Item>
           <Descriptions.Item label="گروه بندی">
-              {session.schedules?.map(item => `${item.name} `)}
+              {session.schedules?.length ===0 && "ندارد"} {session.schedules?.map(item => `${item.name} `)}
           </Descriptions.Item>
       </Descriptions>
 
