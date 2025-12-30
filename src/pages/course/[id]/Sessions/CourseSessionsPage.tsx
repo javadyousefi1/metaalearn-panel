@@ -222,6 +222,9 @@ export const CourseSessionsPage: React.FC = () => {
             <Tag color="default">خیر</Tag>
           )}
         </Descriptions.Item>
+          <Descriptions.Item label="گروه بندی">
+              {session.schedules?.map(item => `${item.name} `)}
+          </Descriptions.Item>
       </Descriptions>
 
       <div className="flex justify-between items-center pt-2 border-t">
