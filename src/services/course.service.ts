@@ -13,9 +13,9 @@ export const courseService = {
    * @returns Promise with paginated course list
    */
   getAll: async (params: CourseListParams): Promise<CourseListResponse> => {
-    const { PageIndex, PageSize } = params;
+      console.log(params , "xxx");
     const response = await httpService.get<CourseListResponse>(
-      `/Course/GetAll?PageIndex=${PageIndex}&PageSize=${PageSize}`
+      `/Course/GetAll` ,{params}
     );
     return response.data;
   },

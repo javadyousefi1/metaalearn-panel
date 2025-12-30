@@ -83,6 +83,9 @@ export const ROUTES = {
     CREDIT_CARDS: '/finance/credit-cards',
     PAYMENT_INSTRUCTIONS: '/finance/payment-instructions',
     TRANSACTIONS: '/finance/transactions',
+    INSTALLMENTS: '/finance/installments',
+    INSTALLMENT_DETAIL: (id: string) => `/finance/installments/${id}`,
+    INSTALLMENT_DETAIL_PATH: '/finance/installments/:id',
   },
 
   // Blog Routes
@@ -150,6 +153,8 @@ export const PAGE_TITLES: Record<string, string> = {
   [ROUTES.FINANCE.CREDIT_CARDS]: 'کارت‌های بانکی',
   [ROUTES.FINANCE.PAYMENT_INSTRUCTIONS]: 'کارت ها',
   [ROUTES.FINANCE.TRANSACTIONS]: 'تاریخچه تراکنش‌ها',
+  [ROUTES.FINANCE.INSTALLMENTS]: 'مدیریت اقساط',
+  [ROUTES.FINANCE.INSTALLMENT_DETAIL_PATH]: 'جزئیات اقساط دوره',
   [ROUTES.COURSES.COURSE_LIST]: 'لیست دوره‌ها',
   [ROUTES.COURSES.CATEGORIES.ROOT]: 'مدیریت دسته‌بندی‌ها',
   [ROUTES.COURSE.DETAIL]: 'جزئیات دوره',

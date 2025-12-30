@@ -156,6 +156,13 @@ export const MENU_ITEMS: MenuItemConfig[] = [
                 icon: Receipt,
                 roles: ['super-admin'],
             },
+            {
+                key: 'installments',
+                path: ROUTES.FINANCE.INSTALLMENTS,
+                label: 'مدیریت اقساط',
+                icon: Receipt,
+                roles: ['super-admin'],
+            },
         ],
     },
 ];
