@@ -54,7 +54,7 @@ export const OperatorPracticeDetailPage: React.FC = () => {
   // Fetch course sessions for filter
   const { data: courseSessions = [], isLoading: isLoadingSessions } = useGetAllSessions(
     !!courseId,
-      {courseId,isPracticeAvailable:true}
+      {courseId}
   );
 
   // Fetch course schedules for filter
@@ -66,25 +66,34 @@ export const OperatorPracticeDetailPage: React.FC = () => {
   // Flatten nested subsessions (up to 2 levels deep) and filter by isPracticeAvailable and !isTopic
   const flatCourseSessionsHasParctive = React.useMemo(() => {
     const result: any[] = [];
-
+    let sessionNumber = 1;
     courseSessions.forEach(session => {
       // Check parent session
-      if (!session.isTopic && session.isPracticeAvailable) {
-        result.push(session);
+      if (!session.isTopic) {
+        if (session.isPracticeAvailable) {
+          result.push({...session, sessionNumber});
+        }
+        sessionNumber++;
       }
 
       // Check first level subsessions
       if (session.subSessions && Array.isArray(session.subSessions)) {
         session.subSessions.forEach(subSession => {
-          if (!subSession.isTopic && subSession.isPracticeAvailable) {
-            result.push(subSession);
+          if (!subSession.isTopic) {
+            if (subSession.isPracticeAvailable) {
+              result.push({...subSession, sessionNumber});
+            }
+            sessionNumber++;
           }
 
           // Check second level subsessions
           if (subSession.subSessions && Array.isArray(subSession.subSessions)) {
             subSession.subSessions.forEach(nestedSubSession => {
-              if (!nestedSubSession.isTopic && nestedSubSession.isPracticeAvailable) {
-                result.push(nestedSubSession);
+              if (!nestedSubSession.isTopic) {
+                if (nestedSubSession.isPracticeAvailable) {
+                  result.push({...nestedSubSession, sessionNumber});
+                }
+                sessionNumber++;
               }
             });
           }

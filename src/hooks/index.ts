@@ -18,3 +18,4 @@ export * from './useBlogCategories';
 export * from './useBlogGallery';
 export * from './useCourseComments';
 export * from './useNotifications';
+export * from './useExchangeToken';

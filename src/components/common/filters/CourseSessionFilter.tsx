@@ -91,7 +91,12 @@ export const CourseSessionFilter: React.FC<CourseSessionFilterProps> = ({
         }
         options={sessions.map((session) => ({
           value: session.id,
-            label: <div className={"break-all"}><span>{session.name}</span> - <Tag>{formatDate(session.practiceDueTime , true)}</Tag></div>,
+            label: <div className={"break-all"}>
+                <span
+                    className="text-xs font-medium text-purple-600">
+                    {session.sessionNumber} -
+                </span>
+                <span>{session.name}</span> - <Tag>{formatDate(session.practiceDueTime, true)}</Tag></div>,
         }))}
       />
     </div>

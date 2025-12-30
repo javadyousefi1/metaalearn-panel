@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import {Tag, Avatar, Tooltip, Input, Button} from 'antd';
-import { Home, UserCircle, ShieldCheck, UserCog } from 'lucide-react';
+import { Home, UserCircle, ShieldCheck, UserCog, Copy } from 'lucide-react';
 import { SearchOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { PageHeader, DataTable } from '@/components/common';
-import { useTable, useTableFilters } from '@/hooks';
+import { useTable, useTableFilters, useExchangeToken } from '@/hooks';
 import { userService } from '@/services';
 import { UserListItem, getIdentityStatusName, getIdentityStatusColor, IdentityStatusType, RoleType, getRoleTypeName } from '@/types/user.types';
 import { UserIdentityModal } from './UserIdentityModal';
@@ -19,6 +19,9 @@ export const UsersPage: React.FC = () => {
   const [roleModalOpen, setRoleModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserListItem | null>(null);
   const [selectedUserForRole, setSelectedUserForRole] = useState<{ id: string; name: string; roles?: string[] } | null>(null);
+
+  // Initialize exchange token hook
+  const { exchangeToken, isExchanging } = useExchangeToken();
 
   // Initialize filters
   const {
@@ -212,7 +215,7 @@ export const UsersPage: React.FC = () => {
       title: 'عملیات',
       key: 'actions',
       align: 'center',
-      width: 150,
+      width: 200,
       render: (_: any, record: UserListItem) => (
         <div className="flex items-center justify-center gap-3">
           <Tooltip title="احراز هویت">
@@ -229,6 +232,15 @@ export const UsersPage: React.FC = () => {
               className="hover:text-purple-600 transition-colors"
             >
               <UserCog size={20} />
+            </button>
+          </Tooltip>
+          <Tooltip title="کپی توکن">
+            <button
+              onClick={() => exchangeToken(record.id)}
+              disabled={isExchanging}
+              className="hover:text-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Copy size={20} />
             </button>
           </Tooltip>
         </div>
@@ -292,6 +304,7 @@ export const UsersPage: React.FC = () => {
           currentRoles={selectedUserForRole.roles || []}
         />
       )}
+
     </div>
   );
 };
