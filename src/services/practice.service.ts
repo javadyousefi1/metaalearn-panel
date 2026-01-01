@@ -40,7 +40,7 @@ export const practiceService = {
   resetGrade: async (id: string): Promise<void> => {
     await httpService.post('/CourseSessionEnrollment/Update', {
       id,
-      actionType: UpdateEnrollmentActionType.ResetBoth,
+      actionType: UpdateEnrollmentActionType.ResetGrade,
       grade: 0,
       feedback: '',
     });
