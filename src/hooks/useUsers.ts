@@ -81,3 +81,16 @@ export const useGetUserPurchasedCourses = (params: PurchasedCoursesParams, enabl
     select: (data) => data?.courses?.items || []
   });
 };
+
+/**
+ * Custom hook for getting user with invoices by userId
+ * @param userId - The user ID
+ * @param enabled - Whether the query should run (optional, defaults to false)
+ */
+export const useGetUserWithInvoices = (userId: string | null, enabled = false) => {
+  return useQuery({
+    queryKey: ['user-with-invoices', userId],
+    queryFn: () => userService.getUserWithInvoices(userId!),
+    enabled: !!userId && enabled,
+  });
+};

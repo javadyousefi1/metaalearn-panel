@@ -376,7 +376,7 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
           disabled={loading}
         >
           {/* Info Tab */}
-          {activeTab === 'info' && (
+          <div style={{ display: activeTab === 'info' ? 'block' : 'none' }}>
             <>
               {/* Level Selector - Only for child sessions */}
               {!session && (parentId || level1ParentId) && (
@@ -570,10 +570,10 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
             <Switch />
           </Form.Item>
             </>
-          )}
+          </div>
 
           {/* Media Tab */}
-          {activeTab === 'media' && (
+          <div style={{ display: activeTab === 'media' ? 'block' : 'none' }}>
             <>
               {!session ? (
                 <Alert
@@ -739,7 +739,7 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
                 </div>
               )}
             </>
-          )}
+          </div>
         </Form>
       </div>
     </Modal>

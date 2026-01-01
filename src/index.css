@@ -204,5 +204,6 @@ body {
 }
 
 .ant-avatar {
-    min-width: 32px;
+    min-width: 28px;
+    min-height: 28px;
 }

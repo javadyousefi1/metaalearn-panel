@@ -101,3 +101,11 @@ export const formatFileSize = (bytes: number): string => {
 
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
 };
+
+/**
+ * Format price with Iranian currency (Toman)
+ */
+export const formatPriceWithCurrency = (price: number): string => {
+  if (!price && price !== 0) return '0 تومان';
+  return `${price.toLocaleString('fa-IR')} تومان`;
+};

@@ -79,4 +79,17 @@ export const userService = {
     console.log(response , "javad user response");
     return response.data;
   },
+
+  /**
+   * Get user by ID with invoices
+   * @param userId - The user ID
+   * @returns Promise with user data including invoices
+   */
+  getUserWithInvoices: async (userId: string): Promise<any> => {
+    const response = await httpService.get<any>(
+      `/User/Get`,
+      { params: { userId, includeInvoices: true } }
+    );
+    return response.data;
+  },
 };
