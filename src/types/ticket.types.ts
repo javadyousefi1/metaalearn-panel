@@ -30,6 +30,7 @@ export enum TicketAttachmentType {
 export interface TicketUserInfo {
   fullNameFa: string;
   imageUrl: string;
+  phoneNumber?: string;
   id: string;
 }
 
@@ -274,4 +275,17 @@ export interface UpdateTicketPayload {
   status?: TicketStatus;
   score?: number;
   closeMessage?: string;
+}
+
+// Ticket Detail Types
+export interface TicketDetail {
+  title: string;
+  type: number;
+  status: number;
+  userInfo: TicketUserInfo;
+  score: number | null;
+  createdTime: string;
+  updatedTime: string;
+  value: string | null;
+  id: string;
 }

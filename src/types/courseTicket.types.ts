@@ -16,6 +16,7 @@ export enum CourseTicketAttachmentType {
 export interface CourseTicketUserInfo {
   fullNameFa: string;
   imageUrl: string;
+  phoneNumber?: string;
   id: string;
 }
 
@@ -167,4 +168,30 @@ export interface UpdateCourseTicketPayload {
   status?: CourseTicketStatus;
   score?: number;
   closeMessage?: string;
+}
+
+// Course Info
+export interface CourseTicketCourse {
+  name: string;
+  imageUrl: string | null;
+  id: string;
+}
+
+// Course Schedule Info
+export interface CourseTicketSchedule {
+  name: string;
+  id: string;
+}
+
+// Course Ticket Detail Types
+export interface CourseTicketDetail {
+  title: string;
+  status: number;
+  userInfo: CourseTicketUserInfo;
+  course: CourseTicketCourse | null;
+  courseSchedule: CourseTicketSchedule | null;
+  score: number | null;
+  createdTime: string;
+  updatedTime: string;
+  id: string;
 }

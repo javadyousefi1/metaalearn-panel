@@ -7,6 +7,7 @@ import type {
   CreateTicketMessagePayload,
   UpdateTicketMessagePayload,
   UpdateTicketPayload,
+  TicketDetail,
 } from '@/types/ticket.types';
 
 /**
@@ -21,6 +22,14 @@ export const ticketService = {
   async getAll(params: GetAllTicketsParams): Promise<AllTicketsResponse> {
     const resposne = await httpService.get<AllTicketsResponse>('/Ticket/GetAll', { params });
     return resposne.data
+  },
+
+  /**
+   * Get ticket details by ID
+   */
+  async get(id: string): Promise<TicketDetail> {
+    const response = await httpService.get<TicketDetail>(`/Ticket/Get/${id}`);
+    return response.data;
   },
 
   /**

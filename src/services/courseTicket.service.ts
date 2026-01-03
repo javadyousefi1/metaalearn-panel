@@ -7,6 +7,7 @@ import type {
   CreateCourseTicketMessagePayload,
   UpdateCourseTicketMessagePayload,
   UpdateCourseTicketPayload,
+  CourseTicketDetail,
 } from '@/types/courseTicket.types';
 
 /**
@@ -20,6 +21,14 @@ export const courseTicketService = {
    */
   async getAll(params: GetAllCourseTicketsParams): Promise<AllCourseTicketsResponse> {
     const response = await httpService.get<AllCourseTicketsResponse>('/CourseTicket/GetAll', { params });
+    return response.data;
+  },
+
+  /**
+   * Get course ticket details by ID
+   */
+  async get(id: string): Promise<CourseTicketDetail> {
+    const response = await httpService.get<CourseTicketDetail>(`/CourseTicket/Get/${id}`);
     return response.data;
   },
 

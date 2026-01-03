@@ -1,13 +1,13 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Card, Avatar, Spin, Button, Empty, Input, Upload, message, Popconfirm, Modal, Space, Tag, Collapse } from "antd";
+import { Card, Avatar, Spin, Button, Empty, Input, Upload, message, Popconfirm, Modal, Space, Tag, Collapse, Descriptions } from "antd";
 import { Home, UserCircle, Send, Paperclip, X, Edit2, Trash2, XCircle, BookOpen } from "lucide-react";
 import { PageHeader } from "@/components/common";
-import { useTicketMessages, useGetUserPurchasedCourses } from "@/hooks";
+import { useTicketMessages, useGetUserPurchasedCourses, useTicketDetail } from "@/hooks";
 import { formatDate } from "@/utils";
 import type { UploadFile } from "antd";
 import type { TicketMessage } from "@/types/ticket.types";
-import { TicketStatus } from "@/types/ticket.types";
+import { TicketStatus, getTicketTypeName, getTicketTypeColor, getTicketStatusName, getTicketStatusColor } from "@/types/ticket.types";
 import { ticketService } from "@/services/ticket.service";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
@@ -40,11 +40,22 @@ export const TicketDetailPage: React.FC = () => {
     pageSize: 1000,
   });
 
-  // Get the user ID from the first non-operator message
+  // Fetch ticket details
+  const {
+    ticketDetail,
+    isLoading: isLoadingDetail,
+  } = useTicketDetail({
+    ticketId: id,
+  });
+
+  // Get the user ID from ticket detail or the first non-operator message
   const userId = useMemo(() => {
+    if (ticketDetail?.userInfo?.id) {
+      return ticketDetail.userInfo.id;
+    }
     const firstUserMessage = messages.find(msg => !msg.isOperator);
     return firstUserMessage?.userInfo?.id;
-  }, [messages]);
+  }, [ticketDetail, messages]);
 
   // Fetch user's purchased courses
   const { data: purchasedCourses = [], isLoading: isLoadingCourses } = useGetUserPurchasedCourses(
@@ -238,6 +249,60 @@ export const TicketDetailPage: React.FC = () => {
           </Popconfirm>
         }
       />
+
+      {/* Ticket Detail Header */}
+      {isLoadingDetail ? (
+        <Card className="!mt-4">
+          <div className="flex justify-center py-4">
+            <Spin />
+          </div>
+        </Card>
+      ) : ticketDetail ? (
+        <Card className="!mt-4 [&_.ant-card-body]:!p-2 sm:[&_.ant-card-body]:!p-4">
+          <Descriptions
+            size="small"
+            column={{ xs: 1, sm: 2, md: 3, lg: 4 }}
+            className="[&_.ant-descriptions-item-label]:!font-medium [&_.ant-descriptions-item-label]:!text-gray-600 [&_.ant-descriptions-item-label]:!text-xs sm:[&_.ant-descriptions-item-label]:!text-sm [&_.ant-descriptions-item-content]:!text-xs sm:[&_.ant-descriptions-item-content]:!text-sm [&_.ant-descriptions-item]:!pb-1 sm:[&_.ant-descriptions-item]:!pb-3"
+          >
+            <Descriptions.Item label="عنوان تیکت">
+              <span className="font-medium text-gray-900">{ticketDetail.title}</span>
+            </Descriptions.Item>
+            <Descriptions.Item label="نوع تیکت">
+              <Tag color={getTicketTypeColor(ticketDetail.type)} className="text-xs">
+                {getTicketTypeName(ticketDetail.type)}
+              </Tag>
+            </Descriptions.Item>
+            <Descriptions.Item label="وضعیت">
+              <Tag color={getTicketStatusColor(ticketDetail.status)} className="text-xs">
+                {getTicketStatusName(ticketDetail.status)}
+              </Tag>
+            </Descriptions.Item>
+            <Descriptions.Item label="کاربر">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                {ticketDetail.userInfo.imageUrl ? (
+                  <Avatar size={20} className="sm:!w-6 sm:!h-6" src={ticketDetail.userInfo.imageUrl} />
+                ) : (
+                  <Avatar size={20} className="sm:!w-6 sm:!h-6" icon={<UserCircle />} style={{ backgroundColor: '#4B26AD' }} />
+                )}
+                <span className="truncate">{ticketDetail.userInfo.fullNameFa || 'بدون نام'}</span>
+              </div>
+            </Descriptions.Item>
+            {ticketDetail.userInfo.phoneNumber && (
+              <Descriptions.Item label="شماره تماس" className="hidden sm:block">
+                {ticketDetail.userInfo.phoneNumber}
+              </Descriptions.Item>
+            )}
+            {ticketDetail.score !== null && (
+              <Descriptions.Item label="امتیاز">
+                <Tag color="blue" className="text-xs">{ticketDetail.score}</Tag>
+              </Descriptions.Item>
+            )}
+            <Descriptions.Item label="تاریخ ایجاد" className="hidden sm:block">
+              <span className="text-xs sm:text-sm">{formatDate(ticketDetail.createdTime, true)}</span>
+            </Descriptions.Item>
+          </Descriptions>
+        </Card>
+      ) : null}
 
       {/* User's Purchased Courses - Collapsible */}
       {userId && purchasedCourses.length > 0 && (

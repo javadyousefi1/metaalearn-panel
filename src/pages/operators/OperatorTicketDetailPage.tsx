@@ -1,13 +1,13 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Card, Avatar, Spin, Button, Empty, Input, Upload, message, Popconfirm, Modal, Space } from "antd";
-import { Home, UserCircle, Send, Paperclip, X, Edit2, Trash2, XCircle } from "lucide-react";
+import { Card, Avatar, Spin, Button, Empty, Input, Upload, message, Popconfirm, Modal, Space, Tag, Descriptions } from "antd";
+import { Home, UserCircle, Send, Paperclip, X, Edit2, Trash2, XCircle, BookOpen } from "lucide-react";
 import { PageHeader } from "@/components/common";
-import { useCourseTicketMessages } from "@/hooks";
+import { useCourseTicketMessages, useCourseTicketDetail } from "@/hooks";
 import { formatDate } from "@/utils";
 import type { UploadFile } from "antd";
 import type { CourseTicketMessage } from "@/types/courseTicket.types";
-import { CourseTicketStatus } from "@/types/courseTicket.types";
+import { CourseTicketStatus, getCourseTicketStatusName, getCourseTicketStatusColor } from "@/types/courseTicket.types";
 import { courseTicketService } from "@/services/courseTicket.service";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
@@ -38,6 +38,14 @@ export const OperatorTicketDetailPage: React.FC = () => {
   } = useCourseTicketMessages({
     courseTicketId: id,
     pageSize: 1000,
+  });
+
+  // Fetch ticket details
+  const {
+    ticketDetail,
+    isLoading: isLoadingDetail,
+  } = useCourseTicketDetail({
+    courseTicketId: id,
   });
 
   // Close course ticket mutation
@@ -224,6 +232,62 @@ export const OperatorTicketDetailPage: React.FC = () => {
           </Popconfirm>
         }
       />
+
+      {/* Ticket Detail Header */}
+      {isLoadingDetail ? (
+        <Card className="!mt-4">
+          <div className="flex justify-center py-4">
+            <Spin />
+          </div>
+        </Card>
+      ) : ticketDetail ? (
+        <Card className="!mt-4 [&_.ant-card-body]:!p-2 sm:[&_.ant-card-body]:!p-4">
+          <Descriptions
+            size="small"
+            column={{ xs: 1, sm: 2, md: 3, lg: 4 }}
+            className="[&_.ant-descriptions-item-label]:!font-medium [&_.ant-descriptions-item-label]:!text-gray-600 [&_.ant-descriptions-item-label]:!text-xs sm:[&_.ant-descriptions-item-label]:!text-sm [&_.ant-descriptions-item-content]:!text-xs sm:[&_.ant-descriptions-item-content]:!text-sm [&_.ant-descriptions-item]:!pb-1 sm:[&_.ant-descriptions-item]:!pb-3"
+          >
+            <Descriptions.Item label="عنوان تیکت">
+              <span className="font-medium text-gray-900">{ticketDetail.title}</span>
+            </Descriptions.Item>
+            <Descriptions.Item label="وضعیت">
+              <Tag color={getCourseTicketStatusColor(ticketDetail.status)} className="text-xs">
+                {getCourseTicketStatusName(ticketDetail.status)}
+              </Tag>
+            </Descriptions.Item>
+            <Descriptions.Item label="کاربر">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                {ticketDetail.userInfo.imageUrl ? (
+                  <Avatar size={20} className="sm:!w-6 sm:!h-6" src={ticketDetail.userInfo.imageUrl} />
+                ) : (
+                  <Avatar size={20} className="sm:!w-6 sm:!h-6" icon={<UserCircle />} style={{ backgroundColor: '#4B26AD' }} />
+                )}
+                <span className="truncate">{ticketDetail.userInfo.fullNameFa || 'بدون نام'}</span>
+              </div>
+            </Descriptions.Item>
+            {ticketDetail.course && (
+              <Descriptions.Item label="دوره">
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  {ticketDetail.course.imageUrl ? (
+                    <Avatar size={20} className="sm:!w-6 sm:!h-6" src={ticketDetail.course.imageUrl} shape="square" />
+                  ) : (
+                    <BookOpen size={14} className="sm:w-4 sm:h-4 text-primary" />
+                  )}
+                  <span className="truncate">{ticketDetail.course.name}</span>
+                </div>
+              </Descriptions.Item>
+            )}
+            {ticketDetail.score !== null && (
+              <Descriptions.Item label="امتیاز">
+                <Tag color="blue" className="text-xs">{ticketDetail.score}</Tag>
+              </Descriptions.Item>
+            )}
+            <Descriptions.Item label="تاریخ ایجاد" className="hidden sm:block">
+              <span className="text-xs sm:text-sm">{formatDate(ticketDetail.createdTime, true)}</span>
+            </Descriptions.Item>
+          </Descriptions>
+        </Card>
+      ) : null}
 
       <Card
         className="!mt-4 !flex-1 !flex !flex-col"

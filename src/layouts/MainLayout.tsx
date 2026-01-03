@@ -299,7 +299,7 @@ export const MainLayout: React.FC = () => {
           </div>
         </Header>
         <Content
-          className="p-3 md:p-6 overflow-x-hidden"
+          className="md:p-6 overflow-x-hidden"
           style={{ marginTop: 64, minHeight: "calc(100svh - 64px)" }}
         >
           <div
