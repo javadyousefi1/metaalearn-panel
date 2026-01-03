@@ -110,6 +110,17 @@ export const CourseInstallmentUsersPage: React.FC = () => {
         </Tag>
       ),
     },
+      {
+          title: 'تعداد قسط پرداختی',
+          dataIndex: ['invoice'],
+          key: 'isSettled',
+          align: 'center',
+          render: (isSettled: any) => (
+              <Tag color={isSettled ? 'green' : 'red'}>
+                  {isSettled?.paidInstallmentCount} از {isSettled?.totalInstallmentCount}
+              </Tag>
+          ),
+      },
     {
       title: 'دسترسی',
       dataIndex: ['invoice', 'hasAccess'],

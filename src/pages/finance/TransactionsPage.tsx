@@ -154,6 +154,7 @@ export const TransactionsPage: React.FC = () => {
         <span className="text-sm text-gray-600">{payment.user.phoneNumber}</span>
       ),
     },
+
     {
       title: 'مبلغ',
       dataIndex: 'amount',
@@ -164,6 +165,21 @@ export const TransactionsPage: React.FC = () => {
         <span className="font-semibold text-sm">{formatAmount(amount)}</span>
       ),
     },
+      {
+          title: 'بابت',
+          dataIndex: 'value',
+          key: 'value',
+          width: 150,
+          render: (value: any) => {
+              if (value?.courseInfo) {
+                  return <div className="text-sm text-gray-600">خرید : {value?.courseInfo?.name}</div>
+              }
+
+              if (value?.installmentInfo) {
+                  return <div className="text-sm text-gray-600">قسط : {value?.installmentInfo?.course?.name}</div>
+              }
+          },
+      },
     {
       title: 'روش پرداخت',
       dataIndex: 'method',
@@ -258,6 +274,7 @@ export const TransactionsPage: React.FC = () => {
         </span>
       ),
     },
+
     {
       title: 'تاریخ ایجاد',
       dataIndex: 'createdTime',
