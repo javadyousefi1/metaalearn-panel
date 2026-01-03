@@ -362,31 +362,31 @@ export const OperatorTicketDetailPage: React.FC = () => {
             </div>
 
             {/* Message Input Area - Fixed Footer */}
-            <div className="border-t bg-white p-4" style={{ flexShrink: 0 }}>
+            <div className="border-t bg-white p-2 sm:p-4" style={{ flexShrink: 0 }}>
               {/* File Preview */}
               {fileList.length > 0 && (
-                <div className="mb-3 flex flex-wrap gap-2">
+                <div className="mb-2 sm:mb-3 flex flex-wrap gap-1.5 sm:gap-2">
                   {fileList.map((file) => (
                     <div
                       key={file.uid}
-                      className="bg-blue-50 border border-blue-200 rounded-lg px-3 py-2 flex items-center gap-2"
+                      className="bg-blue-50 border border-blue-200 rounded-lg px-2 py-1.5 sm:px-3 sm:py-2 flex items-center gap-1.5 sm:gap-2"
                     >
-                      <Paperclip size={14} className="text-blue-600" />
-                      <span className="text-sm text-blue-900">{file.name}</span>
+                      <Paperclip size={12} className="text-blue-600 sm:w-[14px] sm:h-[14px]" />
+                      <span className="text-xs sm:text-sm text-blue-900 truncate max-w-[120px] sm:max-w-none">{file.name}</span>
                       <button
                         onClick={() =>
                           setFileList(fileList.filter((f) => f.uid !== file.uid))
                         }
-                        className="text-red-500 hover:text-red-700 transition-colors"
+                        className="text-red-500 hover:text-red-700 transition-colors flex-shrink-0"
                       >
-                        <X size={14} />
+                        <X size={12} className="sm:w-[14px] sm:h-[14px]" />
                       </button>
                     </div>
                   ))}
                 </div>
               )}
 
-              <div className="flex gap-2 items-end">
+              <div className="flex gap-1.5 sm:gap-2 items-end">
                 <Upload
                   fileList={fileList}
                   onChange={handleFileChange}
@@ -396,10 +396,10 @@ export const OperatorTicketDetailPage: React.FC = () => {
                   multiple
                 >
                   <Button
-                    icon={<Paperclip size={18} />}
+                    icon={<Paperclip size={16} className="sm:w-[18px] sm:h-[18px]" />}
                     disabled={isSending}
-                    size="large"
-                    style={{ height: '48px' }}
+                    size="middle"
+                    className="!h-9 !w-9 sm:!h-12 sm:!w-12 flex items-center justify-center !p-0"
                   />
                 </Upload>
 
@@ -410,24 +410,24 @@ export const OperatorTicketDetailPage: React.FC = () => {
                   placeholder="پیام خود را بنویسید..."
                   autoSize={{ minRows: 1, maxRows: 4 }}
                   disabled={isSending}
+                  className="!text-xs sm:!text-sm"
                   style={{
                     flex: 1,
                     resize: 'none',
-                    fontSize: '14px',
-                    padding: '12px 16px'
+                    padding: '8px 12px'
                   }}
                 />
 
                 <Button
                   type="primary"
-                  icon={<Send size={18} />}
+                  icon={<Send size={16} className="sm:w-[18px] sm:h-[18px]" />}
                   onClick={handleSendMessage}
                   loading={isSending}
                   disabled={!messageContent.trim() && fileList.length === 0}
-                  size="large"
-                  style={{ height: '48px', minWidth: '80px' }}
+                  size="middle"
+                  className="!h-9 sm:!h-12 !min-w-[36px] sm:!min-w-[80px] flex items-center justify-center"
                 >
-                  ارسال
+                  <span className="hidden sm:inline">ارسال</span>
                 </Button>
               </div>
             </div>
