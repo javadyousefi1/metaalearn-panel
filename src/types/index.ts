@@ -38,3 +38,5 @@ export type {
 export * from './paymentInstruction.types';
 // Notification types
 export * from './notification.types';
+// Management types
+export * from './management.types';

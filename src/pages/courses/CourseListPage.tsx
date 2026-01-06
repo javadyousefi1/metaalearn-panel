@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import {Button, Tag, Tooltip} from 'antd';
-import { Home, Plus, Edit, Eye } from 'lucide-react';
+import { Home, Plus, Edit, Eye, UserPlus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import type { ColumnsType } from 'antd/es/table';
 import { PageHeader, DataTable } from '@/components/common';
-import { useTable } from '@/hooks';
+import { useTable, useAuth } from '@/hooks';
 import { courseService } from '@/services';
 import { Course } from '@/types/course.types';
 import {CoursePaymentType, CourseStatus, CourseType} from "@/enums";
 import { CourseCreateModal } from './CourseCreateModal';
+import { ManualEnrollmentModal } from './ManualEnrollmentModal';
 import { ROUTES } from '@/constants';
 
 const getCourseTypeColor = (type: number): string => {
@@ -46,8 +47,12 @@ const getPaymentMethodColor = (method: number): string => {
 
 export const CourseListPage: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [modalOpen, setModalOpen] = useState(false);
+  const [enrollmentModalOpen, setEnrollmentModalOpen] = useState(false);
+  const [selectedCourseForEnrollment, setSelectedCourseForEnrollment] = useState<string | undefined>();
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
+  const isSuperAdmin = user?.info?.roles?.includes('super-admin') || false;
 
   const {
     data: courses,
@@ -179,16 +184,31 @@ export const CourseListPage: React.FC = () => {
       title: 'عملیات',
       key: 'actions',
       align: 'center',
-      width: 100,
+      width: isSuperAdmin ? 150 : 100,
       render: (_: any, record: Course) => (
-        <Tooltip title="ویرایش">
-          <Button
-            type="text"
-            icon={<Edit size={18} />}
-            onClick={() => handleEditClick(record)}
-            className="hover:bg-blue-50 hover:text-blue-600"
-          />
-        </Tooltip>
+        <div className="flex items-center justify-center gap-2">
+          <Tooltip title="ویرایش">
+            <Button
+              type="text"
+              icon={<Edit size={18} />}
+              onClick={() => handleEditClick(record)}
+              className="hover:bg-blue-50 hover:text-blue-600"
+            />
+          </Tooltip>
+          {isSuperAdmin && (
+            <Tooltip title="ثبت نام دستی">
+              <Button
+                type="text"
+                icon={<UserPlus size={18} />}
+                onClick={() => {
+                  setSelectedCourseForEnrollment(record.id);
+                  setEnrollmentModalOpen(true);
+                }}
+                className="hover:bg-purple-50 hover:text-purple-600"
+              />
+            </Tooltip>
+          )}
+        </div>
       ),
     },
   ];
@@ -243,6 +263,15 @@ export const CourseListPage: React.FC = () => {
         course={editingCourse}
         onClose={handleModalClose}
         onSuccess={handleSuccess}
+      />
+
+      <ManualEnrollmentModal
+        open={enrollmentModalOpen}
+        courseId={selectedCourseForEnrollment}
+        onClose={() => {
+          setEnrollmentModalOpen(false);
+          setSelectedCourseForEnrollment(undefined);
+        }}
       />
     </div>
   );

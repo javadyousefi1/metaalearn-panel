@@ -38,6 +38,11 @@ export interface CourseFilterProps {
    * Width of the select component
    */
   width?: number | string;
+
+  /**
+   * Hide the internal label (useful when using with Form.Item label)
+   */
+  hideLabel?: boolean;
 }
 
 /**
@@ -62,13 +67,16 @@ export const CourseFilter: React.FC<CourseFilterProps> = ({
   placeholder = 'همه دوره‌ها',
   label = 'دوره',
   width = 240,
+  hideLabel = false,
 }) => {
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex items-center gap-2">
-        <BookOpen size={16} style={{ color: '#4B26AD' }} />
-        <span className="text-sm font-semibold text-gray-700">{label}</span>
-      </div>
+      {!hideLabel && (
+        <div className="flex items-center gap-2">
+          <BookOpen size={16} style={{ color: '#4B26AD' }} />
+          <span className="text-sm font-semibold text-gray-700">{label}</span>
+        </div>
+      )}
       <Select
         value={value}
         onChange={onChange}
