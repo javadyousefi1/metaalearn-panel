@@ -41,48 +41,48 @@ export const MENU_ITEMS: MenuItemConfig[] = [
     //   roles: ['super-admin', 'operator-admin'],
     // },
     {
-      key: 'users',
-      path: ROUTES.USERS.ROOT,
-      label: 'کاربران',
-      icon: Users,
-      roles: ['super-admin'], // Only admins can manage users
+        key: 'users',
+        path: ROUTES.USERS.ROOT,
+        label: 'کاربران',
+        icon: Users,
+        roles: ['super-admin'], // Only admins can manage users
     },
     {
-      key: 'notifications',
-      path: ROUTES.NOTIFICATIONS.ROOT,
-      label: 'اعلانات',
-      icon: Bell,
-      roles: ['super-admin', 'operator-admin'], // Admins can send notifications
+        key: 'notifications',
+        path: ROUTES.NOTIFICATIONS.ROOT,
+        label: 'اعلانات',
+        icon: Bell,
+        roles: ['super-admin', 'operator-admin'], // Admins can send notifications
     },
     {
-      key: 'tickets',
-      path: ROUTES.TICKETS.ROOT,
-      label: 'تیکت‌ها',
-      icon: Ticket,
-      roles: ['super-admin'], // Admins and operators can view tickets
+        key: 'tickets',
+        path: ROUTES.TICKETS.ROOT,
+        label: 'تیکت‌ها',
+        icon: Ticket,
+        roles: ['super-admin'], // Admins and operators can view tickets
     },
     {
-      key: 'operators',
-      path: ROUTES.OPERATORS.ROOT,
-      label: 'اپراتور',
-      icon: UserCog,
-      roles: ['super-admin', 'operator-admin', 'operator', 'instructor'], // Operators and instructors
-      children: [
-        {
-          key: 'operators-tickets',
-          path: ROUTES.OPERATORS.LIST,
-          label: 'تیکت‌ها',
-          icon: Ticket,
-          roles: ['super-admin', 'operator-admin', 'operator','instructor'],
-        },
-        {
-          key: 'operators-practices',
-          path: ROUTES.OPERATORS.PRACTICES,
-          label: 'تمرین‌ها',
-          icon: ClipboardList,
-          roles: ['super-admin', 'operator-admin', 'operator', 'instructor'],
-        },
-      ],
+        key: 'operators',
+        path: ROUTES.OPERATORS.ROOT,
+        label: 'اپراتور',
+        icon: UserCog,
+        roles: ['super-admin', 'operator-admin', 'operator', 'instructor'], // Operators and instructors
+        children: [
+            {
+                key: 'operators-tickets',
+                path: ROUTES.OPERATORS.LIST,
+                label: 'تیکت‌ها',
+                icon: Ticket,
+                roles: ['super-admin', 'operator-admin', 'operator','instructor'],
+            },
+            {
+                key: 'operators-practices',
+                path: ROUTES.OPERATORS.PRACTICES,
+                label: 'تمرین‌ها',
+                icon: ClipboardList,
+                roles: ['super-admin', 'operator-admin', 'operator', 'instructor'],
+            },
+        ],
     },
     {
         key: 'courses',
