@@ -1,4 +1,4 @@
-import { Card, Form, Input, Button } from 'antd';
+import { Card, Form, Input, Button, Segmented } from 'antd';
 import { PhoneOutlined, SafetyOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks';
@@ -15,10 +15,11 @@ export const LoginPage: React.FC = () => {
   const [otpSent, setOtpSent] = useState(false);
   const [userPhone, setUserPhone] = useState('');
   const [timer, setTimer] = useState(0);
+  const [usePassword, setUsePassword] = useState(false);
 
   // Timer countdown
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: ReturnType<typeof setInterval> | undefined;
     if (timer > 0) {
       interval = setInterval(() => {
         setTimer((prev) => prev - 1);
@@ -29,11 +30,19 @@ export const LoginPage: React.FC = () => {
     };
   }, [timer]);
 
-  const onFinish = async (values: OtpLoginCredentials & { code?: string }) => {
+  const onFinish = async (values: OtpLoginCredentials & { code?: string; password?: string }) => {
     try {
       if (!otpSent) {
-        // Step 1: Send OTP
-        await login({ phoneNumber: values.phoneNumber });
+        // Step 1: Password login OR send OTP
+        const response = await login({
+          phoneNumber: values.phoneNumber,
+          password: usePassword ? values.password : undefined,
+        });
+
+        if (response?.token) {
+          return;
+        }
+
         setUserPhone(values.phoneNumber);
         setOtpSent(true);
         setTimer(120); // 120 seconds timer
@@ -67,7 +76,7 @@ export const LoginPage: React.FC = () => {
   return (
       <Card className="shadow-xl">
         <h2 className="text-2xl font-bold text-center mb-6">
-          {otpSent ? 'تایید کد' : 'ورود'}
+          {otpSent ? 'تأیید کد' : 'ورود'}
         </h2>
 
         {otpSent && (
@@ -88,6 +97,24 @@ export const LoginPage: React.FC = () => {
         >
           {!otpSent ? (
               <>
+                <div className="mb-4">
+                  <Segmented
+                    block
+                    value={usePassword ? 'password' : 'otp'}
+                    onChange={(value) => {
+                      const isPwd = value === 'password';
+                      setUsePassword(isPwd);
+                      if (!isPwd) {
+                        form.setFieldsValue({ password: '' });
+                      }
+                    }}
+                    options={[
+                      { label: 'کد پیامکی', value: 'otp' },
+                      { label: 'رمز عبور', value: 'password' },
+                    ]}
+                  />
+                </div>
+
                 <Form.Item
                     name="phoneNumber"
                     label="شماره تلفن"
@@ -99,19 +126,40 @@ export const LoginPage: React.FC = () => {
                   <Input prefix={<PhoneOutlined />} placeholder="شماره تلفن را وارد کنید" />
                 </Form.Item>
 
+                {usePassword && (
+                  <Form.Item
+                    name="password"
+                    label="رمز عبور"
+                    rules={[
+                      { required: true, message: 'لطفا رمز عبور را وارد کنید!' },
+                    ]}
+                  >
+                    <Input.Password placeholder="رمز عبور را وارد کنید" />
+                  </Form.Item>
+                )}
+
+                {usePassword && (
+                  <div className="text-left mb-2">
+                    <Link to={ROUTES.AUTH.RESET_PASSWORD} className="text-sm text-primary-600">
+                      فراموشی رمز عبور
+                    </Link>
+                  </div>
+                )}
+
                 <Form.Item>
                   <Button type="primary" htmlType="submit" block loading={isLoading}>
-                    ارسال کد
+                    {usePassword ? 'ورود' : 'ارسال کد'}
                   </Button>
                 </Form.Item>
+
               </>
           ) : (
               <>
                 <Form.Item
                     name="code"
-                    label="کد تایید را وارد کنید"
+                    label="کد تأیید را وارد کنید"
                     rules={[
-                      { required: true, message: 'لطفا کد تایید را وارد کنید!' },
+                      { required: true, message: 'لطفاً کد تأیید را وارد کنید!' },
                     ]}
                 >
                   <Input
@@ -123,7 +171,7 @@ export const LoginPage: React.FC = () => {
 
                 <Form.Item>
                   <Button type="primary" htmlType="submit" block loading={isLoading}>
-                    تایید کد
+                    تأیید کد
                   </Button>
                 </Form.Item>
 

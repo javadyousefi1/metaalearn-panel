@@ -6,9 +6,11 @@ import {
   UserRole,
   Permission,
   OtpLoginCredentials,
-  OtpResponse,
+  TokenResponse,
   VerifyOtpRequest,
-  ResendOtpRequest
+  ResendOtpRequest,
+  ResetPasswordDoRqDto,
+  ResetPasswordRequestOtpRqDto,
 } from '@/types';
 
 // Set to true to use mock data for development
@@ -20,86 +22,76 @@ const USE_MOCK_AUTH = false;
  */
 export const authService = {
   /**
-   * Login user - Send OTP
+   * Login user:
+   * - If password is provided and valid => returns { token }
+   * - Otherwise => sends OTP and returns null
    */
-  login: async (credentials: OtpLoginCredentials): Promise<OtpResponse> => {
-    // Mock authentication for development
-    if (USE_MOCK_AUTH) {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve({
-            message: 'OTP sent successfully',
-            expiresIn: 120,
-          });
-        }, 1000);
-      });
-    }
-
-    // Real API call
-    const response = await httpService.post<OtpResponse>('/Authentication/login', credentials);
-    return response.data;
-  },
-
-  /**
-   * Verify OTP and complete login
-   */
-  verifyOtp: async (data: VerifyOtpRequest): Promise<LoginResponse> => {
+  login: async (credentials: OtpLoginCredentials): Promise<LoginResponse> => {
     // Mock authentication for development
     if (USE_MOCK_AUTH) {
       return new Promise((resolve) => {
         setTimeout(() => {
           resolve({
             token: 'mock-token-' + Date.now(),
-            refreshToken: 'mock-refresh-token-' + Date.now(),
-            user: {
-              info: {
-                fullNameFa: 'کاربر تستی',
-                firstNameFa: 'کاربر',
-                lastNameFa: 'تستی',
-                phoneNumber: data.phoneNumber,
-                imageUrl: '',
-                username: 'testuser',
-                address: null,
-                referralId: 'REF123',
-                isProfileComplete: true,
-                identityStatusType: 0,
-                identityMessage: '',
-                id: '1',
-              },
-              profile: null,
-              creditCards: [],
-              wallet: null,
-              invoices: [],
-            },
           });
         }, 1000);
       });
     }
 
     // Real API call
-    const response = await httpService.post<LoginResponse>('/Authentication/VerifyOtp', data);
+    const response = await httpService.post<LoginResponse>('/Authentication/Login', credentials);
+    return response.data;
+  },
+
+  /**
+   * Verify OTP and complete login
+   */
+  verifyOtp: async (data: VerifyOtpRequest): Promise<TokenResponse> => {
+    // Mock authentication for development
+    if (USE_MOCK_AUTH) {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve({
+            token: 'mock-token-' + Date.now(),
+          });
+        }, 1000);
+      });
+    }
+
+    // Real API call
+    const response = await httpService.post<TokenResponse>('/Authentication/VerifyOtp', data);
     return response.data;
   },
 
   /**
    * Resend OTP
    */
-  resendOtp: async (data: ResendOtpRequest): Promise<OtpResponse> => {
+  resendOtp: async (data: ResendOtpRequest): Promise<void> => {
     // Mock authentication for development
     if (USE_MOCK_AUTH) {
       return new Promise((resolve) => {
         setTimeout(() => {
-          resolve({
-            message: 'OTP resent successfully',
-            expiresIn: 120,
-          });
+          resolve();
         }, 1000);
       });
     }
 
     // Real API call
-    const response = await httpService.put<OtpResponse>('/Authentication/ResendOtp', data);
-    return response.data;
+    await httpService.put('/Authentication/ResendOtp', data);
+  },
+
+  /**
+   * Reset password: request OTP
+   */
+  resetPasswordRequestOtp: async (data: ResetPasswordRequestOtpRqDto): Promise<void> => {
+    await httpService.post('/Authentication/ResetPassword', data);
+  },
+
+  /**
+   * Reset password: submit code + new password
+   */
+  resetPassword: async (data: ResetPasswordDoRqDto): Promise<void> => {
+    await httpService.post('/Authentication/ResetPassword', data);
   },
 
   /**
@@ -142,20 +134,6 @@ export const authService = {
       { refreshToken }
     );
     return response.data;
-  },
-
-  /**
-   * Forgot password
-   */
-  forgotPassword: async (email: string): Promise<void> => {
-    await httpService.post('/auth/forgot-password', { email });
-  },
-
-  /**
-   * Reset password
-   */
-  resetPassword: async (token: string, password: string): Promise<void> => {
-    await httpService.post('/auth/reset-password', { token, password });
   },
 
   /**

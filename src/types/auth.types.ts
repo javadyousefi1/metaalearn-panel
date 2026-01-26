@@ -6,30 +6,46 @@ export interface LoginCredentials {
 
 export interface OtpLoginCredentials {
   phoneNumber: string;
-  recaptchaToken: string;
-}
-
-export interface OtpResponse {
-  message: string;
-  expiresIn?: number;
+  password?: string;
+  recaptchaToken?: string;
 }
 
 export interface VerifyOtpRequest {
   phoneNumber: string;
   code: string;
-  recaptchaToken: string;
+  recaptchaToken?: string;
 }
 
 export interface ResendOtpRequest {
   phoneNumber: string;
-  recaptchaToken: string;
+  recaptchaToken?: string;
 }
 
-export interface LoginResponse {
+export interface TokenResponse {
   token: string;
-  refreshToken: string;
-  user: User;
 }
+
+// POST /Authentication/Login returns { token } when password-login succeeds, otherwise null (OTP sent)
+export type LoginResponse = TokenResponse | null;
+
+export enum ResetPasswordRqType {
+  Reset = 1,
+  RqOtp = 2,
+}
+
+export type ResetPasswordRequestOtpRqDto = {
+  rqType: ResetPasswordRqType.RqOtp;
+  phoneNumber: string;
+  recaptchaToken?: string;
+};
+
+export type ResetPasswordDoRqDto = {
+  rqType: ResetPasswordRqType.Reset;
+  phoneNumber: string;
+  code: string;
+  newPassword: string;
+  recaptchaToken?: string;
+};
 
 export interface UserInfo {
   fullNameFa: string;

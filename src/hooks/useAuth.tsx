@@ -2,10 +2,9 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { message } from 'antd';
 import { authService, userService } from '@/services';
 import { ROUTES, QUERY_KEYS } from '@/constants';
-import { OtpLoginCredentials, VerifyOtpRequest, ResendOtpRequest, User } from '@/types';
+import { LoginResponse, OtpLoginCredentials, VerifyOtpRequest, ResendOtpRequest, User } from '@/types';
 
 const TOKEN_KEY = 'auth_token';
-const REFRESH_TOKEN_KEY = 'refresh_token';
 
 /**
  * Get token from localStorage
@@ -15,18 +14,10 @@ const getStoredToken = (): string | null => {
 };
 
 /**
- * Get refresh token from localStorage
- */
-const getStoredRefreshToken = (): string | null => {
-  return localStorage.getItem(REFRESH_TOKEN_KEY);
-};
-
-/**
  * Store tokens in localStorage
  */
-const storeTokens = (token: string, refreshToken: string) => {
+const storeToken = (token: string) => {
   localStorage.setItem(TOKEN_KEY, token);
-  localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
 };
 
 /**
@@ -34,7 +25,6 @@ const storeTokens = (token: string, refreshToken: string) => {
  */
 const clearTokens = () => {
   localStorage.removeItem(TOKEN_KEY);
-  localStorage.removeItem(REFRESH_TOKEN_KEY);
 };
 
 /**
@@ -69,8 +59,18 @@ export const useAuth = () => {
   // Login mutation (send OTP)
   const loginMutation = useMutation({
     mutationFn: (credentials: OtpLoginCredentials) => authService.login(credentials),
-    onSuccess: (response) => {
-      message.success(response.message || 'کد به شماره شما ارسال شد!');
+    onSuccess: (response: LoginResponse) => {
+      // Password login returns token immediately
+      if (response?.token) {
+        storeToken(response.token);
+        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.USER.PROFILE });
+        message.success('ورود موفقیت‌آمیز بود!');
+        navigateTo(ROUTES.USERS.ROOT);
+        return;
+      }
+
+      // OTP flow (token will be returned from VerifyOtp)
+      message.success('کد به شماره شما ارسال شد!');
     },
     onError: () => {
       message.error('ارسال کد ناموفق بود. لطفا شماره تلفن خود را بررسی کنید.');
@@ -82,7 +82,7 @@ export const useAuth = () => {
     mutationFn: (data: VerifyOtpRequest) => authService.verifyOtp(data),
     onSuccess: (response) => {
       // Store tokens
-      storeTokens(response.token, response.refreshToken);
+      storeToken(response.token);
 
       // Invalidate and refetch user profile
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.USER.PROFILE });
@@ -98,8 +98,8 @@ export const useAuth = () => {
   // Resend OTP mutation
   const resendOtpMutation = useMutation({
     mutationFn: (data: ResendOtpRequest) => authService.resendOtp(data),
-    onSuccess: (response) => {
-      message.success(response.message || 'کد مجددا ارسال شد!');
+    onSuccess: () => {
+      message.success('کد مجددا ارسال شد!');
     },
     onError: () => {
       message.error('ارسال مجدد کد ناموفق بود. لطفا دوباره تلاش کنید.');

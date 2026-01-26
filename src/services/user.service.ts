@@ -16,8 +16,8 @@ export const userService = {
    */
   getAllByRole: async (params: UserListParams): Promise<UserListResponse> => {
     const response = await httpService.get<UserListResponse>(
-      `/User/GetAll`,
-      { params }
+        `/User/GetAll`,
+        { params }
     );
     return response.data;
   },
@@ -29,8 +29,8 @@ export const userService = {
    */
   getAll: async (params: GetAllUsersParams): Promise<AllUsersResponse> => {
     const response = await httpService.get<AllUsersResponse>(
-      `/User/GetAll`,
-      { params }
+        `/User/GetAll`,
+        { params }
     );
     return response.data;
   },
@@ -60,8 +60,8 @@ export const userService = {
    */
   getAllPurchasedCourses: async (params: PurchasedCoursesParams): Promise<PurchasedCoursesResponse> => {
     const response = await httpService.get<PurchasedCoursesResponse>(
-      `/User/GetAllPurchasedCourses`,
-      { params }
+        `/User/GetAllPurchasedCourses`,
+        { params }
     );
     return response.data;
   },
@@ -72,8 +72,8 @@ export const userService = {
    */
   getUserProfile: async (): Promise<User> => {
     const response = await httpService.get<User>(
-      `/User/Get`,
-      { params: { includeProfile: true } }
+        `/User/Get`,
+        { params: { includeProfile: true } }
     );
 
     console.log(response , "javad user response");
@@ -87,8 +87,8 @@ export const userService = {
    */
   getUserWithInvoices: async (userId: string): Promise<any> => {
     const response = await httpService.get<any>(
-      `/User/Get`,
-      { params: { userId, includeInvoices: true } }
+        `/User/Get`,
+        { params: { userId, includeInvoices: true } }
     );
     return response.data;
   },
