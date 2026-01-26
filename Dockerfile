@@ -1,4 +1,3 @@
-  GNU nano 7.2                                                                             Dockerfile
 # Stage 1: Build the React application
 FROM node:20-alpine AS builder
 
