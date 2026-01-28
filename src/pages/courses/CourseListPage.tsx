@@ -201,6 +201,7 @@ export const CourseListPage: React.FC = () => {
                 type="text"
                 icon={<UserPlus size={18} />}
                 onClick={() => {
+                  console.log(record ,"x")
                   setSelectedCourseForEnrollment(record.id);
                   setEnrollmentModalOpen(true);
                 }}

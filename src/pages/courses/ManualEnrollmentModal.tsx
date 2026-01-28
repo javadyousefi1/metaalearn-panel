@@ -35,6 +35,7 @@ export const ManualEnrollmentModal: React.FC<ManualEnrollmentModalProps> = ({
   courseId: initialCourseId,
   onClose,
 }) => {
+  console.log(initialCourseId,"courseId")
   const [form] = Form.useForm();
   const { registerUsersToCourse, isRegistering } = useManagement();
   const [selectedCourseId] = useState<string | undefined>(initialCourseId);
@@ -166,7 +167,7 @@ export const ManualEnrollmentModal: React.FC<ManualEnrollmentModalProps> = ({
   };
 
   const validateUsers = (): string | null => {
-    if (!selectedCourseId) {
+    if (!initialCourseId) {
       return 'لطفاً دوره را انتخاب کنید';
     }
 
@@ -232,7 +233,7 @@ export const ManualEnrollmentModal: React.FC<ManualEnrollmentModalProps> = ({
 
     try {
       await registerUsersToCourse({
-        courseId: formValues.courseId,
+        courseId: initialCourseId,
         users: formValues.users,
       });
 
@@ -463,6 +464,7 @@ export const ManualEnrollmentModal: React.FC<ManualEnrollmentModalProps> = ({
         confirmLoading={isRegistering}
         width={600}
         centered
+        zIndex={1001}
       >
         <div className="py-4">
           <p className="mb-4 text-gray-600">
