@@ -215,7 +215,7 @@ export const ManualEnrollmentModal: React.FC<ManualEnrollmentModalProps> = ({
         phoneNumber: u.phoneNumber,
         firstNameFa: u.firstNameFa,
         lastNameFa: u.lastNameFa,
-        isFullyPayment: u.isFullyPayment || undefined,
+        isFullyPayment: u.isFullyPayment,
       };
 
       if (u.isFullyPayment === false && u.paidInstallmentSteps !== undefined) {
