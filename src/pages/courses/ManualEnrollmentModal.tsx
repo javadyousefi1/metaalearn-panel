@@ -59,7 +59,7 @@ export const ManualEnrollmentModal: React.FC<ManualEnrollmentModalProps> = ({
   const { data: usersResponse } = useGetAllUsers(
     {
       PageIndex: 1,
-      PageSize: 10000,
+      PageSize: 20000,
       IncludeProfile: false,
       IncludeIdentity: false,
     },
@@ -69,12 +69,25 @@ export const ManualEnrollmentModal: React.FC<ManualEnrollmentModalProps> = ({
   const allUsers = usersResponse?.items || [];
 
   const filteredUsers = useMemo(
-    () =>
-      allUsers.filter(
-        (user) =>
-          user.phoneNumber?.includes(searchValue) ||
-          user.fullNameFa?.toLowerCase().includes(searchValue.toLowerCase())
-      ),
+    () => {
+      if (!searchValue || searchValue.trim() === '') {
+        return [];
+      }
+
+      const normalizedSearch = searchValue.replace(/\D/g, '').toLowerCase();
+      const searchLower = searchValue.toLowerCase().trim();
+
+      return allUsers.filter((user) => {
+        // Normalize phone number by removing all non-numeric characters
+        const normalizedPhone = user.phoneNumber?.replace(/\D/g, '') || '';
+        const phoneMatch = normalizedPhone.includes(normalizedSearch);
+
+        // Check full name
+        const nameMatch = user.fullNameFa?.toLowerCase().includes(searchLower);
+
+        return phoneMatch || nameMatch;
+      });
+    },
     [allUsers, searchValue]
   );
 
