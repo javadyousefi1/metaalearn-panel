@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {Tag, Avatar, Tooltip, Input, Button} from 'antd';
-import { Home, UserCircle, ShieldCheck, UserCog, Copy } from 'lucide-react';
+import { Home, UserCircle, ShieldCheck, UserCog, Copy, BookOpen } from 'lucide-react';
 import { SearchOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { PageHeader, DataTable } from '@/components/common';
@@ -9,6 +9,7 @@ import { userService } from '@/services';
 import { UserListItem, getIdentityStatusName, getIdentityStatusColor, IdentityStatusType, RoleType, getRoleTypeName } from '@/types/user.types';
 import { UserIdentityModal } from './UserIdentityModal';
 import { RoleManagementModal } from './RoleManagementModal';
+import { UserPurchasedCoursesModal } from './UserPurchasedCoursesModal';
 import { formatDate } from "@/utils";
 
 /**
@@ -17,8 +18,10 @@ import { formatDate } from "@/utils";
 export const UsersPage: React.FC = () => {
   const [identityModalOpen, setIdentityModalOpen] = useState(false);
   const [roleModalOpen, setRoleModalOpen] = useState(false);
+  const [coursesModalOpen, setCoursesModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserListItem | null>(null);
   const [selectedUserForRole, setSelectedUserForRole] = useState<{ id: string; name: string; roles?: string[] } | null>(null);
+  const [selectedUserForCourses, setSelectedUserForCourses] = useState<{ id: string; name: string } | null>(null);
 
   // Initialize exchange token hook
   const { exchangeToken, isExchanging } = useExchangeToken();
@@ -66,6 +69,16 @@ export const UsersPage: React.FC = () => {
   const handleCloseRoleModal = () => {
     setRoleModalOpen(false);
     setSelectedUserForRole(null);
+  };
+
+  const handleOpenCoursesModal = (user: UserListItem) => {
+    setSelectedUserForCourses({ id: user.id, name: user.fullNameFa || 'بدون نام' });
+    setCoursesModalOpen(true);
+  };
+
+  const handleCloseCoursesModal = () => {
+    setCoursesModalOpen(false);
+    setSelectedUserForCourses(null);
   };
 
   const columns: ColumnsType<UserListItem> = [
@@ -234,6 +247,14 @@ export const UsersPage: React.FC = () => {
               <UserCog size={20} />
             </button>
           </Tooltip>
+          <Tooltip title="مشاهده دوره‌های کاربر">
+            <button
+              onClick={() => handleOpenCoursesModal(record)}
+              className="hover:text-orange-600 transition-colors"
+            >
+              <BookOpen size={20} />
+            </button>
+          </Tooltip>
           <Tooltip title="کپی توکن">
             <button
               onClick={() => exchangeToken(record.id)}
@@ -302,6 +323,15 @@ export const UsersPage: React.FC = () => {
           userId={selectedUserForRole.id}
           userName={selectedUserForRole.name}
           currentRoles={selectedUserForRole.roles || []}
+        />
+      )}
+
+      {selectedUserForCourses && (
+        <UserPurchasedCoursesModal
+          open={coursesModalOpen}
+          onClose={handleCloseCoursesModal}
+          userId={selectedUserForCourses.id}
+          userName={selectedUserForCourses.name}
         />
       )}
 
