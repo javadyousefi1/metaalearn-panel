@@ -1,25 +1,27 @@
-import React, { useState } from 'react';
-import { Tag, Avatar, Tooltip, Button, Input } from 'antd';
-import { Home, UserCircle, CheckCircle } from 'lucide-react';
-import { SearchOutlined } from '@ant-design/icons';
-import type { ColumnsType } from 'antd/es/table';
-import { PageHeader, DataTable, CourseFilter } from '@/components/common';
-import { useTable, useTableFilters, usePaymentVerification } from '@/hooks';
-import { paymentService, courseService } from '@/services';
-import { Course } from '@/types/course.types';
+import React, {useState} from 'react';
+import {Avatar, Button, Image, Input, Tag, Tooltip} from 'antd';
+import {CheckCircle, Eye, Home, UserCircle} from 'lucide-react';
+import {SearchOutlined} from '@ant-design/icons';
+import type {ColumnsType} from 'antd/es/table';
+import {CourseFilter, DataTable, PageHeader} from '@/components/common';
+import {usePaymentVerification, useTable, useTableFilters} from '@/hooks';
+import {courseService, paymentService} from '@/services';
+import {Course} from '@/types/course.types';
 import {
-    PaymentListItem,
-    PaymentStatus,
-    getPaymentMethodName,
+    formatAmount,
     getPaymentMethodColor,
-    getPaymentStatusName,
+    getPaymentMethodName,
     getPaymentStatusColor,
-    getPaymentTypeName,
+    getPaymentStatusName,
     getPaymentTypeColor,
-    formatAmount, PaymentType, PaymentMethod,
+    getPaymentTypeName,
+    PaymentListItem,
+    PaymentMethod,
+    PaymentStatus,
+    PaymentType,
 } from '@/types/payment.types';
-import { formatDate } from '@/utils';
-import { PaymentVerificationModal } from './PaymentVerificationModal';
+import {formatDate} from '@/utils';
+import {PaymentVerificationModal} from './PaymentVerificationModal';
 
 /**
  * TransactionsPage Component - Display payment transactions with verification
@@ -291,6 +293,21 @@ export const TransactionsPage: React.FC = () => {
       align: 'center',
       fixed: 'right',
       render: (_: any, payment: PaymentListItem) => {
+
+        if (payment.method === PaymentMethod.CardToCard && (payment.status === PaymentStatus.Paid || payment.status === PaymentStatus.Rejected)) {
+                return <>
+                    <Image
+                        src={payment.cardToCard.imageUrl}
+                        alt="رسید کارت به کارت"
+                        width={40}
+                        height={40}
+                        className="rounded object-cover"
+                        preview={{
+                            mask: <Eye size={18} />
+                        }}
+                    />
+                </>
+        }
         // Only show verify button for card to card payments that are not paid
         if (payment.method !== PaymentMethod.CardToCard || payment.status !== PaymentStatus.Pending)  {
           return <span className="text-gray-400 text-xs">-</span>;
@@ -298,6 +315,7 @@ export const TransactionsPage: React.FC = () => {
 
         return (
           <div className="flex items-center justify-center gap-3">
+
             <Tooltip title="بررسی پرداخت">
               <Button
                 type="text"
