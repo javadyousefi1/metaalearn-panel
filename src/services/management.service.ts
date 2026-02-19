@@ -2,6 +2,7 @@ import { httpService } from './http.service';
 import {
   RegisterUsersToCourseRqDto,
   RegisterUsersToCourseRsDto,
+  SwapPhoneNumberPayload,
 } from '@/types/management.types';
 
 /**
@@ -23,5 +24,14 @@ export const managementService = {
       data
     );
     return response.data;
+  },
+
+  /**
+   * Swap user phone number
+   * @param data - Swap data (userId, targetPhoneNumber, forceExchange)
+   * @returns Promise<void>
+   */
+  swapPhoneNumber: async (data: SwapPhoneNumberPayload): Promise<void> => {
+    await httpService.post('/Management/SwapPhoneNumber', data);
   },
 };

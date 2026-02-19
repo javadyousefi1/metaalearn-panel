@@ -22,3 +22,9 @@ export interface RegisterUsersToCourseRsDto {
   failureCount: number;
   errors: string[];
 }
+
+export interface SwapPhoneNumberPayload {
+  userId: string;
+  targetPhoneNumber: string;
+  forceExchange: boolean;
+}
