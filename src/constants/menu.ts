@@ -13,6 +13,7 @@ import {
     FileText,
     ClipboardList,
     Bell,
+    GraduationCap,
     LucideIcon,
 } from 'lucide-react';
 import { ROUTES } from './routes';
@@ -103,6 +104,13 @@ export const MENU_ITEMS: MenuItemConfig[] = [
                 label: 'دسته‌بندی‌ها',
                 icon: FolderTree,
                 roles: ['super-admin',], // Only admins can manage categories
+            },
+            {
+                key: 'exams',
+                path: ROUTES.COURSES.EXAMS.ROOT,
+                label: 'آزمون‌ها',
+                icon: GraduationCap,
+                roles: ['super-admin', 'instructor'],
             },
         ],
     },

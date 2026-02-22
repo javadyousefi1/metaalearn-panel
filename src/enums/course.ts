@@ -56,3 +56,9 @@ export enum CourseScheduleStatusEnum {
     InProgress = 1,
     Completed = 2,
 }
+
+export const CredentialExamType = {
+    0: 'هیچ‌کدام',
+    1: 'تمرینی',
+    2: 'نهایی',
+} as const;

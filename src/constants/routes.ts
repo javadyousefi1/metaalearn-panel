@@ -37,6 +37,11 @@ export const ROUTES = {
       ROOT: '/courses/categories',
       SUB: (id:string) => '/courses/categories/:id'.replace(":id" , id),
     },
+    EXAMS: {
+      ROOT: '/courses/exams',
+      DETAIL_PATH: '/courses/exams/:courseId',
+      DETAIL: (courseId: string) => `/courses/exams/${courseId}`,
+    },
   },
 
   // Course Detail Routes
@@ -157,6 +162,8 @@ export const PAGE_TITLES: Record<string, string> = {
   [ROUTES.FINANCE.INSTALLMENT_DETAIL_PATH]: 'جزئیات اقساط دوره',
   [ROUTES.COURSES.COURSE_LIST]: 'لیست دوره‌ها',
   [ROUTES.COURSES.CATEGORIES.ROOT]: 'مدیریت دسته‌بندی‌ها',
+  [ROUTES.COURSES.EXAMS.ROOT]: 'آزمون‌ها',
+  [ROUTES.COURSES.EXAMS.DETAIL_PATH]: 'آزمون‌های دوره',
   [ROUTES.COURSE.DETAIL]: 'جزئیات دوره',
   [ROUTES.COURSE.INTRODUCTION_PATH]: 'معرفی دوره',
   [ROUTES.COURSE.FAQ_PATH]: 'سوالات متداول',

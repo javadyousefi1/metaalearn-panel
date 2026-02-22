@@ -18,3 +18,4 @@ export * from './blogGallery.service';
 export * from './practice.service';
 export * from './notification.service';
 export * from './management.service';
+export * from './exam.service';

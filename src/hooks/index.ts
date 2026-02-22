@@ -22,3 +22,4 @@ export * from './useCourseComments';
 export * from './useNotifications';
 export * from './useManagement';
 export * from './useExchangeToken';
+export * from './useExams';

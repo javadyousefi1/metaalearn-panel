@@ -6,7 +6,7 @@ import { DashboardPage } from '@/pages/dashboard';
 import { UsersPage } from '@/pages/users';
 import { TicketsPage, TicketDetailPage } from '@/pages/tickets';
 import { OperatorTicketsPage, OperatorTicketDetailPage, OperatorPracticesPage, OperatorPracticeDetailPage } from '@/pages/operators';
-import { CoursesPage, CourseListPage } from '@/pages/courses';
+import { CoursesPage, CourseListPage, ExamCoursesPage, ExamListPage } from '@/pages/courses';
 import { CourseDetailPage, CourseFaqPage, CourseSessionsPage, CourseIntroductionPage, CourseSchedulePage, CourseGalleryPage, CourseCommentsPage } from '@/pages/course';
 import { CategoriesPage, SubCategoriesPage } from '@/pages/categories';
 import { BlogListPage, BlogCategoryPage, BlogDetailPage, BlogInfoPage, BlogGalleryPage } from '@/pages/blogs';
@@ -129,6 +129,16 @@ export const router = createBrowserRouter([
         element: (
             <CourseListPage />
         ),
+      },
+
+      // Exams Management
+      {
+        path: ROUTES.COURSES.EXAMS.ROOT,
+        element: <ExamCoursesPage />,
+      },
+      {
+        path: ROUTES.COURSES.EXAMS.DETAIL_PATH,
+        element: <ExamListPage />,
       },
 
       // Categories Management

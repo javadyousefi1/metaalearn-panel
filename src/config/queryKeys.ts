@@ -85,4 +85,11 @@ export const queryKeys = {
     list: (filters?: Record<string, unknown>) =>
       [...queryKeys.paymentInstructions.lists(), { ...filters }] as const,
   },
+  exams: {
+    all: ['exams'] as const,
+    lists: () => [...queryKeys.exams.all, 'list'] as const,
+    list: (courseId: string) => [...queryKeys.exams.lists(), courseId] as const,
+    details: () => [...queryKeys.exams.all, 'detail'] as const,
+    detail: (id: string) => [...queryKeys.exams.details(), id] as const,
+  },
 } as const;
