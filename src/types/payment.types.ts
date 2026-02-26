@@ -96,6 +96,11 @@ export interface RejectPaymentPayload {
   reason: string;
 }
 
+export interface RefundPaymentPayload {
+  paymentId: string;
+  refundedMessage: string;
+}
+
 // Helper functions for payment method display
 export const getPaymentMethodName = (method: PaymentMethod | number): string => {
   const methodValue = typeof method === 'number' ? method : method;

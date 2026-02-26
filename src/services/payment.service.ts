@@ -4,6 +4,7 @@ import type {
   AllPaymentsResponse,
   VerifyPaymentPayload,
   RejectPaymentPayload,
+  RefundPaymentPayload,
 } from '@/types/payment.types';
 
 /**
@@ -32,5 +33,15 @@ export const paymentService = {
    */
   async reject(payload: RejectPaymentPayload): Promise<void> {
     await httpService.put('/Payment/Reject', payload);
+  },
+
+  /**
+   * Refund a payment by admin
+   */
+  async refund(payload: RefundPaymentPayload): Promise<void> {
+    await httpService.post('/Management/RefundPaymentByAdmin', {
+      paymentId: payload.paymentId,
+      refundedMessage: payload.refundedMessage,
+    });
   },
 };

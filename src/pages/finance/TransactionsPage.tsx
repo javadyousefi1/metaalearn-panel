@@ -1,10 +1,10 @@
 import React, {useState} from 'react';
 import {Avatar, Button, Image, Input, Tag, Tooltip} from 'antd';
-import {CheckCircle, Eye, Home, UserCircle} from 'lucide-react';
+import {CheckCircle, Eye, Home, RotateCcw, UserCircle} from 'lucide-react';
 import {SearchOutlined} from '@ant-design/icons';
 import type {ColumnsType} from 'antd/es/table';
 import {CourseFilter, DataTable, PageHeader} from '@/components/common';
-import {usePaymentVerification, useTable, useTableFilters} from '@/hooks';
+import {usePaymentVerification, usePaymentRefund, useTable, useTableFilters} from '@/hooks';
 import {courseService, paymentService} from '@/services';
 import {Course} from '@/types/course.types';
 import {
@@ -22,6 +22,7 @@ import {
 } from '@/types/payment.types';
 import {formatDate} from '@/utils';
 import {PaymentVerificationModal} from './PaymentVerificationModal';
+import {RefundModal} from './RefundModal';
 
 /**
  * TransactionsPage Component - Display payment transactions with verification
@@ -31,8 +32,11 @@ export const TransactionsPage: React.FC = () => {
     CourseId: null,
   });
   const { verifyPayment, rejectPayment, isProcessing } = usePaymentVerification();
+  const { refundPayment, isRefunding } = usePaymentRefund();
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState<PaymentListItem | null>(null);
+  const [refundModalOpen, setRefundModalOpen] = useState(false);
+  const [selectedRefundPayment, setSelectedRefundPayment] = useState<PaymentListItem | null>(null);
 
   // Fetch courses for filter
   const {
@@ -84,6 +88,20 @@ export const TransactionsPage: React.FC = () => {
 
   const handleRejectPayment = async (paymentId: string, reason: string) => {
     await rejectPayment({ paymentId, reason });
+  };
+
+  const handleOpenRefundModal = (payment: PaymentListItem) => {
+    setSelectedRefundPayment(payment);
+    setRefundModalOpen(true);
+  };
+
+  const handleCloseRefundModal = () => {
+    setRefundModalOpen(false);
+    setSelectedRefundPayment(null);
+  };
+
+  const handleRefundPayment = async (paymentId: string, refundedMessage: string) => {
+    await refundPayment({ paymentId, refundedMessage });
   };
 
   const columns: ColumnsType<PaymentListItem> = [
@@ -295,7 +313,7 @@ export const TransactionsPage: React.FC = () => {
       render: (_: any, payment: PaymentListItem) => {
 
         if (payment.method === PaymentMethod.CardToCard && (payment.status === PaymentStatus.Paid || payment.status === PaymentStatus.Rejected)) {
-                return <>
+                return <div className={'flex gap-x-4 items-center'}>
                     <Image
                         src={payment.cardToCard.imageUrl}
                         alt="رسید کارت به کارت"
@@ -306,16 +324,43 @@ export const TransactionsPage: React.FC = () => {
                             mask: <Eye size={18} />
                         }}
                     />
-                </>
+                    <Tooltip title="استرداد وجه">
+                        <Button
+                            type="text"
+                            danger
+                            icon={<RotateCcw size={18} />}
+                            onClick={() => handleOpenRefundModal(payment)}
+                        >
+                            استرداد
+                        </Button>
+                    </Tooltip>
+                </div>
         }
-        // Only show verify button for card to card payments that are not paid
+        // Refund button for paid payments
+        if (payment.status === PaymentStatus.Paid) {
+          return (
+            <div className="flex items-center justify-center gap-2">
+              <Tooltip title="استرداد وجه">
+                <Button
+                  type="text"
+                  danger
+                  icon={<RotateCcw size={18} />}
+                  onClick={() => handleOpenRefundModal(payment)}
+                >
+                  استرداد
+                </Button>
+              </Tooltip>
+            </div>
+          );
+        }
+
+        // Only show verify button for card to card payments that are pending
         if (payment.method !== PaymentMethod.CardToCard || payment.status !== PaymentStatus.Pending)  {
           return <span className="text-gray-400 text-xs">-</span>;
         }
 
         return (
           <div className="flex items-center justify-center gap-3">
-
             <Tooltip title="بررسی پرداخت">
               <Button
                 type="text"
@@ -395,6 +440,14 @@ export const TransactionsPage: React.FC = () => {
         onVerify={handleVerifyPayment}
         onReject={handleRejectPayment}
         loading={isProcessing}
+      />
+
+      <RefundModal
+        open={refundModalOpen}
+        payment={selectedRefundPayment}
+        onClose={handleCloseRefundModal}
+        onRefund={handleRefundPayment}
+        loading={isRefunding}
       />
     </div>
   );
