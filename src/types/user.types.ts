@@ -269,6 +269,21 @@ export const getRoleTypeFromString = (roleString: string): RoleType | null => {
   return roleMap[roleString] ?? null;
 };
 
+// User Invoice Management
+export enum UpdateUserInvoiceActionType {
+  UpdateInvoice = 1,
+  UpdateInvoiceTransaction = 2,
+  AdjustInstallmentDueDates = 3,
+  RejectUserInvoice = 4,
+}
+
+export interface UpdateUserInvoicePayload {
+  actionType: UpdateUserInvoiceActionType;
+  valueId: string;
+  isRejectedByAdmin: boolean;
+  rejectedByAdminMessage: string;
+}
+
 // Purchased Courses Types
 export interface PurchasedCoursesParams {
   CourseId?: string;
@@ -289,6 +304,10 @@ export interface InvoiceInfo {
   isSettled: boolean;
   hasAccess: boolean;
   upcomingDueTransaction: any | null;
+  paidInstallmentCount: number;
+  totalInstallmentCount: number;
+  isRejectedByAdmin: boolean;
+  rejectedByAdminMessage: string | null;
   id: string;
 }
 

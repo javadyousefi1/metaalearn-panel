@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { message } from 'antd';
 import { userService } from '@/services';
 import { queryKeys } from '@/config';
-import { UserListParams, UpdateUserIdentityPayload, PurchasedCoursesParams } from '@/types';
+import { UserListParams, UpdateUserIdentityPayload, PurchasedCoursesParams, UpdateUserInvoicePayload } from '@/types';
 
 /**
  * Custom hook for getting users by role
@@ -80,6 +80,34 @@ export const useGetUserPurchasedCourses = (params: PurchasedCoursesParams, enabl
     enabled: !!params.UserId && enabled,
     select: (data) => data?.courses?.items || []
   });
+};
+
+/**
+ * Custom hook for updating user invoice status (activate/deactivate access)
+ */
+export const useUpdateUserInvoice = () => {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: (payload: UpdateUserInvoicePayload) => userService.updateUserInvoice(payload),
+    onSuccess: (_data, variables) => {
+      message.success(
+        variables.isRejectedByAdmin
+          ? 'دسترسی کاربر با موفقیت غیرفعال شد'
+          : 'دسترسی کاربر با موفقیت فعال شد'
+      );
+      queryClient.invalidateQueries({ queryKey: ['course-installment-users'] });
+      queryClient.invalidateQueries({ queryKey: ['user-with-invoices'] });
+    },
+    onError: () => {
+      message.error('خطا در به‌روزرسانی وضعیت دسترسی');
+    },
+  });
+
+  return {
+    updateUserInvoice: (data: UpdateUserInvoicePayload) => mutation.mutateAsync(data),
+    isUpdating: mutation.isPending,
+  };
 };
 
 /**

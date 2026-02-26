@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
-import { Tag, Avatar, Modal, Button, Spin, Empty } from 'antd';
-import { Home, UserCircle, Eye } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Tag, Avatar, Modal, Button, Spin, Empty, Alert, Form, Input, Popconfirm, Space } from 'antd';
+import { Home, UserCircle, Eye, ShieldCheck, ShieldOff } from 'lucide-react';
 import { useParams } from 'react-router-dom';
 import type { ColumnsType } from 'antd/es/table';
 import { PageHeader, DataTable } from '@/components/common';
 import { useTable } from '@/hooks';
-import { useGetUserWithInvoices } from '@/hooks/useUsers';
+import { useGetUserWithInvoices, useUpdateUserInvoice } from '@/hooks/useUsers';
 import { userService } from '@/services';
 import { PurchasedCourseItem } from '@/types/user.types';
+import { UpdateUserInvoiceActionType } from '@/types/user.types';
 import { CoursePaymentType } from '@/enums';
 import { formatPriceWithCurrency } from '@/utils/format';
 
@@ -28,6 +29,10 @@ export const CourseInstallmentUsersPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [selectedUserName, setSelectedUserName] = useState<string>('');
+  const [showRejectForm, setShowRejectForm] = useState(false);
+  const [rejectForm] = Form.useForm();
+
+  const { updateUserInvoice, isUpdating } = useUpdateUserInvoice();
 
   const {
     data: purchasedCourses,
@@ -61,10 +66,41 @@ export const CourseInstallmentUsersPage: React.FC = () => {
     setSelectedUserId(userId);
     setSelectedUserName(userName);
     setIsModalOpen(true);
+    setShowRejectForm(false);
   };
 
   // Find the invoice for this course
   const invoice = userData?.invoices?.find((inv: any) => inv.valueInfo?.id === courseId);
+
+  // Pre-fill rejection message when form opens
+  useEffect(() => {
+    if (showRejectForm && invoice?.rejectedByAdminMessage) {
+      rejectForm.setFieldValue('reason', invoice.rejectedByAdminMessage);
+    }
+  }, [showRejectForm, invoice, rejectForm]);
+
+  const handleActivate = async () => {
+    if (!invoice) return;
+    await updateUserInvoice({
+      actionType: UpdateUserInvoiceActionType.RejectUserInvoice,
+      valueId: invoice.id,
+      isRejectedByAdmin: false,
+      rejectedByAdminMessage: '',
+    });
+  };
+
+  const handleDeactivate = async () => {
+    if (!invoice) return;
+    const values = await rejectForm.validateFields();
+    await updateUserInvoice({
+      actionType: UpdateUserInvoiceActionType.RejectUserInvoice,
+      valueId: invoice.id,
+      isRejectedByAdmin: true,
+      rejectedByAdminMessage: values.reason,
+    });
+    setShowRejectForm(false);
+    rejectForm.resetFields();
+  };
 
   const columns: ColumnsType<PurchasedCourseItem> = [
     {
@@ -193,6 +229,8 @@ export const CourseInstallmentUsersPage: React.FC = () => {
           setIsModalOpen(false);
           setSelectedUserId(null);
           setSelectedUserName('');
+          setShowRejectForm(false);
+          rejectForm.resetFields();
         }}
         footer={null}
         centered
@@ -216,6 +254,88 @@ export const CourseInstallmentUsersPage: React.FC = () => {
               <p className="text-lg font-bold text-gray-800">
                 {invoice.valueInfo?.name}
               </p>
+            </div>
+
+            {/* Access Management */}
+            <div className="border rounded-xl p-4 bg-gray-50">
+              <div className="flex items-center justify-between mb-3">
+                <span className="font-semibold text-gray-700 text-sm">مدیریت دسترسی</span>
+                <Tag color={invoice.isRejectedByAdmin ? 'red' : 'green'} className="text-sm">
+                  {invoice.isRejectedByAdmin ? 'غیرفعال توسط ادمین' : 'دسترسی فعال'}
+                </Tag>
+              </div>
+
+              {invoice.isRejectedByAdmin ? (
+                <div className="space-y-3">
+                  {invoice.rejectedByAdminMessage && (
+                    <Alert
+                      message={<span className="text-sm">دلیل غیرفعال‌سازی: <strong>{invoice.rejectedByAdminMessage}</strong></span>}
+                      type="error"
+                      showIcon
+                    />
+                  )}
+                  <Popconfirm
+                    title="فعال کردن دسترسی"
+                    description="آیا از فعال‌سازی دسترسی این کاربر مطمئن هستید؟"
+                    onConfirm={handleActivate}
+                    okText="بله، فعال کن"
+                    cancelText="انصراف"
+                    okButtonProps={{ loading: isUpdating }}
+                  >
+                    <Button
+                      type="primary"
+                      icon={<ShieldCheck size={16} />}
+                      loading={isUpdating}
+                    >
+                      فعال کردن دسترسی
+                    </Button>
+                  </Popconfirm>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {!showRejectForm ? (
+                    <Button
+                      danger
+                      icon={<ShieldOff size={16} />}
+                      onClick={() => setShowRejectForm(true)}
+                    >
+                      غیرفعال کردن دسترسی
+                    </Button>
+                  ) : (
+                    <Form form={rejectForm} layout="vertical" className="mt-2">
+                      <Form.Item
+                        name="reason"
+                        label="دلیل غیرفعال کردن"
+                        rules={[
+                          { required: true, message: 'لطفاً دلیل را وارد کنید' },
+                          { min: 5, message: 'دلیل باید حداقل ۵ کاراکتر باشد' },
+                        ]}
+                      >
+                        <Input.TextArea
+                          rows={3}
+                          placeholder="دلیل غیرفعال کردن دسترسی را شرح دهید..."
+                          showCount
+                          maxLength={500}
+                        />
+                      </Form.Item>
+                      <Space>
+                        <Button
+                          type="primary"
+                          danger
+                          icon={<ShieldOff size={16} />}
+                          onClick={handleDeactivate}
+                          loading={isUpdating}
+                        >
+                          تایید غیرفعال‌سازی
+                        </Button>
+                        <Button onClick={() => { setShowRejectForm(false); rejectForm.resetFields(); }}>
+                          انصراف
+                        </Button>
+                      </Space>
+                    </Form>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Info Boxes */}

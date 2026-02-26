@@ -1,6 +1,6 @@
 import { httpService } from './http.service';
 import { UserListResponse, UserListParams } from '@/types/courseSchedule.types';
-import { GetAllUsersParams, AllUsersResponse, UpdateUserIdentityPayload, RoleManagementPayload, PurchasedCoursesParams, PurchasedCoursesResponse } from '@/types/user.types';
+import { GetAllUsersParams, AllUsersResponse, UpdateUserIdentityPayload, RoleManagementPayload, PurchasedCoursesParams, PurchasedCoursesResponse, UpdateUserInvoicePayload } from '@/types/user.types';
 import { User } from '@/types/auth.types';
 
 /**
@@ -78,6 +78,14 @@ export const userService = {
 
     console.log(response , "javad user response");
     return response.data;
+  },
+
+  /**
+   * Update user invoice (activate/deactivate access)
+   * @param payload - Invoice update data (actionType, valueId, isRejectedByAdmin, rejectedByAdminMessage)
+   */
+  updateUserInvoice: async (payload: UpdateUserInvoicePayload): Promise<void> => {
+    await httpService.put('/UserInvoice/Update', payload);
   },
 
   /**
