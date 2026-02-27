@@ -25,7 +25,10 @@ export const TicketsPage: React.FC = () => {
   const navigate = useNavigate();
 
   // Initialize filters
-  const { filters, handleTableChange } = useTableFilters();
+  const { filters, handleTableChange } = useTableFilters({
+    UserPhoneNumber: null,
+    UserFullName: null,
+  });
 
   const {
     data: tickets,
@@ -33,17 +36,17 @@ export const TicketsPage: React.FC = () => {
     isLoading,
     pagination,
   } = useTable<TicketListItem>({
-    queryKey: "tickets",
+    queryKey: ["tickets", filters],
     fetchFn: (params) =>
       ticketService.getAll({
         ...params,
+        UserPhoneNumber: filters.UserPhoneNumber as string | undefined,
+        UserFullName: filters.UserFullName as string | undefined,
       }),
     initialPageSize: 10,
     initialPageIndex: 1,
     filters,
   });
-
-  console.log(tickets, "tickets");
 
   const columns: ColumnsType<TicketListItem> = [
     {
@@ -100,25 +103,70 @@ export const TicketsPage: React.FC = () => {
       ),
     },
     {
-      title: "کاربر",
+      title: "نام کاربر",
       dataIndex: "userInfo",
-      key: "user",
-      width: 200,
+      key: "userFullName",
+      width: 180,
+      filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+        <div style={{ padding: 8 }}>
+          <Input
+            placeholder="جستجوی نام کاربر"
+            value={selectedKeys[0]}
+            onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+            onPressEnter={() => confirm()}
+            style={{ marginBottom: 8, display: "block" }}
+          />
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <Button type="primary" onClick={() => confirm()} icon={<SearchOutlined />} size="small" style={{ width: 90 }}>
+              جستجو
+            </Button>
+            <Button onClick={() => clearFilters && clearFilters()} size="small" style={{ width: 90 }}>
+              پاک کردن
+            </Button>
+          </div>
+        </div>
+      ),
+      filterIcon: (filtered) => <SearchOutlined style={{ color: filtered ? "#4B26AD" : undefined }} />,
+      filteredValue: filters.UserFullName ? [filters.UserFullName as string] : null,
       render: (userInfo: TicketListItem["userInfo"]) => (
         <div className="flex items-center gap-2">
           {userInfo.imageUrl ? (
             <Avatar size={32} src={userInfo.imageUrl} />
           ) : (
-            <Avatar
-              size={32}
-              icon={<UserCircle />}
-              style={{ backgroundColor: "#4B26AD" }}
-            />
+            <Avatar size={32} icon={<UserCircle />} style={{ backgroundColor: "#4B26AD" }} />
           )}
-          <span className="font-medium">
-            {userInfo.fullNameFa || "بدون نام"} - {userInfo?.phoneNumber}
-          </span>
+          <span className="font-medium">{userInfo.fullNameFa || "بدون نام"}</span>
         </div>
+      ),
+    },
+    {
+      title: "شماره تماس",
+      dataIndex: "userInfo",
+      key: "userPhoneNumber",
+      width: 140,
+      filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+        <div style={{ padding: 8 }}>
+          <Input
+            placeholder="جستجوی شماره تماس"
+            value={selectedKeys[0]}
+            onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+            onPressEnter={() => confirm()}
+            style={{ marginBottom: 8, display: "block" }}
+          />
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <Button type="primary" onClick={() => confirm()} icon={<SearchOutlined />} size="small" style={{ width: 90 }}>
+              جستجو
+            </Button>
+            <Button onClick={() => clearFilters && clearFilters()} size="small" style={{ width: 90 }}>
+              پاک کردن
+            </Button>
+          </div>
+        </div>
+      ),
+      filterIcon: (filtered) => <SearchOutlined style={{ color: filtered ? "#4B26AD" : undefined }} />,
+      filteredValue: filters.UserPhoneNumber ? [filters.UserPhoneNumber as string] : null,
+      render: (userInfo: TicketListItem["userInfo"]) => (
+        <span className="text-sm text-gray-600">{userInfo?.phoneNumber || "-"}</span>
       ),
     },
     {
@@ -265,6 +313,8 @@ export const TicketsPage: React.FC = () => {
             title: "Title",
             type: "Type",
             status: "Status",
+            userFullName: "UserFullName",
+            userPhoneNumber: "UserPhoneNumber",
           }),
         }}
       />

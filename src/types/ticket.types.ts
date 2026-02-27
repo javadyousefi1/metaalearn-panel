@@ -50,6 +50,8 @@ export interface TicketListItem {
 export interface GetAllTicketsParams {
   PageIndex: number;
   PageSize: number;
+  UserPhoneNumber?: string;
+  UserFullName?: string;
 }
 
 export interface AllTicketsResponse {
