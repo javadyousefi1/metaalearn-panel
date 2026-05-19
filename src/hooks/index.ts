@@ -24,3 +24,5 @@ export * from './useNotifications';
 export * from './useManagement';
 export * from './useExchangeToken';
 export * from './useExams';
+export * from './useCertificates';
+export * from './useDiscountCodes';

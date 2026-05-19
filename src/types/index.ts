@@ -40,3 +40,7 @@ export * from './paymentInstruction.types';
 export * from './notification.types';
 // Management types
 export * from './management.types';
+// Certificate types
+export * from './certificate.types';
+// Discount code types
+export * from './discountCode.types';

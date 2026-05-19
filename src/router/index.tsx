@@ -12,6 +12,8 @@ import { CategoriesPage, SubCategoriesPage } from '@/pages/categories';
 import { BlogListPage, BlogCategoryPage, BlogDetailPage, BlogInfoPage, BlogGalleryPage } from '@/pages/blogs';
 import { BankCardsPage, PaymentInstructionsPage, TransactionsPage, InstallmentsPage, CourseInstallmentUsersPage } from '@/pages/finance';
 import { NotificationsPage } from '@/pages/notifications';
+import { CertificatesPage } from '@/pages/certificates';
+import { DiscountCodesPage } from '@/pages/discountCodes';
 import { SettingsPage } from '@/pages/settings';
 import { ROUTES } from '@/constants';
 import { Permission } from '@/types';
@@ -218,6 +220,18 @@ export const router = createBrowserRouter([
             element: <BlogInfoPage />,
           },
         ],
+      },
+
+      // Certificates
+      {
+        path: ROUTES.CERTIFICATES.ROOT,
+        element: <CertificatesPage />,
+      },
+
+      // Discount Codes
+      {
+        path: ROUTES.FINANCE.DISCOUNT_CODES,
+        element: <DiscountCodesPage />,
       },
 
       // Notifications

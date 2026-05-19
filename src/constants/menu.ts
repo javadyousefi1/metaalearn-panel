@@ -14,6 +14,8 @@ import {
     ClipboardList,
     Bell,
     GraduationCap,
+    Award,
+    Tag,
     LucideIcon,
 } from 'lucide-react';
 import { ROUTES } from './routes';
@@ -54,6 +56,13 @@ export const MENU_ITEMS: MenuItemConfig[] = [
         label: 'اعلانات',
         icon: Bell,
         roles: ['super-admin', 'operator-admin'], // Admins can send notifications
+    },
+    {
+        key: 'certificates',
+        path: ROUTES.CERTIFICATES.ROOT,
+        label: 'مدرک',
+        icon: Award,
+        roles: ['super-admin'],
     },
     {
         key: 'tickets',
@@ -169,6 +178,13 @@ export const MENU_ITEMS: MenuItemConfig[] = [
                 path: ROUTES.FINANCE.INSTALLMENTS,
                 label: 'مدیریت اقساط',
                 icon: Receipt,
+                roles: ['super-admin'],
+            },
+            {
+                key: 'discount-codes',
+                path: ROUTES.FINANCE.DISCOUNT_CODES,
+                label: 'کدهای تخفیف',
+                icon: Tag,
                 roles: ['super-admin'],
             },
         ],

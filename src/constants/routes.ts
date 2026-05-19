@@ -91,6 +91,7 @@ export const ROUTES = {
     INSTALLMENTS: '/finance/installments',
     INSTALLMENT_DETAIL: (id: string) => `/finance/installments/${id}`,
     INSTALLMENT_DETAIL_PATH: '/finance/installments/:id',
+    DISCOUNT_CODES: '/finance/discount-codes',
   },
 
   // Blog Routes
@@ -110,6 +111,11 @@ export const ROUTES = {
     INFO_PATH: '/blogs/:id/info',
     GALLERY: (id: string) => `/blogs/${id}/gallery`,
     GALLERY_PATH: '/blogs/:id/gallery',
+  },
+
+  // Certificate Routes
+  CERTIFICATES: {
+    ROOT: '/certificates',
   },
 
   // Notifications Routes
