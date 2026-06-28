@@ -1,9 +1,10 @@
 import React, { useMemo, useEffect } from 'react';
-import { Modal, Form, Input, Select, InputNumber, Switch } from 'antd';
+import { Modal, Form, Input, Select, InputNumber, Switch, Button, Radio, Alert } from 'antd';
+import { Plus, Trash2 } from 'lucide-react';
 import { useCategories, useCourses, useGetCourseById } from '@/hooks';
 import { CourseType, CourseStatus, CoursePaymentType, DaysOfWeek, InstallmentType, InstallmentTypeEnum } from '@/enums';
 import { SubCategory } from '@/types';
-import { Course, CourseInstallment } from '@/types/course.types';
+import { Course, CourseInstallment, CourseProgressiveStep } from '@/types/course.types';
 import DatePicker from '@/components/datePicker/DatePicker';
 import moment from 'moment-jalaali';
 
@@ -48,6 +49,14 @@ export const CourseCreateModal: React.FC<CourseCreateModalProps> = ({
   const paymentTypes = Form.useWatch('paymentTypes', form) || [];
   const installmentType = Form.useWatch('installmentType', form);
   const installmentCount = Form.useWatch('installmentCount', form) || 0;
+  const price = Form.useWatch('price', form) || 0;
+  const progressiveInstallments = Form.useWatch('progressiveInstallments', form) || [];
+  const isProgressive = installmentType === InstallmentTypeEnum.Progressive;
+
+  const progressiveSum = progressiveInstallments.reduce(
+    (sum: number, s: any) => sum + (Number(s?.amount) || 0),
+    0
+  );
 
   // Check if installment payment type is selected
   const showInstallmentSection = paymentTypes.includes(INSTALLMENT_PAYMENT_TYPE);
@@ -95,6 +104,14 @@ export const CourseCreateModal: React.FC<CourseCreateModalProps> = ({
           ...inst,
           dueTime: inst.dueTime ? moment(inst.dueTime).format('YYYY-MM-DD') : '',
         })) || [],
+        progressiveInstallments: fullCourseData.progressiveInstallments?.map((step: CourseProgressiveStep) => ({
+          step: step.step,
+          amount: step.amount,
+          unlockUpToSession: step.unlockUpToSession,
+          intervalDays: step.intervalDays || null,
+          dueTime: step.dueTime ? moment(step.dueTime).format('YYYY/MM/DD') : '',
+          dueDateType: step.dueTime ? 'date' : (step.intervalDays ? 'interval' : 'none'),
+        })) || [],
         discountPercentage: fullCourseData.discountPercentage || 0,
         requiresIdentityVerification: fullCourseData.requiresIdentityVerification ?? false,
         defaultScheduleAsReserveHolder: fullCourseData.defaultScheduleAsReserveHolder ?? false,
@@ -129,15 +146,36 @@ export const CourseCreateModal: React.FC<CourseCreateModalProps> = ({
   const handleSubmit = async () => {
     const values = await form.validateFields();
 
-    // Build installments array for Custom mode
-    let installments: CourseInstallment[] | undefined;
-    if (values.installmentType === InstallmentTypeEnum.Custom && values.installments) {
+    // Build installments array for Custom/Auto mode
+    let installments: CourseInstallment[] | null = null;
+    if (
+      (values.installmentType === InstallmentTypeEnum.Custom ||
+        values.installmentType === InstallmentTypeEnum.Auto) &&
+      values.installments
+    ) {
       installments = values.installments.map((inst: any) => ({
         step: inst.step,
         amount: inst.amount,
         dueTime: inst.dueTime ? moment(inst.dueTime, 'YYYY-MM-DD').toISOString() : null,
       }));
     }
+
+    // Build progressiveInstallments for Progressive mode
+    let progressiveInstallmentsPayload: CourseProgressiveStep[] | null = null;
+    if (values.installmentType === InstallmentTypeEnum.Progressive && values.progressiveInstallments) {
+      progressiveInstallmentsPayload = values.progressiveInstallments.map((step: any, index: number) => ({
+        step: index + 1,
+        amount: step.amount,
+        unlockUpToSession: step.unlockUpToSession,
+        intervalDays: step.dueDateType === 'interval' ? (step.intervalDays || null) : null,
+        dueTime:
+          step.dueDateType === 'date' && step.dueTime
+            ? moment(step.dueTime, 'YYYY/MM/DD').toISOString()
+            : null,
+      }));
+    }
+
+    const isProgressiveMode = values.installmentType === InstallmentTypeEnum.Progressive;
 
     const payload = {
       categoryId: values.categoryId,
@@ -154,9 +192,10 @@ export const CourseCreateModal: React.FC<CourseCreateModalProps> = ({
       daysOfWeeks: values.daysOfWeeks || [],
       progressPercentage: values.progressPercentage || 0,
       installmentType: showInstallmentSection ? values.installmentType : InstallmentTypeEnum.None,
-      installmentCount: values.installmentCount || null,
-      installmentInterval: values.installmentInterval || null,
-      installments,
+      installmentCount: isProgressiveMode ? null : (values.installmentCount || null),
+      installmentInterval: isProgressiveMode ? null : (values.installmentInterval || null),
+      installments: isProgressiveMode ? null : installments,
+      progressiveInstallments: isProgressiveMode ? progressiveInstallmentsPayload : null,
       discountPercentage: values.discountPercentage || 0,
       requiresIdentityVerification: values.requiresIdentityVerification ?? false,
       defaultScheduleAsReserveHolder: values.defaultScheduleAsReserveHolder ?? false,
@@ -194,6 +233,22 @@ export const CourseCreateModal: React.FC<CourseCreateModalProps> = ({
         label: value,
         value: parseInt(key),
       }));
+  };
+
+  const addProgressiveStep = () => {
+    const current = form.getFieldValue('progressiveInstallments') || [];
+    form.setFieldValue('progressiveInstallments', [
+      ...current,
+      { step: current.length + 1, amount: 0, unlockUpToSession: 0, dueDateType: 'none', intervalDays: null, dueTime: '' },
+    ]);
+  };
+
+  const removeProgressiveStep = (index: number) => {
+    const current = form.getFieldValue('progressiveInstallments') || [];
+    form.setFieldValue(
+      'progressiveInstallments',
+      current.filter((_: any, i: number) => i !== index)
+    );
   };
 
   return (
@@ -235,6 +290,7 @@ export const CourseCreateModal: React.FC<CourseCreateModalProps> = ({
             requiresIdentityVerification: false,
             defaultScheduleAsReserveHolder: false,
             installments: [],
+            progressiveInstallments: [],
           }}
         >
           {/* Basic Info Section */}
@@ -450,6 +506,148 @@ export const CourseCreateModal: React.FC<CourseCreateModalProps> = ({
                             </div>
                           </div>
                         ))}
+                      </div>
+                    )}
+                  </Form.List>
+                </div>
+              )}
+
+              {/* Progressive Installments List */}
+              {isProgressive && (
+                <div className="mt-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="text-sm font-medium">مراحل پلکانی</h4>
+                    <div className="flex items-center gap-3">
+                      <span className={`text-xs font-medium ${progressiveSum === price ? 'text-green-600' : 'text-red-500'}`}>
+                        جمع مبالغ: {progressiveSum.toLocaleString('fa-IR')} / {price.toLocaleString('fa-IR')} تومان
+                      </span>
+                      <Button
+                        size="small"
+                        icon={<Plus size={14} />}
+                        onClick={addProgressiveStep}
+                      >
+                        افزودن مرحله
+                      </Button>
+                    </div>
+                  </div>
+
+                  {progressiveSum !== price && progressiveInstallments.length > 0 && (
+                    <Alert
+                      message="جمع مبالغ مراحل باید برابر قیمت دوره باشد"
+                      type="warning"
+                      showIcon
+                      className="mb-3"
+                    />
+                  )}
+
+                  <Form.List name="progressiveInstallments">
+                    {(fields) => (
+                      <div className="space-y-3">
+                        {fields.map((field, index) => {
+                          const dueDateType = form.getFieldValue(['progressiveInstallments', index, 'dueDateType']) || 'none';
+                          const isFirstStep = index === 0;
+                          return (
+                            <div key={field.key} className="bg-white p-3 rounded border space-y-2">
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs font-semibold text-gray-600">مرحله {index + 1}</span>
+                                {!isFirstStep && (
+                                  <Button
+                                    type="text"
+                                    danger
+                                    size="small"
+                                    icon={<Trash2 size={14} />}
+                                    onClick={() => removeProgressiveStep(index)}
+                                  />
+                                )}
+                              </div>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <Form.Item
+                                  {...field}
+                                  name={[field.name, 'amount']}
+                                  label="مبلغ (تومان)"
+                                  rules={[{ required: true, message: 'مبلغ الزامی است' }]}
+                                  className="mb-0"
+                                >
+                                  <InputNumber
+                                    className="w-full"
+                                    min={1}
+                                    placeholder="مبلغ"
+                                    formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                                    parser={(value) => Number(value!.replace(/\$\s?|(,*)/g, '')) as any}
+                                  />
+                                </Form.Item>
+                                <Form.Item
+                                  {...field}
+                                  name={[field.name, 'unlockUpToSession']}
+                                  label="باز شدن تا جلسه"
+                                  rules={[
+                                    { required: true, message: 'الزامی است' },
+                                    { type: 'number', min: 1, message: 'باید بزرگتر از صفر باشد' },
+                                  ]}
+                                  className="mb-0"
+                                >
+                                  <InputNumber className="w-full" min={1} placeholder="مثال: ۵" />
+                                </Form.Item>
+                              </div>
+
+                              {/* Due date — disabled for step 1 */}
+                              {isFirstStep ? (
+                                <p className="text-xs text-gray-400">مرحله اول بلافاصله هنگام خرید پرداخت می‌شود.</p>
+                              ) : (
+                                <div className="space-y-2">
+                                  <Form.Item
+                                    {...field}
+                                    name={[field.name, 'dueDateType']}
+                                    label="نوع سررسید"
+                                    className="mb-0"
+                                    rules={[
+                                      {
+                                        validator: (_, v) =>
+                                          v && v !== 'none'
+                                            ? Promise.resolve()
+                                            : Promise.reject('نوع سررسید را انتخاب کنید'),
+                                      },
+                                    ]}
+                                  >
+                                    <Radio.Group size="small">
+                                      <Radio.Button value="interval">بر اساس فاصله (روز)</Radio.Button>
+                                      <Radio.Button value="date">تاریخ مشخص</Radio.Button>
+                                    </Radio.Group>
+                                  </Form.Item>
+
+                                  {dueDateType === 'interval' && (
+                                    <Form.Item
+                                      {...field}
+                                      name={[field.name, 'intervalDays']}
+                                      label="تعداد روز پس از خرید"
+                                      rules={[{ required: true, message: 'الزامی است' }]}
+                                      className="mb-0"
+                                    >
+                                      <InputNumber className="w-full" min={1} placeholder="مثال: ۳۰" />
+                                    </Form.Item>
+                                  )}
+
+                                  {dueDateType === 'date' && (
+                                    <DatePicker
+                                      placeholder="انتخاب تاریخ سررسید"
+                                      isFormItem
+                                      name={[field.name, 'dueTime']}
+                                      isRequired
+                                      label="تاریخ سررسید"
+                                      disabled={false}
+                                      showTime={false}
+                                    />
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                        {fields.length === 0 && (
+                          <p className="text-center text-sm text-gray-400 py-4">
+                            برای شروع، مرحله اول را اضافه کنید.
+                          </p>
+                        )}
                       </div>
                     )}
                   </Form.List>

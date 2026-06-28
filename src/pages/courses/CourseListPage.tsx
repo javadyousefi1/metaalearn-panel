@@ -7,7 +7,7 @@ import { PageHeader, DataTable } from '@/components/common';
 import { useTable, useAuth } from '@/hooks';
 import { courseService } from '@/services';
 import { Course } from '@/types/course.types';
-import {CoursePaymentType, CourseStatus, CourseType} from "@/enums";
+import {CoursePaymentType, CourseStatus, CourseType, InstallmentType, InstallmentTypeEnum} from "@/enums";
 import { CourseCreateModal } from './CourseCreateModal';
 import { ManualEnrollmentModal } from './ManualEnrollmentModal';
 import { ROUTES } from '@/constants';
@@ -142,6 +142,26 @@ export const CourseListPage: React.FC = () => {
           )}
         </div>
       ),
+    },
+    {
+      title: 'نوع قسط',
+      dataIndex: 'installmentType',
+      key: 'installmentType',
+      align: 'center',
+      render: (type: number, record: Course) => {
+        const hasInstallment = record.paymentTypes?.includes(2);
+        if (!hasInstallment || type == null || type === InstallmentTypeEnum.None) return <Tag color="default">-</Tag>;
+        const colorMap: Record<number, string> = {
+          [InstallmentTypeEnum.Auto]: 'blue',
+          [InstallmentTypeEnum.Custom]: 'purple',
+          [InstallmentTypeEnum.Progressive]: 'orange',
+        };
+        return (
+          <Tag color={colorMap[type] || 'default'}>
+            {InstallmentType[type as keyof typeof InstallmentType] || '-'}
+          </Tag>
+        );
+      },
     },
     {
       title: 'قیمت (تومان)',

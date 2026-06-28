@@ -35,6 +35,7 @@ export const InstallmentType = {
     0: "بدون قسط",
     1: "خودکار",
     2: "سفارشی",
+    3: "پلکانی",
 } as const;
 
 // Enum values for InstallmentType
@@ -42,6 +43,7 @@ export enum InstallmentTypeEnum {
     None = 0,
     Auto = 1,
     Custom = 2,
+    Progressive = 3,
 }
 
 export const CourseScheduleStatus = {

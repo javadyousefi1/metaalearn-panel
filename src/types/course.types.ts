@@ -30,6 +30,14 @@ export interface CourseInstallment {
   dueTime: string; // ISO datetime string
 }
 
+export interface CourseProgressiveStep {
+  step: number;
+  amount: number;
+  unlockUpToSession: number;
+  intervalDays?: number | null;
+  dueTime?: string | null;
+}
+
 export interface Course {
   id: string;
   categoryId?: string;
@@ -51,11 +59,12 @@ export interface Course {
   progressPercentage?: number;
   // Installment fields
   supportsInstallment?: boolean;
-  installmentType?: number; // 0=None, 1=Auto, 2=Custom
+  installmentType?: number; // 0=None, 1=Auto, 2=Custom, 3=Progressive
   installmentCount?: number;
   minimumInstallmentToPay?: number;
   installmentInterval?: number; // Per day (for Auto mode)
-  installments?: CourseInstallment[]; // For Custom mode
+  installments?: CourseInstallment[]; // For Custom/Auto mode
+  progressiveInstallments?: CourseProgressiveStep[]; // For Progressive mode
   discountPercentage?: number;
   requiresIdentityVerification?: boolean;
   enrollmentCount?: number;
@@ -92,10 +101,11 @@ export interface CreateCoursePayload {
   progressPercentage: number;
   // Installment fields
   installmentType?: number;
-  installmentCount?: number;
+  installmentCount?: number | null;
   minimumInstallmentToPay?: number;
-  installmentInterval?: number;
-  installments?: CourseInstallment[];
+  installmentInterval?: number | null;
+  installments?: CourseInstallment[] | null;
+  progressiveInstallments?: CourseProgressiveStep[] | null;
   discountPercentage: number;
   requiresIdentityVerification?: boolean;
 }
@@ -119,10 +129,11 @@ export interface UpdateCoursePayload {
   progressPercentage?: number;
   // Installment fields
   installmentType?: number;
-  installmentCount?: number;
+  installmentCount?: number | null;
   minimumInstallmentToPay?: number;
-  installmentInterval?: number;
-  installments?: CourseInstallment[];
+  installmentInterval?: number | null;
+  installments?: CourseInstallment[] | null;
+  progressiveInstallments?: CourseProgressiveStep[] | null;
   discountPercentage?: number;
   requiresIdentityVerification?: boolean;
   faqs?: CourseFaq[];
