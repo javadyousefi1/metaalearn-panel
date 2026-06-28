@@ -280,8 +280,10 @@ export enum UpdateUserInvoiceActionType {
 export interface UpdateUserInvoicePayload {
   actionType: UpdateUserInvoiceActionType;
   valueId: string;
-  isRejectedByAdmin: boolean;
-  rejectedByAdminMessage: string;
+  isRejectedByAdmin?: boolean | null;
+  rejectedByAdminMessage?: string | null;
+  dueDate?: string | null;
+  amount?: number | null;
 }
 
 // Purchased Courses Types

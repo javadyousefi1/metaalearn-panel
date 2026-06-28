@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Tag, Avatar, Modal, Button, Spin, Empty, Alert, Form, Input, Popconfirm, Space } from 'antd';
-import { Home, UserCircle, Eye, ShieldCheck, ShieldOff } from 'lucide-react';
+import { Tag, Avatar, Modal, Button, Spin, Empty, Alert, Form, Input, Popconfirm, Space, Tooltip } from 'antd';
+import { Home, UserCircle, Eye, ShieldCheck, ShieldOff, Pencil, Check, X } from 'lucide-react';
 import { useParams } from 'react-router-dom';
 import type { ColumnsType } from 'antd/es/table';
 import { PageHeader, DataTable } from '@/components/common';
 import { useTable } from '@/hooks';
-import { useGetUserWithInvoices, useUpdateUserInvoice } from '@/hooks/useUsers';
+import { useGetUserWithInvoices, useUpdateUserInvoice, useUpdateInstallmentDueDate } from '@/hooks/useUsers';
 import { userService } from '@/services';
 import { PurchasedCourseItem } from '@/types/user.types';
 import { UpdateUserInvoiceActionType } from '@/types/user.types';
 import { CoursePaymentType } from '@/enums';
 import { formatPriceWithCurrency } from '@/utils/format';
+import DatePicker from '@/components/datePicker/DatePicker';
+import moment from 'moment-jalaali';
 
 const getPaymentMethodColor = (method: number): string => {
   const colorMap: Record<number, string> = {
@@ -32,7 +34,12 @@ export const CourseInstallmentUsersPage: React.FC = () => {
   const [showRejectForm, setShowRejectForm] = useState(false);
   const [rejectForm] = Form.useForm();
 
+  // Edit due date state: transactionId -> editing | new date value
+  const [editingTransactionId, setEditingTransactionId] = useState<string | null>(null);
+  const [editingDate, setEditingDate] = useState<string>('');
+
   const { updateUserInvoice, isUpdating } = useUpdateUserInvoice();
+  const { updateDueDate, isUpdating: isUpdatingDate } = useUpdateInstallmentDueDate();
 
   const {
     data: purchasedCourses,
@@ -100,6 +107,28 @@ export const CourseInstallmentUsersPage: React.FC = () => {
     });
     setShowRejectForm(false);
     rejectForm.resetFields();
+  };
+
+  const handleEditDueDate = (transactionId: string, currentDueDate: string | null) => {
+    setEditingTransactionId(transactionId);
+    setEditingDate(currentDueDate ? moment(currentDueDate).format('YYYY/MM/DD') : '');
+  };
+
+  const handleSaveDueDate = async (transactionId: string) => {
+    if (!editingDate) return;
+    const isoDate = moment(editingDate, 'YYYY/MM/DD').toISOString();
+    await updateDueDate({
+      actionType: UpdateUserInvoiceActionType.UpdateInvoiceTransaction,
+      valueId: transactionId,
+      dueDate: isoDate,
+    });
+    setEditingTransactionId(null);
+    setEditingDate('');
+  };
+
+  const handleCancelEdit = () => {
+    setEditingTransactionId(null);
+    setEditingDate('');
   };
 
   const columns: ColumnsType<PurchasedCourseItem> = [
@@ -395,6 +424,8 @@ export const CourseInstallmentUsersPage: React.FC = () => {
                     circleColor = 'bg-[#F3EEFF] text-primary'; // Current - primary
                   }
 
+                  const isEditingThis = editingTransactionId === transaction?.id;
+
                   return (
                     <div
                       key={stepNumber}
@@ -414,12 +445,56 @@ export const CourseInstallmentUsersPage: React.FC = () => {
                             <p className="text-xs font-medium">
                               {formatPriceWithCurrency(transaction.amount)}
                             </p>
-                            {transaction.dueDate && (
-                              <p className="mt-1 text-xs text-gray-500">
-                                {new Date(transaction.dueDate).toLocaleDateString(
-                                  'fa-IR',
+
+                            {/* Due date + edit */}
+                            {isEditingThis ? (
+                              <div className="mt-1 flex flex-col items-center gap-1">
+                                <DatePicker
+                                  placeholder="انتخاب تاریخ"
+                                  value={editingDate}
+                                  onChange={(dateStr) => setEditingDate(dateStr)}
+                                  disabled={false}
+                                  showTime={false}
+                                  size={"small"}
+                                />
+                                <div className="flex gap-1 mt-1">
+                                  <Tooltip title="ذخیره">
+                                    <Button
+                                      type="primary"
+                                      size="small"
+                                      icon={<Check size={12} />}
+                                      loading={isUpdatingDate}
+                                      onClick={() => handleSaveDueDate(transaction.id)}
+                                    />
+                                  </Tooltip>
+                                  <Tooltip title="انصراف">
+                                    <Button
+                                      size="small"
+                                      icon={<X size={12} />}
+                                      onClick={handleCancelEdit}
+                                    />
+                                  </Tooltip>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="mt-1 flex flex-col items-center gap-1">
+                                {transaction.dueDate && (
+                                  <p className="text-xs text-gray-500">
+                                    {new Date(transaction.dueDate).toLocaleDateString('fa-IR')}
+                                  </p>
                                 )}
-                              </p>
+                                {!isPaid && (
+                                  <Tooltip title="ویرایش تاریخ قسط">
+                                    <Button
+                                      type="text"
+                                      size="small"
+                                      icon={<Pencil size={12} />}
+                                      className="text-gray-400 hover:text-primary"
+                                      onClick={() => handleEditDueDate(transaction.id, transaction.dueDate)}
+                                    />
+                                  </Tooltip>
+                                )}
+                              </div>
                             )}
                           </>
                         )}

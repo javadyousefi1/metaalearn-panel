@@ -39,6 +39,7 @@ function DatePicker(props: Props) {
     format,
       disabled,
       showTime
+      ,size
   } = props;
 
   const dateFormat = format || 'YYYY-MM-DD';
@@ -134,7 +135,7 @@ function DatePicker(props: Props) {
   const Element = (
     <JalaliAntdDatePicker
       className="w-full"
-      size={'large'}
+      size={size || 'large'}
       allowClear={allowClear}
       value={getValue(internalValue).value}
       onChange={handleChange}

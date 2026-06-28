@@ -111,6 +111,29 @@ export const useUpdateUserInvoice = () => {
 };
 
 /**
+ * Custom hook for updating an installment transaction's due date (action 2)
+ */
+export const useUpdateInstallmentDueDate = () => {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: (payload: UpdateUserInvoicePayload) => userService.updateUserInvoice(payload),
+    onSuccess: () => {
+      message.success('تاریخ قسط با موفقیت ویرایش شد');
+      queryClient.invalidateQueries({ queryKey: ['user-with-invoices'] });
+    },
+    onError: () => {
+      message.error('خطا در ویرایش تاریخ قسط');
+    },
+  });
+
+  return {
+    updateDueDate: (data: UpdateUserInvoicePayload) => mutation.mutateAsync(data),
+    isUpdating: mutation.isPending,
+  };
+};
+
+/**
  * Custom hook for getting user with invoices by userId
  * @param userId - The user ID
  * @param enabled - Whether the query should run (optional, defaults to false)
