@@ -4,5 +4,5 @@ rsync -avz --progress \
     --exclude='dist' \
     --exclude='.turbo' \
     --exclude='.next' \
-    /Users/javadyousefi/me/projects/metaalearn-panel \
+    /Users/javadyousefi/me/projects/metaalearn-panel/metaalearn-web-panel.tar.gz \
     root@185.79.97.146:/root/projects

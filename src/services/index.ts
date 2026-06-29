@@ -21,3 +21,4 @@ export * from './management.service';
 export * from './exam.service';
 export * from './certificate.service';
 export * from './discountCode.service';
+export * from './subscription.service';

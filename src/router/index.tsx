@@ -14,6 +14,7 @@ import { BankCardsPage, PaymentInstructionsPage, TransactionsPage, InstallmentsP
 import { NotificationsPage } from '@/pages/notifications';
 import { CertificatesPage } from '@/pages/certificates';
 import { DiscountCodesPage } from '@/pages/discountCodes';
+import { SubscriptionsPage, PurchasedSubscriptionsPage } from '@/pages/subscriptions';
 import { SettingsPage } from '@/pages/settings';
 import { ROUTES } from '@/constants';
 import { Permission } from '@/types';
@@ -232,6 +233,16 @@ export const router = createBrowserRouter([
       {
         path: ROUTES.FINANCE.DISCOUNT_CODES,
         element: <DiscountCodesPage />,
+      },
+
+      // Subscriptions
+      {
+        path: ROUTES.SUBSCRIPTIONS.ROOT,
+        element: <SubscriptionsPage />,
+      },
+      {
+        path: ROUTES.SUBSCRIPTIONS.PURCHASED_PATH,
+        element: <PurchasedSubscriptionsPage />,
       },
 
       // Notifications

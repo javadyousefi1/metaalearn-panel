@@ -113,6 +113,13 @@ export const ROUTES = {
     GALLERY_PATH: '/blogs/:id/gallery',
   },
 
+  // Subscription Routes
+  SUBSCRIPTIONS: {
+    ROOT: '/subscriptions',
+    PURCHASED: (id: string) => `/subscriptions/${id}/purchased`,
+    PURCHASED_PATH: '/subscriptions/:id/purchased',
+  },
+
   // Certificate Routes
   CERTIFICATES: {
     ROOT: '/certificates',

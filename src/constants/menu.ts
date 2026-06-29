@@ -16,6 +16,7 @@ import {
     GraduationCap,
     Award,
     Tag,
+    Star,
     LucideIcon,
 } from 'lucide-react';
 import { ROUTES } from './routes';
@@ -144,6 +145,13 @@ export const MENU_ITEMS: MenuItemConfig[] = [
                 roles: ['super-admin', 'operator-admin'],
             },
         ],
+    },
+    {
+        key: 'subscriptions',
+        path: ROUTES.SUBSCRIPTIONS.ROOT,
+        label: 'اشتراک‌های ویژه',
+        icon: Star,
+        roles: ['super-admin'],
     },
     {
         key: 'finance',
