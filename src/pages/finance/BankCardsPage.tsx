@@ -53,6 +53,7 @@ export const BankCardsPage: React.FC = () => {
 
   // Filter users who have credit cards with the selected status
   const filteredUsers = React.useMemo(() => {
+      return users
     const filterStatus = (filters.CreditCardStatus as CreditCardIdentityStatusType) ?? CreditCardIdentityStatusType.Pending;
 
     return users?.filter((user) => {
