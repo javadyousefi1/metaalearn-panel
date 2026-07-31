@@ -80,8 +80,12 @@ export const useCourseSessions = () => {
         }
       });
     },
-    onSuccess: () => {
-      message.success('فایل با موفقیت آپلود شد');
+    onSuccess: (_, variables) => {
+      if (variables.uploadType === 1) {
+        message.success('ویدیو آپلود شد. پردازش در پس‌زمینه انجام می‌شود');
+      } else {
+        message.success('فایل با موفقیت آپلود شد');
+      }
       setUploadProgress(0);
       queryClient.invalidateQueries({ queryKey: queryKeys.sessions.all });
     },
