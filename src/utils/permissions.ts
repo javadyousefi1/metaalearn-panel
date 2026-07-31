@@ -1,5 +1,19 @@
 import { Permission, User, UserRole } from '@/types';
 
+const getUserRoles = (user: User | null): string[] => {
+  if (!user) return [];
+
+  if (Array.isArray(user.info?.roles) && user.info.roles.length > 0) {
+    return user.info.roles;
+  }
+
+  const rootRoles = (user as User & { roles?: string[] }).roles;
+  return Array.isArray(rootRoles) ? rootRoles : [];
+};
+
+export const isSuperAdminUser = (user: User | null): boolean =>
+  getUserRoles(user).includes(UserRole.SUPER_ADMIN);
+
 /**
  * Check if user has a specific permission
  */
@@ -9,12 +23,12 @@ export const hasPermission = (
 ): boolean => {
   if (!user) return false;
 
-  // Super admin has all permissions
-  if (user.role === UserRole.SUPER_ADMIN) return true;
+  if (isSuperAdminUser(user)) return true;
 
   const permissions = Array.isArray(permission) ? permission : [permission];
+  const userPermissions = (user as User & { permissions?: Permission[] }).permissions ?? [];
 
-  return permissions.some((p) => user.permissions.includes(p));
+  return permissions.some((p) => userPermissions.includes(p));
 };
 
 /**
@@ -25,9 +39,10 @@ export const hasAnyPermission = (
   permissions: Permission[]
 ): boolean => {
   if (!user) return false;
-  if (user.role === UserRole.SUPER_ADMIN) return true;
+  if (isSuperAdminUser(user)) return true;
 
-  return permissions.some((p) => user.permissions.includes(p));
+  const userPermissions = (user as User & { permissions?: Permission[] }).permissions ?? [];
+  return permissions.some((p) => userPermissions.includes(p));
 };
 
 /**
@@ -38,9 +53,10 @@ export const hasAllPermissions = (
   permissions: Permission[]
 ): boolean => {
   if (!user) return false;
-  if (user.role === UserRole.SUPER_ADMIN) return true;
+  if (isSuperAdminUser(user)) return true;
 
-  return permissions.every((p) => user.permissions.includes(p));
+  const userPermissions = (user as User & { permissions?: Permission[] }).permissions ?? [];
+  return permissions.every((p) => userPermissions.includes(p));
 };
 
 /**
@@ -49,8 +65,9 @@ export const hasAllPermissions = (
 export const hasRole = (user: User | null, role: UserRole | UserRole[]): boolean => {
   if (!user) return false;
 
+  const userRoles = getUserRoles(user);
   const roles = Array.isArray(role) ? role : [role];
-  return roles.includes(user.role);
+  return roles.some((r) => userRoles.includes(r));
 };
 
 /**
@@ -76,5 +93,8 @@ export const isRoleHigherThan = (
   role: UserRole
 ): boolean => {
   if (!user) return false;
-  return getRoleLevel(user.role) > getRoleLevel(role);
+
+  const userRoles = getUserRoles(user);
+  const highestUserLevel = Math.max(...userRoles.map((r) => getRoleLevel(r as UserRole)), 0);
+  return highestUserLevel > getRoleLevel(role);
 };

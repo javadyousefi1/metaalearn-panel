@@ -130,6 +130,11 @@ export const ROUTES = {
     ROOT: '/notifications',
   },
 
+  // Management Routes
+  MANAGEMENT: {
+    ROOT: '/management',
+  },
+
   // Settings Routes
   SETTINGS: {
     ROOT: '/settings',
@@ -190,6 +195,7 @@ export const PAGE_TITLES: Record<string, string> = {
   [ROUTES.BLOG.INFO_PATH]: 'اطلاعات مقاله',
   [ROUTES.BLOG.GALLERY_PATH]: 'گالری مقاله',
   [ROUTES.NOTIFICATIONS.ROOT]: 'اعلانات',
+  [ROUTES.MANAGEMENT.ROOT]: 'مدیریت ویدیو',
   [ROUTES.SETTINGS.PROFILE]: 'Profile Settings',
   [ROUTES.SETTINGS.ACCOUNT]: 'Account Settings',
   [ROUTES.SETTINGS.SECURITY]: 'Security Settings',

@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useRef, useMemo } from "react";
-import { Modal, Form, Input, Switch, Select, Space, Alert, Upload, Button, Segmented, message, Progress } from "antd";
-import { Video, FileText, FileEdit, Folder, Upload as UploadIcon, Image } from 'lucide-react';
+import { Modal, Form, Input, Switch, Select, Space, Alert, Upload, Button, Segmented, message, Progress, Popconfirm, Tooltip } from "antd";
+import { Video, FileText, FileEdit, Folder, Upload as UploadIcon, Image, ShieldCheck, RefreshCw } from 'lucide-react';
 import type { UploadFile, SegmentedValue } from 'antd';
 import { useParams } from 'react-router-dom';
 import DatePicker from "@/components/datePicker/DatePicker";
 import type { CourseSession } from "@/types/session.types";
-import { useGetAllSchedules } from '@/hooks';
+import { useGetAllSchedules, useAuth } from '@/hooks';
+import { isSuperAdminUser } from '@/utils';
 import moment from 'moment-jalaali';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -28,6 +29,10 @@ interface CourseSessionModalProps {
   isUploadSuccess?: boolean;
   isUploadError?: boolean;
   onResetUploadState?: () => void;
+  onCheckVideoIntegrity?: (sessionId: string) => Promise<void>;
+  onRenewVideo?: (sessionId: string) => Promise<void>;
+  checkingVideoIntegrity?: boolean;
+  renewingVideo?: boolean;
   session?: CourseSession | null;
   parentId?: string | null;
   level1ParentId?: string | null; // For level 3 sessions
@@ -46,6 +51,10 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
   isUploadSuccess = false,
   isUploadError = false,
   onResetUploadState,
+  onCheckVideoIntegrity,
+  onRenewVideo,
+  checkingVideoIntegrity = false,
+  renewingVideo = false,
   session = null,
   parentId = null,
   level1ParentId = null,
@@ -53,6 +62,8 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
   allSessions = [],
 }) => {
   const { id: courseId } = useParams<{ id: string }>();
+  const { user } = useAuth();
+  const superAdmin = isSuperAdminUser(user ?? null);
   const [form] = Form.useForm();
   const [sessionLevel, setSessionLevel] = useState<1 | 2 | 3>(1);
   const [selectedLevel1, setSelectedLevel1] = useState<string | null>(null);
@@ -584,13 +595,9 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
                   className="mb-4"
                 />
               ) : (
-                <Alert
-                  message="فایل‌های رسانه‌ای جلسه را در این بخش مدیریت کنید"
-                  description="نوع فایل را انتخاب کرده و سپس فایل مورد نظر را آپلود کنید."
-                  type="info"
-                  showIcon
-                  className="mb-4"
-                />
+                <p className="text-sm text-gray-500 mb-4">
+                  ویدیوی موجود را از «جعبه‌ابزار ویدیو» مدیریت کنید؛ برای جایگزینی یا افزودن فایل، از بخش آپلود استفاده کنید.
+                </p>
               )}
 
               {/* Upload Status Alerts */}
@@ -618,37 +625,125 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
                 />
               )}
 
-              {/* Current Files Display */}
-              {session && (
-                <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-                  <h4 className="font-semibold mb-3">فایل‌های فعلی:</h4>
-                  <Space direction="vertical" className="w-full">
-                    {session.hasVideo && (
-                      <div className="flex items-center gap-2">
-                        <Video size={16} className="text-blue-500" />
-                        <span className="text-sm text-gray-600">ویدیو:</span>
-                        <a href={`https://metaalearn.com/course/${courseId}/session?sessionId=${session.id}`} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline text-sm">
-                          مشاهده
-                        </a>
-                      </div>
+              {/* Video toolkit — manage existing video (separate from upload) */}
+              {session?.hasVideo && (
+                <div className="mb-6 rounded-xl border border-indigo-100 bg-gradient-to-l from-indigo-50/80 to-blue-50/40 p-4">
+                  <div className="mb-4 flex items-start gap-3">
+                    <div className="rounded-lg bg-indigo-100 p-2.5 shrink-0">
+                      <Video size={20} className="text-indigo-600" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-800">جعبه‌ابزار ویدیو</h4>
+                      <p className="mt-1 text-xs leading-relaxed text-gray-500">
+                        ابزارهای مدیریت ویدیوی فعلی — مشاهده، بررسی سلامت و بازسازی. این بخش
+                        جدا از آپلود فایل جدید است.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                    <Button
+                      icon={<Video size={16} />}
+                      href={`https://metaalearn.com/course/${courseId}/session?sessionId=${session.id}`}
+                      target="_blank"
+                      className="h-auto py-2.5"
+                    >
+                      مشاهده ویدیو
+                    </Button>
+                    {superAdmin && onCheckVideoIntegrity ? (
+                      <Button
+                        icon={<ShieldCheck size={16} />}
+                        onClick={() => onCheckVideoIntegrity(session.id)}
+                        loading={checkingVideoIntegrity}
+                        block
+                        className="h-auto py-2.5"
+                      >
+                        بررسی سلامت
+                      </Button>
+                    ) : (
+                      <Tooltip title="فقط سوپرادمین">
+                        <span className="inline-block w-full cursor-not-allowed">
+                          <Button
+                            icon={<ShieldCheck size={16} />}
+                            disabled
+                            block
+                            className="pointer-events-none h-auto py-2.5"
+                          >
+                            بررسی سلامت
+                          </Button>
+                        </span>
+                      </Tooltip>
                     )}
-                    {session.fileUrl && (
-                      <div className="flex items-center gap-2">
-                        <FileText size={16} className="text-green-500" />
-                        <span className="text-sm text-gray-600">فایل:</span>
-                        <a href={session.fileUrl.replace("http","https")} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline text-sm">
-                          دانلود
-                        </a>
-                      </div>
+                    {superAdmin && onRenewVideo ? (
+                      <Popconfirm
+                        title="بازسازی ویدیو"
+                        description="ویدیو از روی بخش‌های موجود بازسازی و با فرمت جدید تبدیل می‌شود. آیا ادامه می‌دهید؟"
+                        onConfirm={() => onRenewVideo(session.id)}
+                        okText="بله، بازسازی شود"
+                        cancelText="انصراف"
+                      >
+                        <Button
+                          icon={<RefreshCw size={16} />}
+                          loading={renewingVideo}
+                          className="h-auto w-full py-2.5"
+                        >
+                          بازسازی ویدیو
+                        </Button>
+                      </Popconfirm>
+                    ) : (
+                      <Tooltip title="فقط سوپرادمین">
+                        <span className="inline-block w-full cursor-not-allowed">
+                          <Button
+                            icon={<RefreshCw size={16} />}
+                            disabled
+                            block
+                            className="pointer-events-none h-auto py-2.5"
+                          >
+                            بازسازی ویدیو
+                          </Button>
+                        </span>
+                      </Tooltip>
                     )}
-                    {!session.hasVideo && !session.fileUrl && (
-                      <div className="text-sm text-gray-400">هیچ فایلی آپلود نشده است</div>
-                    )}
-                  </Space>
+                  </div>
                 </div>
               )}
 
-              {/* Upload Type Selection */}
+              {/* Current attachment (non-video) */}
+              {session?.fileUrl && (
+                <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-emerald-100 bg-emerald-50/50 px-4 py-3">
+                  <Space size="small">
+                    <FileText size={18} className="text-emerald-600" />
+                    <div>
+                      <p className="text-sm font-medium text-gray-800">فایل ضمیمه</p>
+                      <p className="text-xs text-gray-500">فایل آپلودشده برای این جلسه</p>
+                    </div>
+                  </Space>
+                  <Button
+                    type="primary"
+                    ghost
+                    icon={<FileText size={16} />}
+                    href={session.fileUrl.replace('http', 'https')}
+                    target="_blank"
+                  >
+                    دانلود
+                  </Button>
+                </div>
+              )}
+
+              {/* Upload new media */}
+              <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50/40 p-4">
+                <div className="mb-4 flex items-start gap-3">
+                  <div className="rounded-lg bg-white p-2.5 shadow-sm shrink-0">
+                    <UploadIcon size={20} className="text-gray-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-800">آپلود فایل جدید</h4>
+                    <p className="mt-1 text-xs text-gray-500">
+                      نوع فایل را انتخاب کنید و فایل جدید را بارگذاری کنید. برای جایگزینی ویدیو،
+                      فایل ویدیوی جدید آپلود کنید.
+                    </p>
+                  </div>
+                </div>
               <Form.Item
                 label="نوع فایل"
                 required
@@ -738,6 +833,7 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
                   />
                 </div>
               )}
+              </div>
             </>
           </div>
         </Form>

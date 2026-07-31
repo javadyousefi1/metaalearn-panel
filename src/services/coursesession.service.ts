@@ -1,5 +1,5 @@
-import { httpService } from './http.service';
-import { CourseSession, CreateSessionPayload, UpdateSessionPayload, SessionListResponse } from '@/types/session.types';
+import { httpService, streamerHttpService } from './http.service';
+import { CourseSession, CreateSessionPayload, UpdateSessionPayload, SessionListResponse, CheckVideoIntegrityResponse, RencodeVideosType } from '@/types/session.types';
 
 /**
  * Course Session Service
@@ -96,5 +96,32 @@ export const courseSessionService = {
       }
     );
     return response.data;
+  },
+
+  /**
+   * Check whether a session's video manifest/segments are intact in storage
+   * @param courseSessionId - Course Session ID
+   * @returns Promise with the integrity check result
+   */
+  checkVideoIntegrity: async (courseSessionId: string): Promise<CheckVideoIntegrityResponse> => {
+    const response = await streamerHttpService.post<CheckVideoIntegrityResponse>(
+      '/Management/CheckHealth',
+      { id: courseSessionId }
+    );
+    return response.data;
+  },
+
+  /**
+   * Enqueue a background job that renews an old video by reconstructing it from
+   * its existing segments and re-converting it through the current transcode
+   * pipeline. Runs in the background - the response only confirms it was queued.
+   * @param courseSessionId - Course Session ID
+   * @returns Promise<void>
+   */
+  renewVideo: async (courseSessionId: string): Promise<void> => {
+    await streamerHttpService.post('/Management/Rencode', {
+      type: RencodeVideosType.CourseSession,
+      id: courseSessionId,
+    });
   },
 };

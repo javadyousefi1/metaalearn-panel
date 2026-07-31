@@ -12,6 +12,7 @@ import { CategoriesPage, SubCategoriesPage } from '@/pages/categories';
 import { BlogListPage, BlogCategoryPage, BlogDetailPage, BlogInfoPage, BlogGalleryPage } from '@/pages/blogs';
 import { BankCardsPage, PaymentInstructionsPage, TransactionsPage, InstallmentsPage, CourseInstallmentUsersPage } from '@/pages/finance';
 import { NotificationsPage } from '@/pages/notifications';
+import { ManagementPage } from '@/pages/management';
 import { CertificatesPage } from '@/pages/certificates';
 import { DiscountCodesPage } from '@/pages/discountCodes';
 import { SubscriptionsPage, PurchasedSubscriptionsPage } from '@/pages/subscriptions';
@@ -249,6 +250,12 @@ export const router = createBrowserRouter([
       {
         path: ROUTES.NOTIFICATIONS.ROOT,
         element: <NotificationsPage />,
+      },
+
+      // Video Management (super-admin only, enforced by the backend endpoints)
+      {
+        path: ROUTES.MANAGEMENT.ROOT,
+        element: <ManagementPage />,
       },
 
       // Settings

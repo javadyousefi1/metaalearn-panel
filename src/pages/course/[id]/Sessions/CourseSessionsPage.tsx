@@ -2,10 +2,12 @@ import React, { useState, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { Card, Empty, Button, Collapse, Popconfirm, Space, Tag, Descriptions } from 'antd';
 import { Calendar, Plus, Trash2, Edit, Clock, FileText, Video } from 'lucide-react';
-import { useGetAllSessions, useCourseSessions } from '@/hooks';
+import { useGetAllSessions, useCourseSessions, useAuth } from '@/hooks';
+import { VideoIntegrityResultModal } from '@/components/common';
+import type { CheckVideoIntegrityResponse } from '@/types/session.types';
 import { CourseSessionModal } from './CourseSessionModal';
 import type { CourseSession } from '@/types/session.types';
-import { formatDate } from '@/utils';
+import { formatDate, isSuperAdminUser } from '@/utils';
 
 export const CourseSessionsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -15,11 +17,19 @@ export const CourseSessionsPage: React.FC = () => {
   const [selectedLevel1ParentId, setSelectedLevel1ParentId] = useState<string | null>(null);
 
   const { data: allSessions = [], refetch, isLoading } = useGetAllSessions(true, {courseId:id});
+  const { user } = useAuth();
+  const superAdmin = isSuperAdminUser(user ?? null);
+  const [checkingSessionId, setCheckingSessionId] = useState<string | null>(null);
+  const [renewingSessionId, setRenewingSessionId] = useState<string | null>(null);
+  const [integrityResult, setIntegrityResult] = useState<CheckVideoIntegrityResponse | null>(null);
+
   const {
     createSession,
     updateSession,
     deleteSession,
     uploadFile,
+    checkVideoIntegrity,
+    renewVideo,
     isCreating,
     isUpdating,
     isDeleting,
@@ -170,6 +180,36 @@ export const CourseSessionsPage: React.FC = () => {
   const handleDeleteSession = async (sessionId: string) => {
     await deleteSession(sessionId);
     await refetch();
+  };
+
+  const handleCheckVideoIntegrity = async (sessionId: string) => {
+    if (!superAdmin) return;
+
+    setCheckingSessionId(sessionId);
+    try {
+      const result = await checkVideoIntegrity(sessionId);
+
+      setIntegrityResult(result);
+    } catch {
+      // errors are already surfaced via the mutation's onError toast
+    } finally {
+      setCheckingSessionId(null);
+    }
+  };
+
+  const handleRenewVideo = async (sessionId: string) => {
+    if (!superAdmin) return;
+
+    setRenewingSessionId(sessionId);
+    try {
+      await renewVideo(sessionId);
+      // renew runs as a background job - nothing to refetch yet, the video
+      // url only changes once the job finishes
+    } catch {
+      // errors are already surfaced via the mutation's onError toast
+    } finally {
+      setRenewingSessionId(null);
+    }
   };
 
   // Render session details
@@ -362,15 +402,17 @@ export const CourseSessionsPage: React.FC = () => {
       <Card
         className="shadow-sm"
         extra={
-          <Button
-            type="primary"
-            icon={<Plus size={18} />}
-            onClick={handleAddParentSession}
-            className="shadow-md hover:shadow-lg transition-all"
-            loading={isCreating}
-          >
-            افزودن فصل جدید
-          </Button>
+          <Space>
+            <Button
+              type="primary"
+              icon={<Plus size={18} />}
+              onClick={handleAddParentSession}
+              className="shadow-md hover:shadow-lg transition-all"
+              loading={isCreating}
+            >
+              افزودن فصل جدید
+            </Button>
+          </Space>
         }
         title={
           <div className="flex items-center gap-2">
@@ -418,6 +460,10 @@ export const CourseSessionsPage: React.FC = () => {
         isUploadSuccess={isUploadSuccess}
         isUploadError={isUploadError}
         onResetUploadState={resetUploadState}
+        onCheckVideoIntegrity={handleCheckVideoIntegrity}
+        onRenewVideo={handleRenewVideo}
+        checkingVideoIntegrity={!!editingSession && checkingSessionId === editingSession.id}
+        renewingVideo={!!editingSession && renewingSessionId === editingSession.id}
         session={editingSession}
         parentId={selectedParentId}
         level1ParentId={selectedLevel1ParentId}
@@ -427,6 +473,12 @@ export const CourseSessionsPage: React.FC = () => {
             ? (flatSessions.find(s => s.id === selectedParentId)?.subSessions?.length || 0)
             : parentSessions.length
         }
+      />
+
+      <VideoIntegrityResultModal
+        open={integrityResult !== null}
+        result={integrityResult}
+        onClose={() => setIntegrityResult(null)}
       />
     </div>
   );

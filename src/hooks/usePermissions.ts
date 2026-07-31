@@ -1,4 +1,4 @@
-import { useAuthStore } from '@/store';
+import { useAuth } from './useAuth';
 import { Permission, UserRole } from '@/types';
 import {
   hasPermission,
@@ -13,7 +13,7 @@ import {
  * Provides permission checking utilities
  */
 export const usePermissions = () => {
-  const { user } = useAuthStore();
+  const { user } = useAuth();
 
   return {
     /**

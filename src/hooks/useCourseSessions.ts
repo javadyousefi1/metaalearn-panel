@@ -45,6 +45,25 @@ export const useCourseSessions = () => {
     },
   });
 
+  // Check video integrity mutation
+  const checkVideoIntegrityMutation = useMutation({
+    mutationFn: courseSessionService.checkVideoIntegrity,
+    onError: () => {
+      message.error('خطا در بررسی سلامت ویدیو');
+    },
+  });
+
+  // Renew video mutation - runs as a background job, this only confirms it was queued
+  const renewVideoMutation = useMutation({
+    mutationFn: courseSessionService.renewVideo,
+    onSuccess: () => {
+      message.success('درخواست بازسازی ویدیو ثبت شد و در پس‌زمینه اجرا می‌شود');
+    },
+    onError: () => {
+      message.error('خطا در ثبت درخواست بازسازی ویدیو');
+    },
+  });
+
   // Upload file mutation
   const uploadMutation = useMutation({
     mutationFn: ({ file, courseSessionId, uploadType, onProgress }: {
@@ -89,12 +108,16 @@ export const useCourseSessions = () => {
     updateSession: (data: UpdateSessionPayload) => updateMutation.mutateAsync(data),
     deleteSession: (id: string) => deleteMutation.mutateAsync(id),
     uploadFile,
+    checkVideoIntegrity: (courseSessionId: string) => checkVideoIntegrityMutation.mutateAsync(courseSessionId),
+    renewVideo: (courseSessionId: string) => renewVideoMutation.mutateAsync(courseSessionId),
 
     // Loading states
     isCreating: createMutation.isPending,
     isUpdating: updateMutation.isPending,
     isDeleting: deleteMutation.isPending,
     isUploading: uploadMutation.isPending,
+    isCheckingVideoIntegrity: checkVideoIntegrityMutation.isPending,
+    isRenewingVideo: renewVideoMutation.isPending,
     uploadProgress,
 
     // Upload states

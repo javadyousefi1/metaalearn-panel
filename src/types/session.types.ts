@@ -13,6 +13,7 @@ export interface CourseSession {
   practiceDueTime: string;
   videoUrl: string;
   videoCoverUrl: string | null;
+  hasVideo: boolean;
   fileUrl: string;
   onlineMeetingUrl: string;
   parentId: string | null;
@@ -22,6 +23,35 @@ export interface CourseSession {
   isTopic: boolean;
   createdTime: string;
   updatedTime: string | null;
+}
+
+export interface CheckVideoIntegrityResponse {
+  courseSessionId: string;
+  hasVideo: boolean;
+  manifestExists: boolean;
+  isHealthy: boolean;
+  expectedSegmentCount: number;
+  missingSegmentIndexes: number[];
+  errorMessage: string | null;
+  checkedAtUtc: string;
+}
+
+export enum RencodeVideosType {
+  Course = 1,
+  CourseSession = 2,
+}
+
+export interface RencodeVideosRequest {
+  type: RencodeVideosType;
+  id: string;
+}
+
+export interface RencodeVideoResponse {
+  courseSessionId: string;
+  manifestPath: string;
+  videoWidth: number | null;
+  videoHeight: number | null;
+  bandwidth: number;
 }
 
 export interface CreateSessionPayload {

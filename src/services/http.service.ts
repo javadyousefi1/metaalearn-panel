@@ -29,9 +29,9 @@ interface BackendErrorResponse {
 class HttpService {
   private client: AxiosInstance;
 
-  constructor() {
+  constructor(baseURL: string) {
     this.client = axios.create({
-      baseURL: env.apiBaseUrl,
+      baseURL,
       timeout: env.apiTimeout,
       headers: {
         'Back-Office' : 'true'
@@ -212,4 +212,5 @@ class HttpService {
   }
 }
 
-export const httpService = new HttpService();
+export const httpService = new HttpService(env.apiBaseUrl);
+export const streamerHttpService = new HttpService(env.videoApiBaseUrl);

@@ -1,5 +1,6 @@
 interface EnvConfig {
   apiBaseUrl: string;
+  videoApiBaseUrl: string;
   apiTimeout: number;
   appName: string;
   appVersion: string;
@@ -11,6 +12,7 @@ interface EnvConfig {
 
 export const env: EnvConfig = {
   apiBaseUrl: import.meta.env.VITE_API_BASE_URL || 'https://api.metaalearn.com/api',
+  videoApiBaseUrl: import.meta.env.VITE_VIDEO_API_BASE_URL || 'https://api-streamer.metaalearn.com',
   apiTimeout: Number(import.meta.env.VITE_API_TIMEOUT) || 30000,
   appName: import.meta.env.VITE_APP_NAME || 'MetaaLearn Admin Panel',
   appVersion: import.meta.env.VITE_APP_VERSION || '0.0.1',
