@@ -1,16 +1,96 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { message } from 'antd';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { courseSessionService } from '@/services';
 import { queryKeys } from '@/config';
-import { CreateSessionPayload, UpdateSessionPayload } from '@/types/session.types';
+import { CreateSessionPayload, UpdateSessionPayload, CourseSessionUploadType, VideoProcessingStatusResponse, CourseSessionVideoProcessing } from '@/types/session.types';
+
+const VIDEO_STATUS_POLL_INTERVAL_MS = 10000;
+const MAX_CONSECUTIVE_POLL_FAILURES = 5;
 
 /**
- * Custom hook for course session management with React Query
+ * Custom hook for course session management with React Query.
+ * @param activeSessionId - id of the session currently open in the edit modal (or null). Used to
+ * scope the video-processing status/flags below to that session only - a background poll for a
+ * session the user has since navigated away from keeps running (so its Ready/Failed toast still
+ * fires) but no longer reports itself through isProcessingVideo/isUploadSuccess/videoProcessingStatus
+ * once a different session (or none) is open.
  */
-export const useCourseSessions = () => {
+export const useCourseSessions = (activeSessionId: string | null = null) => {
   const queryClient = useQueryClient();
   const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [videoProcessingStatus, setVideoProcessingStatus] = useState<VideoProcessingStatusResponse | null>(null);
+  const [pollingSessionId, setPollingSessionId] = useState<string | null>(null);
+  const pollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pollFailureCountRef = useRef(0);
+
+  const stopPollingVideoStatus = useCallback(() => {
+    if (pollTimeoutRef.current) {
+      clearTimeout(pollTimeoutRef.current);
+      pollTimeoutRef.current = null;
+    }
+  }, []);
+
+  // Video processing now runs in the background after upload returns, so the UI polls the regular
+  // Get-by-id endpoint (which already embeds `videoProcessing` for backoffice callers - see
+  // GetCourseSessionQueryHandler) until the job reaches Ready/Failed, instead of waiting on the
+  // upload request itself or hitting a dedicated status endpoint.
+  // `initialStatus` seeds state synchronously (before the first network round-trip) so callers
+  // never see a stale/empty status in the render right after starting a poll.
+  const pollVideoProcessingStatus = useCallback((courseSessionId: string, initialStatus?: VideoProcessingStatusResponse) => {
+    stopPollingVideoStatus();
+    pollFailureCountRef.current = 0;
+    setPollingSessionId(courseSessionId);
+    setVideoProcessingStatus(initialStatus ?? {
+      type: 'Upload', status: 'Queued', stage: null, error: null, startTime: null, endTime: null, hasVideo: false,
+    });
+
+    const tick = async () => {
+      try {
+        const session = await courseSessionService.getById(courseSessionId);
+        // This poll only ever tracks the Upload pipeline. videoProcessingLogs is only ever
+        // empty/undefined for non-backoffice callers (see GetCourseSessionQueryHandler) - this hook
+        // is only used from the backoffice, so an Upload entry should always be present here once
+        // an upload has been queued; fall back defensively rather than getting stuck mid-poll.
+        const uploadLog = session.videoProcessingLogs?.find(l => l.type === 'Upload');
+        const status: VideoProcessingStatusResponse = uploadLog
+          ? { ...uploadLog, hasVideo: session.hasVideo }
+          : { type: 'Upload', status: 'None', stage: null, error: null, startTime: null, endTime: null, hasVideo: session.hasVideo };
+
+        pollFailureCountRef.current = 0;
+        setVideoProcessingStatus(status);
+
+        if (status.status === 'Ready') {
+          message.success('ویدیو با موفقیت پردازش شد و آماده پخش است');
+          queryClient.invalidateQueries({ queryKey: queryKeys.sessions.all });
+          return;
+        }
+
+        if (status.status === 'Failed') {
+          message.error(status.error || 'پردازش ویدیو با خطا مواجه شد');
+          queryClient.invalidateQueries({ queryKey: queryKeys.sessions.all });
+          return;
+        }
+
+        pollTimeoutRef.current = setTimeout(tick, VIDEO_STATUS_POLL_INTERVAL_MS);
+      } catch {
+        pollFailureCountRef.current += 1;
+
+        if (pollFailureCountRef.current >= MAX_CONSECUTIVE_POLL_FAILURES) {
+          message.error('امکان دریافت وضعیت پردازش ویدیو وجود ندارد. لطفاً صفحه را تازه‌سازی کنید.');
+          return;
+        }
+
+        // Transient network/API error while polling - keep trying rather than losing the
+        // in-progress state the user is watching, up to MAX_CONSECUTIVE_POLL_FAILURES.
+        pollTimeoutRef.current = setTimeout(tick, VIDEO_STATUS_POLL_INTERVAL_MS);
+      }
+    };
+
+    void tick();
+  }, [queryClient, stopPollingVideoStatus]);
+
+  useEffect(() => stopPollingVideoStatus, [stopPollingVideoStatus]);
 
   // Create course session mutation
   const createMutation = useMutation({
@@ -81,13 +161,17 @@ export const useCourseSessions = () => {
       });
     },
     onSuccess: (_, variables) => {
-      if (variables.uploadType === 1) {
-        message.success('ویدیو آپلود شد. پردازش در پس‌زمینه انجام می‌شود');
+      if (variables.uploadType === CourseSessionUploadType.Video) {
+        // Upload returning success only means the raw file was stored and queued - the HLS
+        // transcode runs in the background, so start polling its status instead of declaring
+        // success here.
+        message.info('ویدیو آپلود شد؛ پردازش آن در پس‌زمینه در حال انجام است');
+        pollVideoProcessingStatus(variables.courseSessionId);
       } else {
         message.success('فایل با موفقیت آپلود شد');
+        queryClient.invalidateQueries({ queryKey: queryKeys.sessions.all });
       }
       setUploadProgress(0);
-      queryClient.invalidateQueries({ queryKey: queryKeys.sessions.all });
     },
     onError: () => {
       message.error('خطا در آپلود فایل');
@@ -102,9 +186,30 @@ export const useCourseSessions = () => {
     [uploadMutation]
   );
 
+  const resumeVideoProcessingIfNeeded = useCallback((session: { id: string; hasVideo: boolean; videoProcessingLogs?: CourseSessionVideoProcessing[] }) => {
+    const uploadLog = session.videoProcessingLogs?.find(l => l.type === 'Upload');
+    if (uploadLog == null) {
+      return;
+    }
+
+    if (uploadLog.status === 'Queued' || uploadLog.status === 'Processing') {
+      pollVideoProcessingStatus(session.id, { ...uploadLog, hasVideo: session.hasVideo });
+    }
+  }, [pollVideoProcessingStatus]);
+
+  // Only resets the upload mutation's own success/error flags (e.g. on modal cancel) - deliberately
+  // does NOT stop the background poll or clear videoProcessingStatus/pollingSessionId, so a
+  // still-running job keeps polling (and still shows its Ready/Failed toast) even after the modal
+  // that started it closes. Session-scoping below (via activeSessionId) is what keeps that from
+  // leaking into whichever session's modal is open when it happens.
   const resetUploadState = useCallback(() => {
     uploadMutation.reset();
   }, [uploadMutation]);
+
+  const isVideoStatusForActiveSession = activeSessionId != null && pollingSessionId === activeSessionId;
+  const scopedVideoProcessingStatus = isVideoStatusForActiveSession ? videoProcessingStatus : null;
+  const isProcessingVideo = scopedVideoProcessingStatus != null
+    && (scopedVideoProcessingStatus.status === 'Queued' || scopedVideoProcessingStatus.status === 'Processing');
 
   return {
     // Mutations
@@ -119,16 +224,24 @@ export const useCourseSessions = () => {
     isCreating: createMutation.isPending,
     isUpdating: updateMutation.isPending,
     isDeleting: deleteMutation.isPending,
-    isUploading: uploadMutation.isPending,
+    isUploading: uploadMutation.isPending || isProcessingVideo,
     isCheckingVideoIntegrity: checkVideoIntegrityMutation.isPending,
     isRenewingVideo: renewVideoMutation.isPending,
     uploadProgress,
 
+    // Video background-processing status, polled after a Video upload is accepted or resumed -
+    // scoped to activeSessionId, see isVideoStatusForActiveSession above.
+    videoProcessingStatus: scopedVideoProcessingStatus,
+    isProcessingVideo,
+    pollingSessionId,
+
     // Upload states
-    isUploadSuccess: uploadMutation.isSuccess,
-    isUploadError: uploadMutation.isError,
+    isUploadSuccess: uploadMutation.isSuccess && !isProcessingVideo
+      && (scopedVideoProcessingStatus == null || scopedVideoProcessingStatus.status === 'Ready'),
+    isUploadError: uploadMutation.isError || scopedVideoProcessingStatus?.status === 'Failed',
     uploadError: uploadMutation.error,
     resetUploadState,
+    resumeVideoProcessingIfNeeded,
   };
 };
 

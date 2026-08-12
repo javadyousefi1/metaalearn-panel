@@ -4,19 +4,31 @@ import { Video, FileText, FileEdit, Folder, Upload as UploadIcon, Image, ShieldC
 import type { UploadFile, SegmentedValue } from 'antd';
 import { useParams } from 'react-router-dom';
 import DatePicker from "@/components/datePicker/DatePicker";
-import type { CourseSession } from "@/types/session.types";
+import { CourseSessionUploadType } from "@/types/session.types";
+import type { CourseSession, VideoProcessingStatusResponse } from "@/types/session.types";
 import { useGetAllSchedules, useAuth } from '@/hooks';
 import { isSuperAdminUser } from '@/utils';
 import moment from 'moment-jalaali';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
-// Upload Type Enum
-enum CourseSessionUploadType {
-  Video = 1,
-  File = 2,
-  VideoCover = 3
-}
+// Background video-processing stage keys reported by ProcessCourseSessionVideoUploadJob, mapped to
+// Persian labels shown next to the upload progress bar while polling.
+const VIDEO_PROCESSING_STAGE_LABELS: Record<string, string> = {
+  Queued: 'در صف پردازش',
+  Starting: 'در حال آماده‌سازی',
+  DownloadingSource: 'در حال آماده‌سازی فایل منبع',
+  Transcoding: 'در حال تبدیل ویدیو',
+  UploadingSegments: 'در حال آپلود بخش‌های ویدیو',
+  Ready: 'آماده پخش',
+  Failed: 'خطا در پردازش',
+};
+
+const getVideoProcessingStageLabel = (stage: string | null | undefined): string =>
+  (stage && VIDEO_PROCESSING_STAGE_LABELS[stage]) || 'در حال پردازش ویدیو...';
+
+// Temporarily off — set to true to re-enable «بازسازی ویدیو» in the video toolkit.
+const RENEW_VIDEO_ENABLED = false;
 
 interface CourseSessionModalProps {
   open: boolean;
@@ -28,6 +40,7 @@ interface CourseSessionModalProps {
   uploadProgress?: number;
   isUploadSuccess?: boolean;
   isUploadError?: boolean;
+  videoProcessingStatus?: VideoProcessingStatusResponse | null;
   onResetUploadState?: () => void;
   onCheckVideoIntegrity?: (sessionId: string) => Promise<void>;
   onRenewVideo?: (sessionId: string) => Promise<void>;
@@ -50,6 +63,7 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
   uploadProgress = 0,
   isUploadSuccess = false,
   isUploadError = false,
+  videoProcessingStatus = null,
   onResetUploadState,
   onCheckVideoIntegrity,
   onRenewVideo,
@@ -603,8 +617,16 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
               {/* Upload Status Alerts */}
               {isUploadSuccess && (
                 <Alert
-                  message="فایل با موفقیت آپلود شد"
-                  description="فایل شما با موفقیت آپلود شد و در لیست فایل‌های فعلی قابل مشاهده است."
+                  message={
+                    uploadType === CourseSessionUploadType.Video
+                      ? 'ویدیو با موفقیت آپلود و پردازش شد'
+                      : 'فایل با موفقیت آپلود شد'
+                  }
+                  description={
+                    uploadType === CourseSessionUploadType.Video
+                      ? 'ویدیوی جلسه آماده پخش است و در جعبه‌ابزار ویدیو قابل مدیریت است.'
+                      : 'فایل شما با موفقیت آپلود شد و در لیست فایل‌های فعلی قابل مشاهده است.'
+                  }
                   type="success"
                   showIcon
                   closable
@@ -616,7 +638,11 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
               {isUploadError && (
                 <Alert
                   message="خطا در آپلود فایل"
-                  description="متأسفانه در آپلود فایل خطایی رخ داد. لطفاً دوباره تلاش کنید."
+                  description={
+                    videoProcessingStatus?.status === 'Failed' && videoProcessingStatus.error
+                      ? videoProcessingStatus.error
+                      : 'متأسفانه در آپلود فایل خطایی رخ داد. لطفاً دوباره تلاش کنید.'
+                  }
                   type="error"
                   showIcon
                   closable
@@ -674,7 +700,7 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
                         </span>
                       </Tooltip>
                     )}
-                    {superAdmin && onRenewVideo ? (
+                    {RENEW_VIDEO_ENABLED && superAdmin && onRenewVideo ? (
                       <Popconfirm
                         title="بازسازی ویدیو"
                         description="ویدیو از روی بخش‌های موجود بازسازی و با فرمت جدید تبدیل می‌شود. آیا ادامه می‌دهید؟"
@@ -691,7 +717,7 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
                         </Button>
                       </Popconfirm>
                     ) : (
-                      <Tooltip title="فقط سوپرادمین">
+                      <Tooltip title={RENEW_VIDEO_ENABLED ? 'فقط سوپرادمین' : 'به‌زودی فعال می‌شود'}>
                         <span className="inline-block w-full cursor-not-allowed">
                           <Button
                             icon={<RefreshCw size={16} />}
@@ -815,22 +841,51 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
                 </Upload>
               </Form.Item>
 
-              {/* Upload Progress */}
-              {uploadLoading && uploadProgress > 0 && (
+              {/* Upload Progress — status text only while preparing (0%); bar once bytes are moving */}
+              {uploadLoading && (
                 <div className="mt-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm text-gray-600">در حال آپلود...</span>
-                    <span className="text-sm font-medium text-primary">{uploadProgress}%</span>
+                  <div
+                    className={`flex items-center mb-2 ${
+                      uploadProgress > 0 ? 'justify-between' : 'justify-start'
+                    }`}
+                  >
+                    <span className="text-sm text-gray-600">
+                      {uploadType === CourseSessionUploadType.Video
+                        ? uploadProgress >= 100
+                          ? getVideoProcessingStageLabel(videoProcessingStatus?.stage)
+                          : 'در حال پردازش ویدیو آپلود شده'
+                        : 'در حال آپلود...'}
+                    </span>
+                    {uploadProgress > 0 && !(uploadType === CourseSessionUploadType.Video && uploadProgress >= 100) && (
+                      <span className="text-sm font-medium text-primary">{uploadProgress}%</span>
+                    )}
                   </div>
-                  <Progress
-                    percent={uploadProgress}
-                    status={uploadProgress === 100 ? 'success' : 'active'}
-                    strokeColor={{
-                      '0%': '#108ee9',
-                      '100%': '#87d068',
-                    }}
-                    showInfo={false}
-                  />
+                  {uploadProgress > 0 && (
+                    <Progress
+                      percent={
+                        uploadType === CourseSessionUploadType.Video && uploadProgress >= 100
+                          ? 100
+                          : uploadProgress
+                      }
+                      status={
+                        uploadType === CourseSessionUploadType.Video && uploadProgress >= 100
+                          ? 'active'
+                          : uploadProgress === 100
+                            ? 'success'
+                            : 'active'
+                      }
+                      strokeColor={{
+                        '0%': '#108ee9',
+                        '100%': '#87d068',
+                      }}
+                      showInfo={false}
+                    />
+                  )}
+                  {uploadType === CourseSessionUploadType.Video && uploadProgress >= 100 && (
+                    <p className="mt-2 text-xs text-gray-400">
+                      آپلود ویدیو در حال تمام شدن است؛ پردازش ویدیو در پس‌زمینه انجام می‌شود.
+                    </p>
+                  )}
                 </div>
               )}
               </div>

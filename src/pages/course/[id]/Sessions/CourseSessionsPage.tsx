@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Card, Empty, Button, Collapse, Popconfirm, Space, Tag, Descriptions } from 'antd';
 import { Calendar, Plus, Trash2, Edit, Clock, FileText, Video } from 'lucide-react';
@@ -37,8 +37,10 @@ export const CourseSessionsPage: React.FC = () => {
     uploadProgress,
     isUploadSuccess,
     isUploadError,
-    resetUploadState
-  } = useCourseSessions();
+    resetUploadState,
+    videoProcessingStatus,
+    resumeVideoProcessingIfNeeded,
+  } = useCourseSessions(editingSession?.id ?? null);
 
   // Flatten all sessions for easier lookup
   const flatSessions = useMemo(() => {
@@ -56,6 +58,25 @@ export const CourseSessionsPage: React.FC = () => {
     });
     return flat;
   }, [allSessions]);
+
+  // Once a background transcode reaches Ready/Failed, invalidateQueries (inside the hook) refetches
+  // the session list, but editingSession is a separate local snapshot that wouldn't otherwise pick
+  // up the fresh hasVideo/videoUrl - re-sync it here so the still-open modal reflects the outcome.
+  useEffect(() => {
+    if (!editingSession || videoProcessingStatus == null) {
+      return;
+    }
+
+    if (videoProcessingStatus.status !== 'Ready' && videoProcessingStatus.status !== 'Failed') {
+      return;
+    }
+
+    const fresh = flatSessions.find(s => s.id === editingSession.id);
+    if (fresh && fresh !== editingSession) {
+      setEditingSession(fresh);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [videoProcessingStatus?.status, flatSessions]);
 
   // API already filters sessions for current course and provides subSessions nested
   const parentSessions = useMemo(() => {
@@ -81,6 +102,7 @@ export const CourseSessionsPage: React.FC = () => {
     setEditingSession(session);
     setSelectedParentId(null);
     setSelectedLevel1ParentId(null);
+    resumeVideoProcessingIfNeeded(session);
     setModalOpen(true);
   };
 
@@ -459,6 +481,7 @@ export const CourseSessionsPage: React.FC = () => {
         uploadProgress={uploadProgress}
         isUploadSuccess={isUploadSuccess}
         isUploadError={isUploadError}
+        videoProcessingStatus={videoProcessingStatus}
         onResetUploadState={resetUploadState}
         onCheckVideoIntegrity={handleCheckVideoIntegrity}
         onRenewVideo={handleRenewVideo}

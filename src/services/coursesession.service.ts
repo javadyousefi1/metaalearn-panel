@@ -1,5 +1,8 @@
 import { httpService, streamerHttpService } from './http.service';
-import { CourseSession, CreateSessionPayload, UpdateSessionPayload, SessionListResponse, CheckVideoIntegrityResponse, RencodeVideosType } from '@/types/session.types';
+import { CourseSession, CreateSessionPayload, UpdateSessionPayload, SessionListResponse, CheckVideoIntegrityResponse, RencodeVideosType, CourseSessionUploadType } from '@/types/session.types';
+
+const VIDEO_UPLOAD_TIMEOUT_MS = 2 * 60 * 60 * 1000; // 2 hours
+const DEFAULT_UPLOAD_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
 
 /**
  * Course Session Service
@@ -84,7 +87,9 @@ export const courseSessionService = {
       '/CourseSession/Upload',
       formData,
       {
-        timeout: 60 * 20 * 1000,
+        timeout: uploadType === CourseSessionUploadType.Video
+          ? VIDEO_UPLOAD_TIMEOUT_MS
+          : DEFAULT_UPLOAD_TIMEOUT_MS,
         onUploadProgress: (progressEvent) => {
           if (progressEvent.total && onUploadProgress) {
             const percentCompleted = Math.round(

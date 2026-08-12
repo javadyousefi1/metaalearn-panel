@@ -23,6 +23,27 @@ export interface CourseSession {
   isTopic: boolean;
   createdTime: string;
   updatedTime: string | null;
+  // At most one entry per type (Upload/ReEncode) - each pipeline's own run is tracked
+  // independently instead of one overwriting the other. Empty/undefined for non-backoffice callers.
+  videoProcessingLogs?: CourseSessionVideoProcessing[];
+}
+
+export type VideoProcessingLogType = 'None' | 'Upload' | 'ReEncode';
+export type VideoProcessingStatusValue = 'None' | 'Queued' | 'Processing' | 'Ready' | 'Failed';
+
+export interface CourseSessionVideoProcessing {
+  type: VideoProcessingLogType;
+  status: VideoProcessingStatusValue;
+  stage: string | null;
+  error: string | null;
+  startTime: string | null;
+  endTime: string | null;
+}
+
+export enum CourseSessionUploadType {
+  Video = 1,
+  File = 2,
+  VideoCover = 3,
 }
 
 export interface CheckVideoIntegrityResponse {
@@ -34,6 +55,10 @@ export interface CheckVideoIntegrityResponse {
   missingSegmentIndexes: number[];
   errorMessage: string | null;
   checkedAtUtc: string;
+}
+
+export interface VideoProcessingStatusResponse extends CourseSessionVideoProcessing {
+  hasVideo: boolean;
 }
 
 export enum RencodeVideosType {
