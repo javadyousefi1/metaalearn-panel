@@ -43,6 +43,44 @@ export interface AllCourseTicketsResponse {
   totalCount: number;
 }
 
+/** Normalize API status (string name or numeric enum) to CourseTicketStatus. */
+export const toCourseTicketStatus = (
+  status: CourseTicketStatus | string | number
+): CourseTicketStatus => {
+  if (typeof status === 'number') {
+    return status as CourseTicketStatus;
+  }
+  if (typeof status === 'string') {
+    switch (status) {
+      case 'Open':
+        return CourseTicketStatus.Open;
+      case 'InProgress':
+        return CourseTicketStatus.InProgress;
+      case 'Answered':
+        return CourseTicketStatus.Answered;
+      case 'Resolved':
+        return CourseTicketStatus.Resolved;
+      case 'Closed':
+        return CourseTicketStatus.Closed;
+      default: {
+        const asNumber = Number(status);
+        return Number.isFinite(asNumber)
+          ? (asNumber as CourseTicketStatus)
+          : CourseTicketStatus.Open;
+      }
+    }
+  }
+  return status;
+};
+
+export const COURSE_TICKET_STATUS_OPTIONS = [
+  { value: CourseTicketStatus.Open, label: 'باز' },
+  { value: CourseTicketStatus.InProgress, label: 'در حال بررسی' },
+  { value: CourseTicketStatus.Answered, label: 'پاسخ داده شده' },
+  { value: CourseTicketStatus.Resolved, label: 'حل شده' },
+  { value: CourseTicketStatus.Closed, label: 'بسته شده' },
+] as const;
+
 // Helper functions for status display
 export const getCourseTicketStatusName = (status: CourseTicketStatus | string): string => {
   if (typeof status === 'string') {

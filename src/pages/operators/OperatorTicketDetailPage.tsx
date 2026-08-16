@@ -1,13 +1,13 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Card, Avatar, Spin, Button, Empty, Input, Upload, message, Popconfirm, Modal, Space, Tag, Descriptions } from "antd";
+import { Card, Avatar, Spin, Button, Empty, Input, Upload, message, Popconfirm, Modal, Space, Tag, Descriptions, Select } from "antd";
 import { Home, UserCircle, Send, Paperclip, X, Edit2, Trash2, XCircle, BookOpen } from "lucide-react";
 import { PageHeader } from "@/components/common";
 import { useCourseTicketMessages, useCourseTicketDetail } from "@/hooks";
 import { formatDate } from "@/utils";
 import type { UploadFile } from "antd";
 import type { CourseTicketMessage } from "@/types/courseTicket.types";
-import { CourseTicketStatus, getCourseTicketStatusName, getCourseTicketStatusColor } from "@/types/courseTicket.types";
+import { CourseTicketStatus, toCourseTicketStatus, COURSE_TICKET_STATUS_OPTIONS } from "@/types/courseTicket.types";
 import { courseTicketService } from "@/services/courseTicket.service";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
@@ -64,6 +64,21 @@ export const OperatorTicketDetailPage: React.FC = () => {
     },
     onError: () => {
       message.error("خطا در بستن تیکت");
+    },
+  });
+
+  const updateStatusMutation = useMutation({
+    mutationFn: async (status: CourseTicketStatus) => {
+      if (!id) throw new Error("Course Ticket ID not found");
+      await courseTicketService.update({ id, status });
+    },
+    onSuccess: () => {
+      message.success("وضعیت تیکت به‌روزرسانی شد");
+      queryClient.invalidateQueries({ queryKey: ["course-ticket-detail", id] });
+      queryClient.invalidateQueries({ queryKey: ["course-tickets"] });
+    },
+    onError: () => {
+      message.error("خطا در تغییر وضعیت تیکت");
     },
   });
 
@@ -251,9 +266,18 @@ export const OperatorTicketDetailPage: React.FC = () => {
               <span className="font-medium text-gray-900">{ticketDetail.title}</span>
             </Descriptions.Item>
             <Descriptions.Item label="وضعیت">
-              <Tag color={getCourseTicketStatusColor(ticketDetail.status)} className="text-xs">
-                {getCourseTicketStatusName(ticketDetail.status)}
-              </Tag>
+              <div className="w-full max-w-full sm:max-w-[200px]">
+                <Select
+                  size="small"
+                  className="w-full"
+                  popupMatchSelectWidth={false}
+                  value={toCourseTicketStatus(ticketDetail.status)}
+                  loading={updateStatusMutation.isPending}
+                  disabled={updateStatusMutation.isPending}
+                  options={[...COURSE_TICKET_STATUS_OPTIONS]}
+                  onChange={(value) => updateStatusMutation.mutate(value)}
+                />
+              </div>
             </Descriptions.Item>
             <Descriptions.Item label="کاربر">
               <div className="flex items-center gap-1.5 sm:gap-2">

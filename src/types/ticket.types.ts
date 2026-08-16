@@ -120,6 +120,40 @@ export const getTicketTypeColor = (type: TicketType | string): string => {
   }
 };
 
+/** Normalize API status (string name or numeric enum) to TicketStatus. */
+export const toTicketStatus = (status: TicketStatus | string | number): TicketStatus => {
+  if (typeof status === 'number') {
+    return status as TicketStatus;
+  }
+  if (typeof status === 'string') {
+    switch (status) {
+      case 'Open':
+        return TicketStatus.Open;
+      case 'InProgress':
+        return TicketStatus.InProgress;
+      case 'Answered':
+        return TicketStatus.Answered;
+      case 'Resolved':
+        return TicketStatus.Resolved;
+      case 'Closed':
+        return TicketStatus.Closed;
+      default: {
+        const asNumber = Number(status);
+        return Number.isFinite(asNumber) ? (asNumber as TicketStatus) : TicketStatus.Open;
+      }
+    }
+  }
+  return status;
+};
+
+export const TICKET_STATUS_OPTIONS = [
+  { value: TicketStatus.Open, label: 'باز' },
+  { value: TicketStatus.InProgress, label: 'در حال بررسی' },
+  { value: TicketStatus.Answered, label: 'پاسخ داده شده' },
+  { value: TicketStatus.Resolved, label: 'حل شده' },
+  { value: TicketStatus.Closed, label: 'بسته شده' },
+] as const;
+
 // Helper functions for ticket status display
 export const getTicketStatusName = (status: TicketStatus | string): string => {
   if (typeof status === 'string') {
