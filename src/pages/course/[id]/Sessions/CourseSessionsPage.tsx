@@ -30,6 +30,7 @@ export const CourseSessionsPage: React.FC = () => {
     uploadFile,
     checkVideoIntegrity,
     renewVideo,
+    attachSharedVideo,
     isCreating,
     isUpdating,
     isDeleting,
@@ -40,6 +41,7 @@ export const CourseSessionsPage: React.FC = () => {
     resetUploadState,
     videoProcessingStatus,
     resumeVideoProcessingIfNeeded,
+    isAttachingSharedVideo,
   } = useCourseSessions(editingSession?.id ?? null);
 
   // Flatten all sessions for easier lookup
@@ -193,6 +195,31 @@ export const CourseSessionsPage: React.FC = () => {
       });
 
       const updatedSession = freshSessions.find(s => s.id === sessionId);
+      if (updatedSession) {
+        setEditingSession(updatedSession);
+      }
+    }
+  };
+
+  const handleAttachSharedVideo = async (sourceSessionId: string) => {
+    if (!editingSession) return;
+
+    await attachSharedVideo(editingSession.id, sourceSessionId);
+    const result = await refetch();
+
+    if (result.data) {
+      const freshSessions: CourseSession[] = [];
+      (result.data as CourseSession[]).forEach(parent => {
+        freshSessions.push(parent);
+        parent.subSessions?.forEach(child => {
+          freshSessions.push(child);
+          if (child.subSessions) {
+            freshSessions.push(...child.subSessions);
+          }
+        });
+      });
+
+      const updatedSession = freshSessions.find(s => s.id === editingSession.id);
       if (updatedSession) {
         setEditingSession(updatedSession);
       }
@@ -476,6 +503,7 @@ export const CourseSessionsPage: React.FC = () => {
         onClose={handleModalClose}
         onSubmit={handleSubmitSession}
         onUploadMedia={handleUploadMedia}
+        onAttachSharedVideo={handleAttachSharedVideo}
         loading={isCreating || isUpdating}
         uploadLoading={isUploading}
         uploadProgress={uploadProgress}
@@ -487,6 +515,7 @@ export const CourseSessionsPage: React.FC = () => {
         onRenewVideo={handleRenewVideo}
         checkingVideoIntegrity={!!editingSession && checkingSessionId === editingSession.id}
         renewingVideo={!!editingSession && renewingSessionId === editingSession.id}
+        attachingSharedVideo={isAttachingSharedVideo}
         session={editingSession}
         parentId={selectedParentId}
         level1ParentId={selectedLevel1ParentId}

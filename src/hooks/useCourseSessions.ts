@@ -144,6 +144,21 @@ export const useCourseSessions = (activeSessionId: string | null = null) => {
     },
   });
 
+  const attachSharedVideoMutation = useMutation({
+    mutationFn: ({ targetSessionId, sourceSessionId }: { targetSessionId: string; sourceSessionId: string }) =>
+      courseSessionService.update({
+        id: targetSessionId,
+        linkVideoFromSessionId: sourceSessionId,
+      }),
+    onSuccess: () => {
+      message.success('ویدیوی مشترک با موفقیت به این جلسه متصل شد');
+      queryClient.invalidateQueries({ queryKey: queryKeys.sessions.all });
+    },
+    onError: () => {
+      message.error('خطا در اتصال ویدیوی مشترک');
+    },
+  });
+
   // Upload file mutation
   const uploadMutation = useMutation({
     mutationFn: ({ file, courseSessionId, uploadType, onProgress }: {
@@ -219,6 +234,8 @@ export const useCourseSessions = (activeSessionId: string | null = null) => {
     uploadFile,
     checkVideoIntegrity: (courseSessionId: string) => checkVideoIntegrityMutation.mutateAsync(courseSessionId),
     renewVideo: (courseSessionId: string) => renewVideoMutation.mutateAsync(courseSessionId),
+    attachSharedVideo: (targetSessionId: string, sourceSessionId: string) =>
+      attachSharedVideoMutation.mutateAsync({ targetSessionId, sourceSessionId }),
 
     // Loading states
     isCreating: createMutation.isPending,
@@ -227,6 +244,7 @@ export const useCourseSessions = (activeSessionId: string | null = null) => {
     isUploading: uploadMutation.isPending || isProcessingVideo,
     isCheckingVideoIntegrity: checkVideoIntegrityMutation.isPending,
     isRenewingVideo: renewVideoMutation.isPending,
+    isAttachingSharedVideo: attachSharedVideoMutation.isPending,
     uploadProgress,
 
     // Video background-processing status, polled after a Video upload is accepted or resumed -

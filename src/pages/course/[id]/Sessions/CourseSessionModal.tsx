@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import { Modal, Form, Input, Switch, Select, Space, Alert, Upload, Button, Segmented, message, Progress, Popconfirm, Tooltip } from "antd";
-import { Video, FileText, FileEdit, Folder, Upload as UploadIcon, Image, ShieldCheck, RefreshCw } from 'lucide-react';
+import { Video, FileText, FileEdit, Folder, Upload as UploadIcon, Image, ShieldCheck, RefreshCw, Link2 } from 'lucide-react';
 import type { UploadFile, SegmentedValue } from 'antd';
 import { useParams } from 'react-router-dom';
 import DatePicker from "@/components/datePicker/DatePicker";
@@ -11,6 +11,7 @@ import { isSuperAdminUser } from '@/utils';
 import moment from 'moment-jalaali';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import { LinkExistingSessionVideo } from './LinkExistingSessionVideo';
 
 // Background video-processing stage keys reported by ProcessCourseSessionVideoUploadJob, mapped to
 // Persian labels shown next to the upload progress bar while polling.
@@ -30,6 +31,8 @@ const getVideoProcessingStageLabel = (stage: string | null | undefined): string 
 // Temporarily off — set to true to re-enable «بازسازی ویدیو» in the video toolkit.
 const RENEW_VIDEO_ENABLED = false;
 
+type MediaSourceMode = 'upload' | 'reuse';
+
 interface CourseSessionModalProps {
   open: boolean;
   onClose: () => void;
@@ -44,8 +47,10 @@ interface CourseSessionModalProps {
   onResetUploadState?: () => void;
   onCheckVideoIntegrity?: (sessionId: string) => Promise<void>;
   onRenewVideo?: (sessionId: string) => Promise<void>;
+  onAttachSharedVideo?: (sourceSessionId: string) => Promise<void>;
   checkingVideoIntegrity?: boolean;
   renewingVideo?: boolean;
+  attachingSharedVideo?: boolean;
   session?: CourseSession | null;
   parentId?: string | null;
   level1ParentId?: string | null; // For level 3 sessions
@@ -67,8 +72,10 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
   onResetUploadState,
   onCheckVideoIntegrity,
   onRenewVideo,
+  onAttachSharedVideo,
   checkingVideoIntegrity = false,
   renewingVideo = false,
+  attachingSharedVideo = false,
   session = null,
   parentId = null,
   level1ParentId = null,
@@ -84,6 +91,8 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
   const [selectedLevel2, setSelectedLevel2] = useState<string | null>(null);
   const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [uploadType, setUploadType] = useState<CourseSessionUploadType>(CourseSessionUploadType.Video);
+  const [mediaSourceMode, setMediaSourceMode] = useState<MediaSourceMode>('upload');
+  const [reuseSourceSessionId, setReuseSourceSessionId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<SegmentedValue>('info');
   const quillRef = useRef<ReactQuill>(null);
   // Fetch course schedules
@@ -260,6 +269,8 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
     setSelectedLevel2(null);
     setFileList([]);
     setUploadType(CourseSessionUploadType.Video);
+    setMediaSourceMode('upload');
+    setReuseSourceSessionId(null);
 
     // Clear Quill content
     if (quillRef.current) {
@@ -285,6 +296,21 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
     setUploadType(CourseSessionUploadType.Video);
   };
 
+  const handleAttachSharedVideo = async () => {
+    if (!session?.id || !onAttachSharedVideo) {
+      message.warning('لطفاً ابتدا جلسه را ایجاد کنید');
+      return;
+    }
+
+    if (!reuseSourceSessionId) {
+      message.warning('لطفاً جلسه مبدأ را انتخاب کنید');
+      return;
+    }
+
+    await onAttachSharedVideo(reuseSourceSessionId);
+    setReuseSourceSessionId(null);
+  };
+
   const handleCancel = () => {
     form.resetFields();
     setSessionLevel(1);
@@ -292,6 +318,8 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
     setSelectedLevel2(null);
     setFileList([]);
     setUploadType(CourseSessionUploadType.Video);
+    setMediaSourceMode('upload');
+    setReuseSourceSessionId(null);
     setActiveTab('info');
 
     // Clear Quill content
@@ -347,6 +375,17 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
               size="large"
             >
               {session ? "به‌روزرسانی اطلاعات" : "ذخیره جلسه"}
+            </Button>
+          ) : mediaSourceMode === 'reuse' ? (
+            <Button
+              type="primary"
+              onClick={handleAttachSharedVideo}
+              loading={attachingSharedVideo}
+              disabled={!session || !reuseSourceSessionId || !onAttachSharedVideo}
+              size="large"
+              icon={<Link2 size={16} />}
+            >
+              اتصال ویدیو
             </Button>
           ) : (
             <Button
@@ -610,7 +649,7 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
                 />
               ) : (
                 <p className="text-sm text-gray-500 mb-4">
-                  ویدیوی موجود را از «جعبه‌ابزار ویدیو» مدیریت کنید؛ برای جایگزینی یا افزودن فایل، از بخش آپلود استفاده کنید.
+                  ویدیوی موجود را از «جعبه‌ابزار ویدیو» مدیریت کنید؛ برای افزودن یا جایگزینی، از بخش زیر آپلود یا استفاده از ویدیوی موجود را انتخاب کنید.
                 </p>
               )}
 
@@ -700,7 +739,7 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
                         </span>
                       </Tooltip>
                     )}
-                    {RENEW_VIDEO_ENABLED && superAdmin && onRenewVideo ? (
+                    {RENEW_VIDEO_ENABLED && superAdmin && onRenewVideo && !session.linkedVideoSource ? (
                       <Popconfirm
                         title="بازسازی ویدیو"
                         description="ویدیو از روی بخش‌های موجود بازسازی و با فرمت جدید تبدیل می‌شود. آیا ادامه می‌دهید؟"
@@ -717,7 +756,15 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
                         </Button>
                       </Popconfirm>
                     ) : (
-                      <Tooltip title={RENEW_VIDEO_ENABLED ? 'فقط سوپرادمین' : 'به‌زودی فعال می‌شود'}>
+                      <Tooltip
+                        title={
+                          session.linkedVideoSource
+                            ? 'برای ویدیوی مشترک در دسترس نیست'
+                            : RENEW_VIDEO_ENABLED
+                              ? 'فقط سوپرادمین'
+                              : 'به‌زودی فعال می‌شود'
+                        }
+                      >
                         <span className="inline-block w-full cursor-not-allowed">
                           <Button
                             icon={<RefreshCw size={16} />}
@@ -756,138 +803,174 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
                 </div>
               )}
 
-              {/* Upload new media */}
+              {/* Single media source card: upload OR reuse via dropdown */}
               <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50/40 p-4">
                 <div className="mb-4 flex items-start gap-3">
                   <div className="rounded-lg bg-white p-2.5 shadow-sm shrink-0">
-                    <UploadIcon size={20} className="text-gray-600" />
+                    {mediaSourceMode === 'reuse'
+                      ? <Link2 size={20} className="text-gray-600" />
+                      : <UploadIcon size={20} className="text-gray-600" />}
                   </div>
                   <div>
-                    <h4 className="font-semibold text-gray-800">آپلود فایل جدید</h4>
+                    <h4 className="font-semibold text-gray-800">افزودن یا جایگزینی فایل</h4>
                     <p className="mt-1 text-xs text-gray-500">
-                      نوع فایل را انتخاب کنید و فایل جدید را بارگذاری کنید. برای جایگزینی ویدیو،
-                      فایل ویدیوی جدید آپلود کنید.
+                      آپلود فایل جدید، یا استفاده از ویدیویی که قبلاً برای جلسه دیگری آپلود شده است.
                     </p>
                   </div>
                 </div>
-              <Form.Item
-                label="نوع فایل"
-                required
-              >
-                <Select
-                  value={uploadType}
-                  onChange={setUploadType}
-                  size="large"
-                  disabled={!session}
-                >
-                  <Select.Option value={CourseSessionUploadType.Video}>
-                    <Space>
-                      <Video size={16} />
-                      <span>ویدیو</span>
-                    </Space>
-                  </Select.Option>
-                  <Select.Option value={CourseSessionUploadType.File}>
-                    <Space>
-                      <FileText size={16} />
-                      <span>فایل ضمیمه</span>
-                    </Space>
-                  </Select.Option>
-                  <Select.Option value={CourseSessionUploadType.VideoCover}>
-                    <Space>
-                      <Image size={16} />
-                      <span>کاور ویدیو</span>
-                    </Space>
-                  </Select.Option>
-                </Select>
-              </Form.Item>
 
-              {/* File Upload */}
-              <Form.Item
-                label="انتخاب فایل"
-                required
-              >
-                <Upload
-                  fileList={fileList}
-                  onChange={({ fileList }) => setFileList(fileList)}
-                  beforeUpload={() => false}
-                  maxCount={1}
-                  accept={
-                    uploadType === CourseSessionUploadType.Video
-                      ? 'video/*'
-                      : uploadType === CourseSessionUploadType.VideoCover
-                      ? 'image/*'
-                      : '*'
-                  }
-                  disabled={!session || uploadLoading}
-                >
-                  <Button
-                    icon={
-                      uploadType === CourseSessionUploadType.Video
-                        ? <Video size={16} />
-                        : uploadType === CourseSessionUploadType.VideoCover
-                        ? <Image size={16} />
-                        : <FileText size={16} />
-                    }
+                <Form.Item label="نحوه افزودن" required>
+                  <Select
+                    value={mediaSourceMode}
+                    onChange={(value: MediaSourceMode) => {
+                      setMediaSourceMode(value);
+                      setReuseSourceSessionId(null);
+                      if (value === 'reuse') {
+                        setFileList([]);
+                      }
+                    }}
                     size="large"
-                    block
-                    disabled={!session || uploadLoading}
+                    disabled={!session}
                   >
-                    {uploadType === CourseSessionUploadType.Video
-                      ? 'انتخاب ویدیو'
-                      : uploadType === CourseSessionUploadType.VideoCover
-                      ? 'انتخاب تصویر کاور'
-                      : 'انتخاب فایل'}
-                  </Button>
-                </Upload>
-              </Form.Item>
-
-              {/* Upload Progress — status text only while preparing (0%); bar once bytes are moving */}
-              {uploadLoading && (
-                <div className="mt-4">
-                  <div
-                    className={`flex items-center mb-2 ${
-                      uploadProgress > 0 ? 'justify-between' : 'justify-start'
-                    }`}
-                  >
-                    <span className="text-sm text-gray-600">
-                      {uploadType === CourseSessionUploadType.Video
-                        ? uploadProgress >= 100
-                          ? getVideoProcessingStageLabel(videoProcessingStatus?.stage)
-                          : 'در حال پردازش ویدیو آپلود شده'
-                        : 'در حال آپلود...'}
-                    </span>
-                    {uploadProgress > 0 && !(uploadType === CourseSessionUploadType.Video && uploadProgress >= 100) && (
-                      <span className="text-sm font-medium text-primary">{uploadProgress}%</span>
+                    <Select.Option value="upload">
+                      <Space>
+                        <UploadIcon size={16} />
+                        <span>آپلود فایل جدید</span>
+                      </Space>
+                    </Select.Option>
+                    {onAttachSharedVideo && (
+                      <Select.Option value="reuse">
+                        <Space>
+                          <Link2 size={16} />
+                          <span>استفاده از ویدیوی موجود</span>
+                        </Space>
+                      </Select.Option>
                     )}
-                  </div>
-                  {uploadProgress > 0 && (
-                    <Progress
-                      percent={
-                        uploadType === CourseSessionUploadType.Video && uploadProgress >= 100
-                          ? 100
-                          : uploadProgress
-                      }
-                      status={
-                        uploadType === CourseSessionUploadType.Video && uploadProgress >= 100
-                          ? 'active'
-                          : uploadProgress === 100
-                            ? 'success'
-                            : 'active'
-                      }
-                      strokeColor={{
-                        '0%': '#108ee9',
-                        '100%': '#87d068',
-                      }}
-                      showInfo={false}
-                    />
-                  )}
-                  {uploadType === CourseSessionUploadType.Video && uploadProgress >= 100 && (
-                    <p className="mt-2 text-xs text-gray-400">
-                      آپلود ویدیو در حال تمام شدن است؛ پردازش ویدیو در پس‌زمینه انجام می‌شود.
-                    </p>
-                  )}
-                </div>
-              )}
+                  </Select>
+                </Form.Item>
+
+                {mediaSourceMode === 'reuse' && session && onAttachSharedVideo ? (
+                  <LinkExistingSessionVideo
+                    targetSessionId={session.id}
+                    linkedVideoSource={session.linkedVideoSource}
+                    loading={attachingSharedVideo}
+                    disabled={uploadLoading}
+                    onSourceSessionChange={setReuseSourceSessionId}
+                  />
+                ) : (
+                  <>
+                    <Form.Item label="نوع فایل" required>
+                      <Select
+                        value={uploadType}
+                        onChange={setUploadType}
+                        size="large"
+                        disabled={!session}
+                      >
+                        <Select.Option value={CourseSessionUploadType.Video}>
+                          <Space>
+                            <Video size={16} />
+                            <span>ویدیو</span>
+                          </Space>
+                        </Select.Option>
+                        <Select.Option value={CourseSessionUploadType.File}>
+                          <Space>
+                            <FileText size={16} />
+                            <span>فایل ضمیمه</span>
+                          </Space>
+                        </Select.Option>
+                        <Select.Option value={CourseSessionUploadType.VideoCover}>
+                          <Space>
+                            <Image size={16} />
+                            <span>کاور ویدیو</span>
+                          </Space>
+                        </Select.Option>
+                      </Select>
+                    </Form.Item>
+
+                    <Form.Item label="انتخاب فایل" required>
+                      <Upload
+                        fileList={fileList}
+                        onChange={({ fileList }) => setFileList(fileList)}
+                        beforeUpload={() => false}
+                        maxCount={1}
+                        accept={
+                          uploadType === CourseSessionUploadType.Video
+                            ? 'video/*'
+                            : uploadType === CourseSessionUploadType.VideoCover
+                            ? 'image/*'
+                            : '*'
+                        }
+                        disabled={!session || uploadLoading}
+                      >
+                        <Button
+                          icon={
+                            uploadType === CourseSessionUploadType.Video
+                              ? <Video size={16} />
+                              : uploadType === CourseSessionUploadType.VideoCover
+                              ? <Image size={16} />
+                              : <FileText size={16} />
+                          }
+                          size="large"
+                          block
+                          disabled={!session || uploadLoading}
+                        >
+                          {uploadType === CourseSessionUploadType.Video
+                            ? 'انتخاب ویدیو'
+                            : uploadType === CourseSessionUploadType.VideoCover
+                            ? 'انتخاب تصویر کاور'
+                            : 'انتخاب فایل'}
+                        </Button>
+                      </Upload>
+                    </Form.Item>
+
+                    {uploadLoading && (
+                      <div className="mt-4">
+                        <div
+                          className={`flex items-center mb-2 ${
+                            uploadProgress > 0 ? 'justify-between' : 'justify-start'
+                          }`}
+                        >
+                          <span className="text-sm text-gray-600">
+                            {uploadType === CourseSessionUploadType.Video
+                              ? uploadProgress >= 100
+                                ? getVideoProcessingStageLabel(videoProcessingStatus?.stage)
+                                : 'در حال پردازش ویدیو آپلود شده'
+                              : 'در حال آپلود...'}
+                          </span>
+                          {uploadProgress > 0 && !(uploadType === CourseSessionUploadType.Video && uploadProgress >= 100) && (
+                            <span className="text-sm font-medium text-primary">{uploadProgress}%</span>
+                          )}
+                        </div>
+                        {uploadProgress > 0 && (
+                          <Progress
+                            percent={
+                              uploadType === CourseSessionUploadType.Video && uploadProgress >= 100
+                                ? 100
+                                : uploadProgress
+                            }
+                            status={
+                              uploadType === CourseSessionUploadType.Video && uploadProgress >= 100
+                                ? 'active'
+                                : uploadProgress === 100
+                                  ? 'success'
+                                  : 'active'
+                            }
+                            strokeColor={{
+                              '0%': '#108ee9',
+                              '100%': '#87d068',
+                            }}
+                            showInfo={false}
+                          />
+                        )}
+                        {uploadType === CourseSessionUploadType.Video && uploadProgress >= 100 && (
+                          <p className="mt-2 text-xs text-gray-400">
+                            آپلود ویدیو در حال تمام شدن است؛ پردازش ویدیو در پس‌زمینه انجام می‌شود.
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </>
+                )}
               </div>
             </>
           </div>

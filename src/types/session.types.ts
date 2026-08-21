@@ -23,9 +23,16 @@ export interface CourseSession {
   isTopic: boolean;
   createdTime: string;
   updatedTime: string | null;
+  // When set, this session reuses another session's HLS video (backoffice only).
+  linkedVideoSource?: LinkedVideoSource | null;
   // At most one entry per type (Upload/ReEncode) - each pipeline's own run is tracked
   // independently instead of one overwriting the other. Empty/undefined for non-backoffice callers.
   videoProcessingLogs?: CourseSessionVideoProcessing[];
+}
+
+export interface LinkedVideoSource {
+  course: { id: string; name: string };
+  session: { id: string; name: string };
 }
 
 export type VideoProcessingLogType = 'None' | 'Upload' | 'ReEncode';
@@ -96,18 +103,21 @@ export interface CreateSessionPayload {
 
 export interface UpdateSessionPayload {
   id: string;
-  courseId: string;
-  name: string;
-  description: string;
-  index: number;
-  occurrenceTime: string;
-  practiceDueTime: string;
-  videoUrl: string;
-  fileUrl: string;
-  onlineMeetingUrl: string;
-  parentId: string | null;
-  isPracticeAvailable: boolean;
-  isTopic: boolean;
+  courseId?: string;
+  name?: string;
+  description?: string;
+  index?: number;
+  occurrenceTime?: string;
+  practiceDueTime?: string;
+  videoUrl?: string;
+  fileUrl?: string;
+  onlineMeetingUrl?: string | null;
+  parentId?: string | null;
+  isPracticeAvailable?: boolean;
+  isTopic?: boolean;
+  courseScheduleIds?: string[] | null;
+  /** Reuse another session's processed video (no re-upload). */
+  linkVideoFromSessionId?: string;
 }
 
 export interface SessionListResponse {
