@@ -151,11 +151,11 @@ export const useCourseSessions = (activeSessionId: string | null = null) => {
         linkVideoFromSessionId: sourceSessionId,
       }),
     onSuccess: () => {
-      message.success('ویدیوی مشترک با موفقیت به این جلسه متصل شد');
+      message.success('ویدیوی جلسات با موفقیت به این جلسه متصل شد');
       queryClient.invalidateQueries({ queryKey: queryKeys.sessions.all });
     },
     onError: () => {
-      message.error('خطا در اتصال ویدیوی مشترک');
+      message.error('خطا در اتصال ویدیوی جلسات');
     },
   });
 

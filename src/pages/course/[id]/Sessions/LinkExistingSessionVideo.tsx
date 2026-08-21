@@ -1,15 +1,14 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Alert, Select, Spin } from 'antd';
+import { Select, Spin } from 'antd';
 import { useQuery } from '@tanstack/react-query';
 import { courseService, courseSessionService } from '@/services';
 import { queryKeys } from '@/config';
-import type { CourseSession, LinkedVideoSource } from '@/types/session.types';
+import type { CourseSession } from '@/types/session.types';
 
 interface LinkExistingSessionVideoProps {
   targetSessionId: string;
   disabled?: boolean;
   loading?: boolean;
-  linkedVideoSource?: LinkedVideoSource | null;
   onSourceSessionChange?: (sourceSessionId: string | null) => void;
 }
 
@@ -35,7 +34,6 @@ export const LinkExistingSessionVideo: React.FC<LinkExistingSessionVideoProps> =
   targetSessionId,
   disabled = false,
   loading = false,
-  linkedVideoSource = null,
   onSourceSessionChange,
 }) => {
   const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
@@ -101,16 +99,6 @@ export const LinkExistingSessionVideo: React.FC<LinkExistingSessionVideoProps> =
 
   return (
     <>
-      {linkedVideoSource && (
-        <Alert
-          type="info"
-          showIcon
-          className="mb-4"
-          message="این جلسه در حال استفاده از ویدیوی مشترک است"
-          description={`منبع فعلی: ${linkedVideoSource.course?.name ?? '—'} / ${linkedVideoSource.session?.name ?? '—'} — انتخاب جلسه جدید یا آپلود ویدیوی جدید، اتصال فعلی را جایگزین می‌کند.`}
-        />
-      )}
-
       <div className="mb-4">
         <label className="mb-1.5 block text-sm text-gray-700">انتخاب دوره</label>
         <Select
@@ -129,7 +117,7 @@ export const LinkExistingSessionVideo: React.FC<LinkExistingSessionVideoProps> =
       </div>
 
       <div>
-        <label className="mb-1.5 block text-sm text-gray-700">انتخاب جلسه دارای ویدیو</label>
+        <label className="mb-1.5 block text-sm text-gray-700">انتخاب جلسه (ویدیو دار)</label>
         {sessionsLoading && selectedCourseId ? (
           <div className="flex justify-center py-3">
             <Spin size="small" />

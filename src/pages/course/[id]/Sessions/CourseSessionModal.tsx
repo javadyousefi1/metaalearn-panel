@@ -649,7 +649,7 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
                 />
               ) : (
                 <p className="text-sm text-gray-500 mb-4">
-                  ویدیوی موجود را از «جعبه‌ابزار ویدیو» مدیریت کنید؛ برای افزودن یا جایگزینی، از بخش زیر آپلود یا استفاده از ویدیوی موجود را انتخاب کنید.
+                  ویدیوی موجود را از «جعبه‌ابزار ویدیو» مدیریت کنید؛ برای افزودن یا جایگزینی، از بخش زیر آپلود یا استفاده از ویدیوی جلسات را انتخاب کنید.
                 </p>
               )}
 
@@ -759,7 +759,7 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
                       <Tooltip
                         title={
                           session.linkedVideoSource
-                            ? 'برای ویدیوی مشترک در دسترس نیست'
+                            ? 'برای ویدیوی جلسات در دسترس نیست'
                             : RENEW_VIDEO_ENABLED
                               ? 'فقط سوپرادمین'
                               : 'به‌زودی فعال می‌شود'
@@ -814,10 +814,27 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
                   <div>
                     <h4 className="font-semibold text-gray-800">افزودن یا جایگزینی فایل</h4>
                     <p className="mt-1 text-xs text-gray-500">
-                      آپلود فایل جدید، یا استفاده از ویدیویی که قبلاً برای جلسه دیگری آپلود شده است.
+                      آپلود فایل جدید، یا استفاده از ویدیوی جلسات.
                     </p>
                   </div>
                 </div>
+
+                {session?.linkedVideoSource && (
+                  <Alert
+                    type="info"
+                    showIcon
+                    className="mb-4"
+                    message="این جلسه در حال استفاده از ویدیوی جلسات است"
+                    description={
+                      <>
+                        منبع فعلی:{' '}
+                        {session.linkedVideoSource.course?.name ?? '—'}
+                        {' / '}
+                        {session.linkedVideoSource.session?.name ?? '—'}
+                      </>
+                    }
+                  />
+                )}
 
                 <Form.Item label="نحوه افزودن" required>
                   <Select
@@ -842,7 +859,7 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
                       <Select.Option value="reuse">
                         <Space>
                           <Link2 size={16} />
-                          <span>استفاده از ویدیوی موجود</span>
+                          <span>استفاده از ویدیوی جلسات</span>
                         </Space>
                       </Select.Option>
                     )}
@@ -852,7 +869,6 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
                 {mediaSourceMode === 'reuse' && session && onAttachSharedVideo ? (
                   <LinkExistingSessionVideo
                     targetSessionId={session.id}
-                    linkedVideoSource={session.linkedVideoSource}
                     loading={attachingSharedVideo}
                     disabled={uploadLoading}
                     onSourceSessionChange={setReuseSourceSessionId}
