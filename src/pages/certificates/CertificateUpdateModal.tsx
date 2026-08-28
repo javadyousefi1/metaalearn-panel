@@ -15,6 +15,7 @@ import { Award, UserCircle } from 'lucide-react';
 import { useGetAllSchedules } from '@/hooks';
 import {
   CertificateListItem,
+  CertificateTemplateType,
   UpdateCertificatePayload,
   UpdateUserCertificateRqType,
   getCertificateStatusName,
@@ -95,8 +96,14 @@ export const CertificateUpdateModal: React.FC<CertificateUpdateModalProps> = ({
     if (open) {
       form.resetFields();
       form.setFieldValue('rqType', UpdateUserCertificateRqType.Verify);
+      if (
+        certificate?.templateType === CertificateTemplateType.Package ||
+        certificate?.templateType === CertificateTemplateType.Normal
+      ) {
+        form.setFieldValue('templateType', certificate.templateType);
+      }
     }
-  }, [open, form]);
+  }, [open, form, certificate]);
 
   const handleSubmit = async () => {
     if (!certificate) return;
@@ -107,6 +114,10 @@ export const CertificateUpdateModal: React.FC<CertificateUpdateModalProps> = ({
         rqType: values.rqType,
         certificateId: certificate.id,
         message: values.message || undefined,
+        templateType:
+          values.rqType === UpdateUserCertificateRqType.Verify
+            ? values.templateType
+            : undefined,
       };
 
       if (values.rqType === UpdateUserCertificateRqType.Verify && schedules?.length) {
@@ -205,6 +216,20 @@ export const CertificateUpdateModal: React.FC<CertificateUpdateModalProps> = ({
             {/* Schedule ratings — only for Verify */}
             {actionType === UpdateUserCertificateRqType.Verify && (
               <>
+                <Form.Item
+                  name="templateType"
+                  label="نوع قالب گواهی"
+                  rules={[{ required: true, message: 'نوع قالب گواهی را انتخاب کنید' }]}
+                >
+                  <Select
+                    placeholder="پکیج یا عادی"
+                    options={[
+                      { value: CertificateTemplateType.Package, label: 'پکیج — دوره به همراه سرفصل‌ها' },
+                      { value: CertificateTemplateType.Normal, label: 'عادی — فقط نام دوره' },
+                    ]}
+                  />
+                </Form.Item>
+
                 <Divider orientation="right" plain style={{ marginTop: 0 }}>
                   نمرات گروه‌بندی‌ها
                 </Divider>

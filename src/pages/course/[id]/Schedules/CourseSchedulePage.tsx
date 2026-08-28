@@ -1,21 +1,63 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Card, Empty, Button, Collapse, Popconfirm, Space, Tag, Avatar, Descriptions } from 'antd';
-import { Users, Plus, Trash2, Edit, Eye, EyeOff, Link } from 'lucide-react';
-import { useGetAllSchedules, useCourseSchedules } from '@/hooks';
+import {
+  Card,
+  Empty,
+  Button,
+  Collapse,
+  Popconfirm,
+  Space,
+  Tag,
+  Avatar,
+  Descriptions,
+  Modal,
+  Select,
+  Radio,
+  Input,
+  Switch,
+} from 'antd';
+import { Users, Plus, Trash2, Edit, Eye, EyeOff, Link, Ban } from 'lucide-react';
+import { useGetAllSchedules, useCourseSchedules, useGetPurchasedCourseUsers, useManagement } from '@/hooks';
 import { CourseScheduleStatus } from '@/enums';
 import { CourseScheduleModal } from './CourseScheduleModal';
 import type { CourseSchedule } from '@/types';
+
+type SyncMode = 'all' | 'selected';
 
 export const CourseSchedulePage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [modalOpen, setModalOpen] = useState(false);
   const [editingSchedule, setEditingSchedule] = useState<CourseSchedule | null>(null);
+  const [enrollModalOpen, setEnrollModalOpen] = useState(false);
+  const [enrollSchedule, setEnrollSchedule] = useState<CourseSchedule | null>(null);
+  const [syncMode, setSyncMode] = useState<SyncMode>('all');
+  const [selectedStudentIds, setSelectedStudentIds] = useState<string[]>([]);
+  const [blockModalOpen, setBlockModalOpen] = useState(false);
+  const [blockSchedule, setBlockSchedule] = useState<CourseSchedule | null>(null);
+  const [isRestrictedByAdmin, setIsRestrictedByAdmin] = useState(false);
+  const [restrictedByAdminMessage, setRestrictedByAdminMessage] = useState('');
 
   const { data: schedules = [], refetch, isLoading } = useGetAllSchedules(
     id ? { CourseId: id, PageIndex: 1, PageSize: 100 } : undefined
   );
-  const { createSchedule, updateSchedule, deleteSchedule, isCreating, isUpdating, isDeleting } = useCourseSchedules();
+  const {
+    createSchedule,
+    updateSchedule,
+    deleteSchedule,
+    isCreating,
+    isUpdating,
+    isDeleting,
+  } = useCourseSchedules();
+  const { syncCourseSessionEnrollments, isSyncingCourseSessionEnrollments } = useManagement();
+
+  const { data: purchasedStudents = [] } = useGetPurchasedCourseUsers(
+    {
+      CourseId: id || '',
+      PageIndex: 1,
+      PageSize: 10000,
+    },
+    !!id && enrollModalOpen && syncMode === 'selected'
+  );
 
   const handleAddSchedule = () => {
     setEditingSchedule(null);
@@ -32,11 +74,67 @@ export const CourseSchedulePage: React.FC = () => {
     setEditingSchedule(null);
   };
 
+  const handleOpenEnrollModal = (schedule: CourseSchedule) => {
+    setEnrollSchedule(schedule);
+    setSyncMode('all');
+    setSelectedStudentIds([]);
+    setEnrollModalOpen(true);
+  };
+
+  const handleCloseEnrollModal = () => {
+    setEnrollModalOpen(false);
+    setEnrollSchedule(null);
+    setSyncMode('all');
+    setSelectedStudentIds([]);
+  };
+
+  const handleOpenBlockModal = (schedule: CourseSchedule) => {
+    setBlockSchedule(schedule);
+    setIsRestrictedByAdmin(!!schedule.isRestrictedByAdmin);
+    setRestrictedByAdminMessage(schedule.restrictedByAdminMessage || '');
+    setBlockModalOpen(true);
+  };
+
+  const handleCloseBlockModal = () => {
+    setBlockModalOpen(false);
+    setBlockSchedule(null);
+    setIsRestrictedByAdmin(false);
+    setRestrictedByAdminMessage('');
+  };
+
+  const handleSaveVideoBlock = async () => {
+    if (!id || !blockSchedule) return;
+    if (isRestrictedByAdmin && !restrictedByAdminMessage.trim()) return;
+
+    await updateSchedule({
+      id: blockSchedule.id,
+      courseId: id,
+      isRestrictedByAdmin,
+      restrictedByAdminMessage: isRestrictedByAdmin ? restrictedByAdminMessage.trim() : null,
+    });
+
+    await refetch();
+    handleCloseBlockModal();
+  };
+
+  const handleSyncEnrollments = async () => {
+    if (!enrollSchedule) return;
+    if (syncMode === 'selected' && selectedStudentIds.length === 0) return;
+
+    await syncCourseSessionEnrollments({
+      scheduleId: enrollSchedule.id,
+      syncAllStudents: syncMode === 'all',
+      ...(syncMode === 'selected' ? { studentIds: selectedStudentIds } : {}),
+    });
+
+    await refetch();
+    handleCloseEnrollModal();
+  };
+
   const handleSubmitSchedule = async (values: any) => {
     if (!id) return;
 
     if (editingSchedule) {
-      // Update existing schedule
       await updateSchedule({
         id: editingSchedule.id,
         courseId: id,
@@ -48,10 +146,9 @@ export const CourseSchedulePage: React.FC = () => {
         instructorIds: values.instructorIds,
         operatorIds: values.operatorIds,
         studentIds: values.studentIds,
-        ...(values.typeId === 1 ? {} : {typeId: values.typeId || null} ),
+        ...(values.typeId === 1 ? {} : { typeId: values.typeId || null }),
       });
     } else {
-      // Create new schedule
       await createSchedule({
         courseId: id,
         name: values.name,
@@ -75,7 +172,6 @@ export const CourseSchedulePage: React.FC = () => {
     await refetch();
   };
 
-  // Render user list with avatars
   const renderUserList = (users: any[], emptyText: string) => {
     if (!users || users.length === 0) {
       return <span className="text-gray-400 text-sm">{emptyText}</span>;
@@ -102,7 +198,6 @@ export const CourseSchedulePage: React.FC = () => {
     );
   };
 
-  // Render schedule details
   const renderScheduleDetails = (schedule: CourseSchedule) => (
     <div className="space-y-4">
       <Descriptions column={1} size="small">
@@ -126,7 +221,7 @@ export const CourseSchedulePage: React.FC = () => {
           <Tag color="purple">{schedule.typeId ?? 0}</Tag>
         </Descriptions.Item>
         <Descriptions.Item label="وضعیت">
-          <Space direction="horizontal" size="small">
+          <Space direction="horizontal" size="small" wrap>
             {schedule.isVisible ? (
               <Tag icon={<Eye size={14} />} color="green">قابل مشاهده</Tag>
             ) : (
@@ -135,6 +230,29 @@ export const CourseSchedulePage: React.FC = () => {
             <Tag color={schedule.status === 0 ? 'blue' : schedule.status === 1 ? 'orange' : 'green'}>
               {CourseScheduleStatus[schedule.status as keyof typeof CourseScheduleStatus] || `وضعیت ${schedule.status}`}
             </Tag>
+            {schedule.isRestrictedByAdmin && (
+              <Tag icon={<Ban size={14} />} color="red">ویدیو مسدود</Tag>
+            )}
+          </Space>
+        </Descriptions.Item>
+        <Descriptions.Item label="مدیریت گروه‌بندی">
+          <Space size="small">
+            {/* tmp: همگام‌سازی disabled until this flow is re-enabled */}
+            <Button
+              size="small"
+              disabled
+              className="select-none"
+              onClick={() => handleOpenEnrollModal(schedule)}
+            >
+              همگام‌سازی
+            </Button>
+            <Button
+              size="small"
+              danger={!!schedule.isRestrictedByAdmin}
+              onClick={() => handleOpenBlockModal(schedule)}
+            >
+              مسدودسازی
+            </Button>
           </Space>
         </Descriptions.Item>
       </Descriptions>
@@ -197,7 +315,6 @@ export const CourseSchedulePage: React.FC = () => {
     </div>
   );
 
-  // Create collapse items from schedules
   const collapseItems = schedules.map((schedule: CourseSchedule) => ({
     key: schedule.id,
     label: (
@@ -210,11 +327,24 @@ export const CourseSchedulePage: React.FC = () => {
           {!schedule.isVisible && (
             <Tag icon={<EyeOff size={12} />} color="default">مخفی</Tag>
           )}
+          {schedule.isRestrictedByAdmin && (
+            <Tag icon={<Ban size={12} />} color="red">ویدیو مسدود</Tag>
+          )}
         </Space>
       </div>
     ),
     children: renderScheduleDetails(schedule),
   }));
+
+  const studentSelectOptions = purchasedStudents.map((student: any) => ({
+    label: student.fullNameFa,
+    value: student.id,
+  }));
+
+  const canSubmit =
+    syncMode === 'all'
+      ? (enrollSchedule?.students?.length || 0) > 0
+      : selectedStudentIds.length > 0;
 
   return (
     <div>
@@ -268,6 +398,128 @@ export const CourseSchedulePage: React.FC = () => {
         schedule={editingSchedule}
         courseId={id || ''}
       />
+
+      <Modal
+        title={
+          enrollSchedule
+            ? `همگام‌سازی — ${enrollSchedule.name}`
+            : 'همگام‌سازی'
+        }
+        open={enrollModalOpen}
+        onCancel={handleCloseEnrollModal}
+        centered
+        destroyOnClose
+        footer={
+          <div className="flex justify-center items-center gap-3">
+            <Button
+              type="primary"
+              className="min-w-[148px]"
+              onClick={handleSyncEnrollments}
+              loading={isSyncingCourseSessionEnrollments}
+              disabled={!canSubmit}
+            >
+              همگام‌سازی
+            </Button>
+            <Button
+              className="min-w-[148px]"
+              onClick={handleCloseEnrollModal}
+              disabled={isSyncingCourseSessionEnrollments}
+            >
+              انصراف
+            </Button>
+          </div>
+        }
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-gray-500">
+            مشارکت جلسات را برای همه دانشجویان گروه یا فقط افراد انتخاب‌شده همگام‌سازی کنید.
+          </p>
+
+          <Radio.Group
+            value={syncMode}
+            onChange={(e) => {
+              setSyncMode(e.target.value);
+              setSelectedStudentIds([]);
+            }}
+            className="flex flex-col gap-2"
+          >
+            <Radio value="all">
+              همه دانشجویان گروه ({enrollSchedule?.students?.length || 0} نفر)
+            </Radio>
+            <Radio value="selected">انتخاب برخی از دانشجویان</Radio>
+          </Radio.Group>
+
+          {syncMode === 'selected' && (
+            <Select
+              mode="multiple"
+              className="w-full"
+              placeholder="انتخاب دانشجو"
+              showSearch
+              optionFilterProp="label"
+              value={selectedStudentIds}
+              onChange={setSelectedStudentIds}
+              options={studentSelectOptions}
+              filterOption={(input, option) =>
+                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+              }
+            />
+          )}
+        </div>
+      </Modal>
+
+      <Modal
+        title={
+          blockSchedule
+            ? `مسدودسازی — ${blockSchedule.name}`
+            : 'مسدودسازی'
+        }
+        open={blockModalOpen}
+        onCancel={handleCloseBlockModal}
+        centered
+        destroyOnClose
+        footer={
+          <div className="flex justify-center items-center gap-3">
+            <Button
+              type="primary"
+              className="min-w-[148px]"
+              onClick={handleSaveVideoBlock}
+              loading={isUpdating}
+              disabled={isRestrictedByAdmin && !restrictedByAdminMessage.trim()}
+            >
+              ذخیره
+            </Button>
+            <Button
+              className="min-w-[148px]"
+              onClick={handleCloseBlockModal}
+              disabled={isUpdating}
+            >
+              انصراف
+            </Button>
+          </div>
+        }
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-gray-500">
+            اگر مسدودسازی فعال باشد، دانشجویان این گروه ویدیوها را نمی‌بینند و پیام زیر به آن‌ها نمایش داده می‌شود.
+          </p>
+          <div className="flex items-center justify-between rounded-lg border border-gray-200 px-3 py-2">
+            <span className="text-sm font-medium text-gray-700">مسدودسازی</span>
+            <Switch checked={isRestrictedByAdmin} onChange={setIsRestrictedByAdmin} />
+          </div>
+          {isRestrictedByAdmin && (
+            <div className="space-y-2">
+              <span className="text-sm font-medium text-gray-700">پیام</span>
+              <Input.TextArea
+                rows={4}
+                maxLength={2000}
+                value={restrictedByAdminMessage}
+                onChange={(e) => setRestrictedByAdminMessage(e.target.value)}
+                placeholder="پیامی که دانشجو به جای ویدیو می‌بیند"
+              />
+            </div>
+          )}
+        </div>
+      </Modal>
     </div>
   );
 };

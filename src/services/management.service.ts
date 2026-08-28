@@ -3,6 +3,8 @@ import {
   RegisterUsersToCourseRqDto,
   RegisterUsersToCourseRsDto,
   SwapPhoneNumberPayload,
+  SyncCourseSessionEnrollmentsPayload,
+  SyncCourseSessionEnrollmentsResponse,
 } from '@/types/management.types';
 import { CheckVideoIntegrityResponse, RencodeVideosType } from '@/types/session.types';
 
@@ -34,6 +36,19 @@ export const managementService = {
    */
   swapPhoneNumber: async (data: SwapPhoneNumberPayload): Promise<void> => {
     await httpService.post('/Management/SwapPhoneNumber', data);
+  },
+
+  /**
+   * Sync course session enrollments (participation) for schedule students
+   */
+  syncCourseSessionEnrollments: async (
+    data: SyncCourseSessionEnrollmentsPayload
+  ): Promise<SyncCourseSessionEnrollmentsResponse> => {
+    const response = await httpService.post<SyncCourseSessionEnrollmentsResponse>(
+      '/Management/SyncCourseSessionEnrollments',
+      data
+    );
+    return response.data;
   },
 
   /**

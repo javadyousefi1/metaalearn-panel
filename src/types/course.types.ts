@@ -43,6 +43,7 @@ export interface Course {
   categoryId?: string;
   category?: CourseCategory;
   name: string;
+  nameEn?: string | null;
   type: number;
   status: number;
   paymentTypes: number[]; // Multi-select payment types
@@ -88,6 +89,7 @@ export interface CourseListResponse {
 export interface CreateCoursePayload {
   categoryId: string;
   name: string;
+  nameEn?: string | null;
   type: number;
   status: number;
   paymentTypes: number[];
@@ -114,6 +116,7 @@ export interface UpdateCoursePayload {
   id: string;
   categoryId?: string;
   name?: string;
+  nameEn?: string | null;
   type?: number;
   status?: number;
   paymentTypes?: number[];

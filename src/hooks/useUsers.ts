@@ -98,6 +98,7 @@ export const useUpdateUserInvoice = () => {
       );
       queryClient.invalidateQueries({ queryKey: ['course-installment-users'] });
       queryClient.invalidateQueries({ queryKey: ['user-with-invoices'] });
+      queryClient.invalidateQueries({ queryKey: ['user-purchased-courses'] });
     },
     onError: () => {
       message.error('خطا در به‌روزرسانی وضعیت دسترسی');

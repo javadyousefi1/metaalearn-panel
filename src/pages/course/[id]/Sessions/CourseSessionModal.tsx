@@ -544,6 +544,17 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
             <Input placeholder="عنوان جلسه را وارد کنید" />
           </Form.Item>
 
+          <Form.Item
+            name="nameEn"
+            label="عنوان انگلیسی جلسه"
+            extra="برای سرفصل‌های انگلیسی گواهی پکیج استفاده می‌شود"
+            rules={[
+              { min: 3, message: "عنوان انگلیسی باید حداقل ۳ کاراکتر باشد" },
+            ]}
+          >
+            <Input placeholder="e.g. Web Development" dir="ltr" />
+          </Form.Item>
+
           {/* Description */}
           <Form.Item
             label="توضیحات"

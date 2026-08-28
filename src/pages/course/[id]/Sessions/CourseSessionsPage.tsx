@@ -124,6 +124,7 @@ export const CourseSessionsPage: React.FC = () => {
         id: editingSession.id,
         courseId: id,
         name: values.name!,
+        nameEn: values.nameEn || null,
         description: values.description!,
         index: values.index ?? editingSession.index,
         occurrenceTime: values.occurrenceTime!,
@@ -153,6 +154,7 @@ export const CourseSessionsPage: React.FC = () => {
       await createSession({
         courseId: id,
         name: values.name!,
+        nameEn: values.nameEn || null,
         description: values.description!,
         index: nextIndex,
         occurrenceTime: values.occurrenceTime!,

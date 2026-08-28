@@ -20,6 +20,8 @@ export interface CourseSchedule {
   status: number;
   typeId?: number;
   onlineMeetingUrl?: string;
+  isRestrictedByAdmin?: boolean;
+  restrictedByAdminMessage?: string | null;
   instructors: ScheduleUser[];
   operators: ScheduleUser[];
   students: ScheduleUser[];
@@ -52,6 +54,8 @@ export interface UpdateCourseSchedulePayload {
   instructorIds?: string[];
   operatorIds?: string[];
   studentIds?: string[];
+  isRestrictedByAdmin?: boolean;
+  restrictedByAdminMessage?: string | null;
 }
 
 export interface CourseScheduleListParams {

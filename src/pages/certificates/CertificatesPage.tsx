@@ -7,9 +7,11 @@ import { useTable, useTableFilters, useCertificates } from '@/hooks';
 import { certificateService } from '@/services';
 import {
   CertificateListItem,
+  CertificateTemplateType,
   UpdateCertificatePayload,
   getCertificateStatusName,
   getCertificateStatusColor,
+  getCertificateTemplateName,
 } from '@/types/certificate.types';
 import { formatDate } from '@/utils';
 import { CertificateUpdateModal } from './CertificateUpdateModal';
@@ -93,6 +95,22 @@ export const CertificatesPage: React.FC = () => {
           {getCertificateStatusName(statusType)}
         </Tag>
       ),
+    },
+    {
+      title: 'قالب',
+      dataIndex: 'templateType',
+      key: 'templateType',
+      width: 100,
+      align: 'center',
+      render: (templateType: number | undefined) =>
+        templateType === CertificateTemplateType.Package ||
+        templateType === CertificateTemplateType.Normal ? (
+          <Tag color={templateType === CertificateTemplateType.Package ? 'purple' : 'default'}>
+            {getCertificateTemplateName(templateType)}
+          </Tag>
+        ) : (
+          <span className="text-gray-400">—</span>
+        ),
     },
     {
       title: 'تاریخ درخواست',

@@ -6,6 +6,23 @@ export enum CertificateStatusType {
   Revoked = 4,
 }
 
+export enum CertificateTemplateType {
+  None = 0,
+  Package = 1,
+  Normal = 2,
+}
+
+export const getCertificateTemplateName = (type: CertificateTemplateType | number): string => {
+  switch (type) {
+    case CertificateTemplateType.Package:
+      return 'پکیج';
+    case CertificateTemplateType.Normal:
+      return 'عادی';
+    default:
+      return 'نامشخص';
+  }
+};
+
 export const getCertificateStatusName = (status: CertificateStatusType | number): string => {
   switch (status) {
     case CertificateStatusType.None:
@@ -42,6 +59,7 @@ export const getCertificateStatusColor = (status: CertificateStatusType | number
 
 export interface CertificateUserInfo {
   fullNameFa: string;
+  fullNameEn?: string | null;
   imageUrl: string;
   phoneNumber: string;
   id: string;
@@ -49,8 +67,14 @@ export interface CertificateUserInfo {
 
 export interface CertificateCourseInfo {
   name: string;
+  nameEn?: string | null;
   imageUrl: string;
   id: string;
+}
+
+export interface CertificateTopic {
+  name: string;
+  nameEn?: string | null;
 }
 
 export interface CertificateScheduleRating {
@@ -67,6 +91,8 @@ export interface CertificateListItem {
   user: CertificateUserInfo;
   course: CertificateCourseInfo;
   statusType: CertificateStatusType;
+  templateType?: CertificateTemplateType;
+  topics?: CertificateTopic[];
   referenceCode: string;
   scheduleRatings: CertificateScheduleRating[];
   requestedTime: string;
@@ -103,4 +129,5 @@ export interface UpdateCertificatePayload {
   certificateId: string;
   scheduleRatings?: CertificateScheduleRatingPayload[];
   message?: string;
+  templateType?: CertificateTemplateType;
 }

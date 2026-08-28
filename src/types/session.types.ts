@@ -7,6 +7,7 @@ export interface CourseSession {
     id: string;
   } | null;
   name: string;
+  nameEn?: string | null;
   description: string;
   index: number;
   occurrenceTime: string;
@@ -89,6 +90,7 @@ export interface RencodeVideoResponse {
 export interface CreateSessionPayload {
   courseId: string;
   name: string;
+  nameEn?: string | null;
   description: string;
   index: number;
   occurrenceTime: string;
@@ -105,6 +107,7 @@ export interface UpdateSessionPayload {
   id: string;
   courseId?: string;
   name?: string;
+  nameEn?: string | null;
   description?: string;
   index?: number;
   occurrenceTime?: string;

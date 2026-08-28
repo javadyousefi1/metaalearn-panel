@@ -4,7 +4,7 @@ import {
   CreateCourseSchedulePayload,
   UpdateCourseSchedulePayload,
   CourseScheduleListResponse,
-  CourseScheduleListParams
+  CourseScheduleListParams,
 } from '@/types/courseSchedule.types';
 
 /**

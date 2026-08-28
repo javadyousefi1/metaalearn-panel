@@ -30,7 +30,6 @@ export const CourseCreateModal: React.FC<CourseCreateModalProps> = ({
   onSuccess,
 }) => {
   const [form] = Form.useForm();
-    console.log(course);
   const isEditMode = !!course;
 
   // Use custom hooks
@@ -86,6 +85,7 @@ export const CourseCreateModal: React.FC<CourseCreateModalProps> = ({
       form.setFieldsValue({
         categoryId: fullCourseData.category?.id,
         name: fullCourseData.name,
+        nameEn: fullCourseData.nameEn,
         type: fullCourseData.type,
         status: fullCourseData.status,
         paymentTypes: fullCourseData.paymentTypes || [],
@@ -180,6 +180,7 @@ export const CourseCreateModal: React.FC<CourseCreateModalProps> = ({
     const payload = {
       categoryId: values.categoryId,
       name: values.name,
+      nameEn: values.nameEn || null,
       type: values.type,
       status: values.status,
       paymentTypes: values.paymentTypes || [],
@@ -321,9 +322,19 @@ export const CourseCreateModal: React.FC<CourseCreateModalProps> = ({
                 { required: true, message: 'لطفاً نام دوره را وارد کنید' },
                 { min: 3, message: 'نام دوره باید حداقل ۳ کاراکتر باشد' },
               ]}
-              className="md:col-span-2"
             >
               <Input placeholder="مثال: دوره جامع React" />
+            </Form.Item>
+
+            <Form.Item
+              name="nameEn"
+              label="نام انگلیسی دوره"
+              extra="برای متن انگلیسی گواهی استفاده می‌شود"
+              rules={[
+                { min: 3, message: 'نام انگلیسی باید حداقل ۳ کاراکتر باشد' },
+              ]}
+            >
+              <Input placeholder="e.g. Full-Stack Web Development" dir="ltr" />
             </Form.Item>
 
             {/* Type */}

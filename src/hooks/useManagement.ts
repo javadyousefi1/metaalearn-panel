@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { message } from 'antd';
 import { managementService } from '@/services';
 import { queryKeys } from '@/config';
-import { RegisterUsersToCourseRqDto } from '@/types/management.types';
+import { RegisterUsersToCourseRqDto, SyncCourseSessionEnrollmentsPayload } from '@/types/management.types';
 
 /**
  * Custom hook for management operations with React Query
@@ -19,6 +19,21 @@ export const useManagement = () => {
     onError: (error: unknown) => {
       console.error('Error registering users:', error);
       message.error('خطا در ثبت‌نام کاربران');
+    },
+  });
+
+  const syncCourseSessionEnrollmentsMutation = useMutation({
+    mutationFn: (data: SyncCourseSessionEnrollmentsPayload) =>
+      managementService.syncCourseSessionEnrollments(data),
+    onSuccess: (data) => {
+      message.success(
+        `${data.message} (ایجاد: ${data.enrollmentsCreated}، بازیابی: ${data.enrollmentsRestored})`
+      );
+      queryClient.invalidateQueries({ queryKey: queryKeys.schedules.all });
+    },
+    onError: (error: unknown) => {
+      console.error('Error syncing course session enrollments:', error);
+      message.error('خطا در همگام‌سازی مشارکت دانشجویان');
     },
   });
 
@@ -57,6 +72,10 @@ export const useManagement = () => {
     registerUsersToCourse: (data: RegisterUsersToCourseRqDto) =>
       registerUsersMutation.mutateAsync(data),
     isRegistering: registerUsersMutation.isPending,
+
+    syncCourseSessionEnrollments: (data: SyncCourseSessionEnrollmentsPayload) =>
+      syncCourseSessionEnrollmentsMutation.mutateAsync(data),
+    isSyncingCourseSessionEnrollments: syncCourseSessionEnrollmentsMutation.isPending,
 
     renewCourseVideos: (courseId: string) => renewCourseVideosMutation.mutateAsync(courseId),
     isRenewingCourseVideos: renewCourseVideosMutation.isPending,

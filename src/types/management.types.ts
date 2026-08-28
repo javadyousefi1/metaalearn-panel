@@ -28,3 +28,19 @@ export interface SwapPhoneNumberPayload {
   targetPhoneNumber: string;
   forceExchange: boolean;
 }
+
+export interface SyncCourseSessionEnrollmentsPayload {
+  scheduleId: string;
+  syncAllStudents: boolean;
+  studentIds?: string[];
+}
+
+export interface SyncCourseSessionEnrollmentsResponse {
+  message: string;
+  scheduleId: string;
+  studentsProcessed: number;
+  studentsAddedToSchedule: number;
+  enrollmentsCreated: number;
+  enrollmentsRestored: number;
+  sessionsCount: number;
+}
