@@ -221,6 +221,7 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
         index: nextIndex,
         isPracticeAvailable: false,
         isTopic: false,
+        isUsedForCertificate: false,
         courseScheduleIds: [],
       });
 
@@ -547,7 +548,6 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
           <Form.Item
             name="nameEn"
             label="عنوان انگلیسی جلسه"
-            extra="برای سرفصل‌های انگلیسی گواهی پکیج استفاده می‌شود"
             rules={[
               { min: 3, message: "عنوان انگلیسی باید حداقل ۳ کاراکتر باشد" },
             ]}
@@ -640,6 +640,14 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
           <Form.Item
             name="isTopic"
             label="موضوع (Topic)"
+            valuePropName="checked"
+          >
+            <Switch />
+          </Form.Item>
+
+          <Form.Item
+            name="isUsedForCertificate"
+            label="برای صدور گواهی استفاده شود"
             valuePropName="checked"
           >
             <Switch />

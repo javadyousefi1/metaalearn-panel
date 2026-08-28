@@ -22,6 +22,7 @@ export interface CourseSession {
   subSessions: CourseSession[] | null;
   isPracticeAvailable: boolean;
   isTopic: boolean;
+  isUsedForCertificate?: boolean;
   createdTime: string;
   updatedTime: string | null;
   // When set, this session reuses another session's HLS video (backoffice only).
@@ -101,6 +102,7 @@ export interface CreateSessionPayload {
   parentId: string | null;
   isPracticeAvailable: boolean;
   isTopic: boolean;
+  isUsedForCertificate?: boolean;
 }
 
 export interface UpdateSessionPayload {
@@ -118,6 +120,7 @@ export interface UpdateSessionPayload {
   parentId?: string | null;
   isPracticeAvailable?: boolean;
   isTopic?: boolean;
+  isUsedForCertificate?: boolean;
   courseScheduleIds?: string[] | null;
   /** Reuse another session's processed video (no re-upload). */
   linkVideoFromSessionId?: string;

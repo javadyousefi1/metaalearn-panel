@@ -134,6 +134,7 @@ export const CourseSessionsPage: React.FC = () => {
         parentId: editingSession.parentId,
         isPracticeAvailable: values.isPracticeAvailable ?? false,
         isTopic: values.isTopic ?? false,
+        isUsedForCertificate: values.isUsedForCertificate ?? false,
       });
     } else {
       // Create new session
@@ -164,6 +165,7 @@ export const CourseSessionsPage: React.FC = () => {
         parentId: targetParentId,
         isPracticeAvailable: values.isPracticeAvailable ?? false,
         isTopic: values.isTopic ?? false,
+        isUsedForCertificate: values.isUsedForCertificate ?? false,
       });
     }
 
