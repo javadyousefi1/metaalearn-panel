@@ -9,6 +9,17 @@ import { CourseSessionModal } from './CourseSessionModal';
 import type { CourseSession } from '@/types/session.types';
 import { formatDate, isSuperAdminUser } from '@/utils';
 
+const getNextSessionIndex = (sessions: { index: number }[] | null | undefined): number => {
+  if (!sessions?.length) {
+    return 0;
+  }
+
+  return Math.max(...sessions.map(session => Number(session.index) || 0)) + 1;
+};
+
+const sortSessionsByIndex = <T extends { index: number }>(sessions: T[] | null | undefined): T[] =>
+  [...(sessions ?? [])].sort((a, b) => a.index - b.index);
+
 export const CourseSessionsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [modalOpen, setModalOpen] = useState(false);
@@ -82,8 +93,7 @@ export const CourseSessionsPage: React.FC = () => {
 
   // API already filters sessions for current course and provides subSessions nested
   const parentSessions = useMemo(() => {
-    // Sort by index (API returns only sessions for this course)
-    return (allSessions as CourseSession[]).sort((a: CourseSession, b: CourseSession) => a.index - b.index);
+    return sortSessionsByIndex(allSessions as CourseSession[]);
   }, [allSessions]);
 
   const handleAddParentSession = () => {
@@ -126,7 +136,7 @@ export const CourseSessionsPage: React.FC = () => {
         name: values.name!,
         nameEn: values.nameEn || null,
         description: values.description!,
-        index: values.index ?? editingSession.index,
+        index: values.index != null ? Number(values.index) : editingSession.index,
         occurrenceTime: values.occurrenceTime!,
         practiceDueTime: values.practiceDueTime!,
         onlineMeetingUrl: values.onlineMeetingUrl || null,
@@ -140,16 +150,12 @@ export const CourseSessionsPage: React.FC = () => {
       // Create new session
       const targetParentId = values.parentId || null;
 
-      // Calculate next index based on parent
-      let nextIndex = 0;
-      if (targetParentId) {
-        // Find parent in flat sessions
-        const parentSession = flatSessions.find(s => s.id === targetParentId);
-        nextIndex = parentSession?.subSessions?.length || 0;
-      } else {
-        // Count level 1 sessions
-        nextIndex = parentSessions.length;
-      }
+      // Append after the highest existing index so a deleted middle slot (e.g. 42)
+      // is not reused — the new session always goes to the end of its siblings.
+      const siblings = targetParentId
+        ? flatSessions.filter(s => s.parentId === targetParentId)
+        : parentSessions;
+      const nextIndex = getNextSessionIndex(siblings);
 
       // Create session
       await createSession({
@@ -376,7 +382,7 @@ export const CourseSessionsPage: React.FC = () => {
 
   // Create collapse items for parent sessions with nested children
   const collapseItems = parentSessions.map((level1: CourseSession) => {
-    const level2Sessions = level1.subSessions || [];
+    const level2Sessions = sortSessionsByIndex(level1.subSessions);
 
     return {
       key: level1.id,
@@ -401,7 +407,7 @@ export const CourseSessionsPage: React.FC = () => {
               <h4 className="font-semibold text-gray-700 mb-4">زیر فصل‌ها:</h4>
               <Collapse
                 items={level2Sessions.map((level2: CourseSession) => {
-                  const level3Sessions = level2.subSessions || [];
+                  const level3Sessions = sortSessionsByIndex(level2.subSessions);
 
                   return {
                     key: level2.id,
@@ -524,11 +530,11 @@ export const CourseSessionsPage: React.FC = () => {
         parentId={selectedParentId}
         level1ParentId={selectedLevel1ParentId}
         allSessions={flatSessions}
-        nextIndex={
+        nextIndex={getNextSessionIndex(
           selectedParentId
-            ? (flatSessions.find(s => s.id === selectedParentId)?.subSessions?.length || 0)
-            : parentSessions.length
-        }
+            ? flatSessions.filter(s => s.parentId === selectedParentId)
+            : parentSessions
+        )}
       />
 
       <VideoIntegrityResultModal

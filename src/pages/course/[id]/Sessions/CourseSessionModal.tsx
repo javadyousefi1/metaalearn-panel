@@ -148,6 +148,29 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
     return 2;
   };
 
+  const computedNextIndex = useMemo(() => {
+    if (session) {
+      return session.index;
+    }
+
+    const parentForSiblings =
+      sessionLevel === 3 ? selectedLevel2 :
+      sessionLevel === 2 ? selectedLevel1 :
+      null;
+
+    const siblings = parentForSiblings
+      ? allSessions.filter(s => s.parentId === parentForSiblings)
+      : sessionLevel === 1
+        ? allSessions.filter(s => !s.parentId)
+        : [];
+
+    if (!siblings.length) {
+      return (parentForSiblings || sessionLevel === 1) ? 0 : nextIndex;
+    }
+
+    return Math.max(...siblings.map(s => Number(s.index) || 0)) + 1;
+  }, [session, sessionLevel, selectedLevel1, selectedLevel2, allSessions, nextIndex]);
+
   // Reset upload state when tab changes
   useEffect(() => {
     if (onResetUploadState && activeTab === 'media') {
@@ -218,7 +241,7 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
       setSessionLevel(level);
       form.setFieldsValue({
         sessionLevel: level,
-        index: nextIndex,
+        index: computedNextIndex,
         isPracticeAvailable: false,
         isTopic: false,
         isUsedForCertificate: false,
@@ -232,7 +255,13 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
         }
       }, 100);
     }
-  }, [open, session?.id, form, nextIndex, parentId, level1ParentId, allSessions, session]);
+  }, [open, session?.id, form, parentId, level1ParentId, allSessions, session]);
+
+  useEffect(() => {
+    if (open && !session) {
+      form.setFieldValue('index', computedNextIndex);
+    }
+  }, [open, session, computedNextIndex, form]);
 
   const handleSubmitInfo = async () => {
     const values = await form.validateFields();
@@ -259,7 +288,7 @@ export const CourseSessionModal: React.FC<CourseSessionModalProps> = ({
         ? moment(values.practiceDueTime).toISOString()
         : null,
       parentId: finalParentId,
-      index: values.index ?? nextIndex,
+      index: Number(values.index ?? computedNextIndex),
       courseScheduleIds: values.courseScheduleIds || null,
     };
 
