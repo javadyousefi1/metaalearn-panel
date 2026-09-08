@@ -69,6 +69,12 @@ export interface UpdateCreditCardIdentityPayload {
 }
 
 // User list types for the users management page
+export interface UserAddress {
+  postalCode: string | null;
+  phoneNumber: string | null;
+  text: string | null;
+}
+
 export interface UserListItem {
   id: string;
   fullNameFa: string;
@@ -77,6 +83,7 @@ export interface UserListItem {
   imageUrl: string | null;
   referralId: string;
   isActive: boolean;
+  address: UserAddress | null;
   profile: any;
   identity: any;
   creditCards: CreditCard[] | null;

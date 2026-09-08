@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Modal, Form, Select, Input, Avatar, Tag, Image, Descriptions } from 'antd';
-import { ShieldCheck, User, Calendar, Mail, Phone, CreditCard, Users } from 'lucide-react';
+import { ShieldCheck, User, Calendar, Mail, Phone, CreditCard, Users, MapPin } from 'lucide-react';
 import { useUpdateUserIdentity } from '@/hooks';
 import { IdentityStatusType, IdentityActionType, UserListItem, getIdentityStatusName, getIdentityStatusColor, getIdentityActionName } from '@/types/user.types';
 import { formatDate } from '@/utils';
@@ -242,6 +242,34 @@ export const UserIdentityModal: React.FC<UserIdentityModalProps> = ({
               {user.identity.message && (
                 <Descriptions.Item label="پیام" span={2}>
                   <div className="bg-gray-50 p-2 rounded">{user.identity.message}</div>
+                </Descriptions.Item>
+              )}
+            </Descriptions>
+          </div>
+        )}
+
+        {/* Address Information */}
+        {user.address && (
+          <div className="border border-gray-200 rounded-lg p-4">
+            <h4 className="text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
+              <MapPin size={18} className="text-primary" />
+              آدرس
+            </h4>
+            <Descriptions column={2} bordered size="small">
+              <Descriptions.Item label="کد پستی">
+                <span className="font-mono">{user.address.postalCode || '-'}</span>
+              </Descriptions.Item>
+              <Descriptions.Item label={
+                <span className="flex items-center gap-1">
+                  <Phone size={14} />
+                  تلفن آدرس
+                </span>
+              }>
+                {user.address.phoneNumber || '-'}
+              </Descriptions.Item>
+              {user.address.text && (
+                <Descriptions.Item label="متن آدرس" span={2}>
+                  {user.address.text}
                 </Descriptions.Item>
               )}
             </Descriptions>
