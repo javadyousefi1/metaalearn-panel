@@ -208,3 +208,12 @@ body {
     min-width: 28px;
     min-height: 28px;
 }
+
+.schedule-tag.ant-tag {
+    min-height: 22px;
+}
+
+.schedule-tag.ant-tag .inline-flex svg {
+    display: block;
+    flex-shrink: 0;
+}

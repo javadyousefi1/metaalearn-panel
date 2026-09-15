@@ -16,13 +16,39 @@ import {
   Input,
   Switch,
 } from 'antd';
-import { Users, Plus, Trash2, Edit, Eye, EyeOff, Link, Ban } from 'lucide-react';
+import { Users, Plus, Trash2, Edit, Link, Eye, EyeOff, Ban } from 'lucide-react';
 import { useGetAllSchedules, useCourseSchedules, useGetPurchasedCourseUsers, useManagement } from '@/hooks';
 import { CourseScheduleStatus } from '@/enums';
 import { CourseScheduleModal } from './CourseScheduleModal';
 import type { CourseSchedule } from '@/types';
 
 type SyncMode = 'all' | 'selected';
+
+const TAG_ICON_SIZE = 12;
+
+const SCHEDULE_TAG_CLASS =
+  'schedule-tag !m-0 inline-flex items-center !px-2 !py-0 text-xs leading-5';
+
+type ScheduleTagProps = {
+  color?: string;
+  icon?: React.ReactNode;
+  children: React.ReactNode;
+};
+
+const ScheduleTag = ({ color, icon, children }: ScheduleTagProps) => (
+  <Tag color={color} className={SCHEDULE_TAG_CLASS}>
+    <span className="inline-flex items-center gap-1">
+      {icon}
+      <span>{children}</span>
+    </span>
+  </Tag>
+);
+
+const getScheduleStatusColor = (status: number) => {
+  if (status === 0) return 'blue';
+  if (status === 1) return 'orange';
+  return 'green';
+};
 
 export const CourseSchedulePage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -218,20 +244,26 @@ export const CourseSchedulePage: React.FC = () => {
           </Descriptions.Item>
         )}
         <Descriptions.Item label="شناسه نوع">
-          <Tag color="purple">{schedule.typeId ?? 0}</Tag>
+          <ScheduleTag color="purple">{schedule.typeId ?? 0}</ScheduleTag>
         </Descriptions.Item>
         <Descriptions.Item label="وضعیت">
-          <Space direction="horizontal" size="small" wrap>
+          <Space size="small" wrap align="center">
             {schedule.isVisible ? (
-              <Tag icon={<Eye size={14} />} color="green">قابل مشاهده</Tag>
+              <ScheduleTag color="green" icon={<Eye size={TAG_ICON_SIZE} />}>
+                قابل مشاهده
+              </ScheduleTag>
             ) : (
-              <Tag icon={<EyeOff size={14} />} color="default">مخفی</Tag>
+              <ScheduleTag color="default" icon={<EyeOff size={TAG_ICON_SIZE} />}>
+                مخفی
+              </ScheduleTag>
             )}
-            <Tag color={schedule.status === 0 ? 'blue' : schedule.status === 1 ? 'orange' : 'green'}>
+            <ScheduleTag color={getScheduleStatusColor(schedule.status)}>
               {CourseScheduleStatus[schedule.status as keyof typeof CourseScheduleStatus] || `وضعیت ${schedule.status}`}
-            </Tag>
+            </ScheduleTag>
             {schedule.isRestrictedByAdmin && (
-              <Tag icon={<Ban size={14} />} color="red">ویدیو مسدود</Tag>
+              <ScheduleTag color="red" icon={<Ban size={TAG_ICON_SIZE} />}>
+                دسترسی ویدیو محدود شده است
+              </ScheduleTag>
             )}
           </Space>
         </Descriptions.Item>
@@ -251,7 +283,9 @@ export const CourseSchedulePage: React.FC = () => {
               danger={!!schedule.isRestrictedByAdmin}
               onClick={() => handleOpenBlockModal(schedule)}
             >
-              مسدودسازی
+              {schedule.isRestrictedByAdmin
+                ? 'ویرایش محدودیت دسترسی'
+                : 'محدود کردن دسترسی ویدیو'}
             </Button>
           </Space>
         </Descriptions.Item>
@@ -319,16 +353,20 @@ export const CourseSchedulePage: React.FC = () => {
     key: schedule.id,
     label: (
       <div className="flex items-center justify-between w-full pr-2">
-        <Space>
+        <Space size="small" align="center">
           <span className="font-medium text-lg">{schedule.name}</span>
-          <Tag color="blue">
+          <ScheduleTag color="blue" icon={<Users size={TAG_ICON_SIZE} />}>
             {(schedule.instructors?.length || 0) + (schedule.operators?.length || 0) + (schedule.students?.length || 0)} نفر
-          </Tag>
+          </ScheduleTag>
           {!schedule.isVisible && (
-            <Tag icon={<EyeOff size={12} />} color="default">مخفی</Tag>
+            <ScheduleTag color="default" icon={<EyeOff size={TAG_ICON_SIZE} />}>
+              مخفی
+            </ScheduleTag>
           )}
           {schedule.isRestrictedByAdmin && (
-            <Tag icon={<Ban size={12} />} color="red">ویدیو مسدود</Tag>
+            <ScheduleTag color="red" icon={<Ban size={TAG_ICON_SIZE} />}>
+              دسترسی ویدیو محدود شده است
+            </ScheduleTag>
           )}
         </Space>
       </div>
@@ -470,8 +508,8 @@ export const CourseSchedulePage: React.FC = () => {
       <Modal
         title={
           blockSchedule
-            ? `مسدودسازی — ${blockSchedule.name}`
-            : 'مسدودسازی'
+            ? `مدیریت دسترسی ویدیو — ${blockSchedule.name}`
+            : 'مدیریت دسترسی ویدیو'
         }
         open={blockModalOpen}
         onCancel={handleCloseBlockModal}
@@ -500,10 +538,12 @@ export const CourseSchedulePage: React.FC = () => {
       >
         <div className="space-y-4">
           <p className="text-sm text-gray-500">
-            اگر مسدودسازی فعال باشد، دانشجویان این گروه ویدیوها را نمی‌بینند و پیام زیر به آن‌ها نمایش داده می‌شود.
+            با فعال‌سازی این گزینه، دسترسی ویدیو برای دانشجویان این گروه محدود می‌شود و پیام زیر به آن‌ها نمایش داده می‌شود.
           </p>
           <div className="flex items-center justify-between rounded-lg border border-gray-200 px-3 py-2">
-            <span className="text-sm font-medium text-gray-700">مسدودسازی</span>
+            <span className="text-sm font-medium text-gray-700">
+              محدود کردن دسترسی ویدیو
+            </span>
             <Switch checked={isRestrictedByAdmin} onChange={setIsRestrictedByAdmin} />
           </div>
           {isRestrictedByAdmin && (
