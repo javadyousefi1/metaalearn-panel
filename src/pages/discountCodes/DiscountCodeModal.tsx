@@ -174,7 +174,20 @@ export const DiscountCodeModal: React.FC<DiscountCodeModalProps> = ({
       centered
       destroyOnClose
     >
-      <Form form={form} layout="vertical" size="large" className="pt-3">
+      <div className="pb-6 pt-3">
+      <Form form={form} layout="vertical" size="large">
+        {isEditMode && discountCode && (
+          <div className="mb-4 flex justify-center">
+            <Alert
+              type="info"
+              showIcon
+              message={`کد: ${discountCode.code}`}
+              className="min-w-[200px] text-center"
+              style={{ direction: 'ltr', fontFamily: 'monospace' }}
+            />
+          </div>
+        )}
+
         {/* Creation type — create only */}
         {!isEditMode && (
           <>
@@ -313,7 +326,7 @@ export const DiscountCodeModal: React.FC<DiscountCodeModalProps> = ({
           <Select options={VALUE_ID_TYPE_OPTIONS} />
         </Form.Item>
 
-        <Form.Item name="valueIds" label="محدود به (خالی = همه)">
+        <Form.Item name="valueIds" label="محدود به (خالی = همه)" className="mb-0">
           <Select
             mode="multiple"
             allowClear
@@ -332,17 +345,8 @@ export const DiscountCodeModal: React.FC<DiscountCodeModalProps> = ({
             maxTagCount="responsive"
           />
         </Form.Item>
-
-        {isEditMode && (
-          <Alert
-            type="info"
-            showIcon
-            message={`کد: ${discountCode?.code}`}
-            className="mt-2"
-            style={{ direction: 'ltr', fontFamily: 'monospace', textAlign: 'left' }}
-          />
-        )}
       </Form>
+      </div>
     </Modal>
   );
 };

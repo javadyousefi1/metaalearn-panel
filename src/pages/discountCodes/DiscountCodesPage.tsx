@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import {
   Button,
   Tag,
@@ -7,6 +8,7 @@ import {
   Space,
   Progress,
   Input,
+  Select,
 } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import {
@@ -20,7 +22,8 @@ import {
 import type { ColumnsType } from 'antd/es/table';
 import { PageHeader, DataTable } from '@/components/common';
 import { useTable, useTableFilters, useDiscountCodes } from '@/hooks';
-import { discountCodeService } from '@/services';
+import { categoryService, courseService, discountCodeService } from '@/services';
+import { Course } from '@/types/course.types';
 import { formatDate } from '@/utils';
 import {
   DiscountCode,
@@ -37,11 +40,35 @@ import { DiscountCodeModal } from './DiscountCodeModal';
 export const DiscountCodesPage: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedCode, setSelectedCode] = useState<DiscountCode | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<DiscountCode | null>(null);
 
   const { filters, handleTableChange } = useTableFilters();
 
   const { createDiscountCode, updateDiscountCode, deleteDiscountCode, isCreating, isUpdating, isDeleting } =
     useDiscountCodes();
+
+  const { data: courses = [], isLoading: isLoadingCourses } = useTable<Course>({
+    queryKey: 'discount-code-course-filter',
+    fetchFn: courseService.getAll,
+    initialPageSize: 1000,
+    initialPageIndex: 1,
+  });
+
+  const { data: categories = [], isLoading: isLoadingCategories } = useQuery({
+    queryKey: ['discount-code-category-filter'],
+    queryFn: () => categoryService.getAll(),
+  });
+
+  const valueFilterOptions = [
+    ...courses.map((course) => ({
+      value: course.id,
+      label: `دوره: ${course.name}`,
+    })),
+    ...categories.map((category) => ({
+      value: category.id,
+      label: `دسته: ${category.name}`,
+    })),
+  ];
 
   const {
     data: discountCodes,
@@ -72,23 +99,17 @@ export const DiscountCodesPage: React.FC = () => {
   };
 
   const handleDelete = (record: DiscountCode) => {
-    Modal.confirm({
-      title: 'حذف کد تخفیف',
-      content: (
-        <div>
-          <p>آیا از حذف این کد تخفیف اطمینان دارید؟</p>
-          <div className="mt-2 p-3 bg-gray-50 rounded font-mono text-sm" style={{ direction: 'ltr' }}>
-            {record.code}
-          </div>
-        </div>
-      ),
-      okText: 'بله، حذف شود',
-      okType: 'danger',
-      cancelText: 'انصراف',
-      onOk: async () => {
-        await deleteDiscountCode(record.id);
-      },
-    });
+    setDeleteTarget(record);
+  };
+
+  const handleCloseDeleteModal = () => {
+    setDeleteTarget(null);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+    await deleteDiscountCode(deleteTarget.id);
+    setDeleteTarget(null);
   };
 
   const columns: ColumnsType<DiscountCode> = [
@@ -213,45 +234,86 @@ export const DiscountCodesPage: React.FC = () => {
       },
     },
     {
-      title: 'محدوده اعمال',
-      key: 'scope',
-      width: 280,
-      render: (_: unknown, record: DiscountCode) => (
-        <div className="flex flex-col gap-2 py-1">
-          <Tag color="purple" style={{ width: 'fit-content' }}>
-            {getValueIdTypeName(record.valueIdType)}
-          </Tag>
-          {record.values.length > 0 ? (
-            <div className="flex flex-col gap-1.5">
-              {record.values.slice(0, 2).map((v) => {
-                const label = v.name ?? '(حذف شده)';
-                return (
-                  <Tooltip key={v.id} title={label}>
-                    <Tag
-                      className="m-0 text-xs leading-relaxed"
-                      style={{ whiteSpace: 'normal', maxWidth: '100%', height: 'auto' }}
-                    >
-                      {label}
-                    </Tag>
-                  </Tooltip>
-                );
-              })}
-              {record.values.length > 2 && (
-                <Tooltip
-                  title={record.values
-                    .slice(2)
-                    .map((v) => v.name ?? '(حذف شده)')
-                    .join('، ')}
-                >
-                  <Tag className="w-fit cursor-pointer text-xs">+{record.values.length - 2} مورد دیگر</Tag>
-                </Tooltip>
-              )}
-            </div>
-          ) : (
-            <span className="text-xs text-gray-400">همه</span>
-          )}
+      title: 'نوع محدوده',
+      dataIndex: 'valueIdType',
+      key: 'valueIdType',
+      width: 120,
+      align: 'center',
+      filters: [
+        { text: 'دوره', value: PaymentDiscountValueIdType.Course },
+        { text: 'دسته‌بندی', value: PaymentDiscountValueIdType.Category },
+      ],
+      filterMultiple: false,
+      filteredValue:
+        filters.ValueIdType != null ? [filters.ValueIdType as number] : null,
+      render: (valueIdType: PaymentDiscountValueIdType) => (
+        <Tag color="purple">{getValueIdTypeName(valueIdType)}</Tag>
+      ),
+    },
+    {
+      title: 'دوره / دسته',
+      key: 'valueNames',
+      width: 260,
+      filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+        <div style={{ padding: 8, width: 260 }}>
+          <Select
+            showSearch
+            allowClear
+            placeholder="انتخاب دوره یا دسته"
+            style={{ width: '100%', marginBottom: 8 }}
+            value={selectedKeys[0]}
+            loading={isLoadingCourses || isLoadingCategories}
+            onChange={(value) => setSelectedKeys(value ? [value] : [])}
+            filterOption={(input, option) =>
+              (option?.label?.toString() ?? '').toLowerCase().includes(input.toLowerCase())
+            }
+            options={valueFilterOptions}
+          />
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Button type="primary" onClick={() => confirm()} icon={<SearchOutlined />} size="small" style={{ width: 90 }}>
+              جستجو
+            </Button>
+            <Button
+              onClick={() => {
+                clearFilters?.();
+                confirm();
+              }}
+              size="small"
+              style={{ width: 90 }}
+            >
+              پاک کردن
+            </Button>
+          </div>
         </div>
       ),
+      filteredValue: filters.ValueId ? [filters.ValueId as string] : null,
+      render: (_: unknown, record: DiscountCode) =>
+        record.values.length > 0 ? (
+          <div className="flex flex-col gap-1.5 py-1">
+            {record.values.slice(0, 2).map((v) => {
+              const label = v.name ?? '(حذف شده)';
+              return (
+                <Tooltip key={v.id} title={label}>
+                  <span className="text-sm leading-relaxed text-gray-700">{label}</span>
+                </Tooltip>
+              );
+            })}
+            {record.values.length > 2 && (
+              <Tooltip
+                title={record.values
+                  .slice(2)
+                  .map((v) => v.name ?? '(حذف شده)')
+                  .join('، ')}
+              >
+                <span className="cursor-pointer text-xs text-primary">
+                  +{record.values.length - 2} مورد دیگر
+                </span>
+              </Tooltip>
+            )}
+          </div>
+        ) : (
+          <span className="text-xs text-gray-400">همه</span>
+        ),
     },
     {
       title: 'تاریخ ایجاد',
@@ -346,8 +408,10 @@ export const DiscountCodesPage: React.FC = () => {
           onChange: handleTableChange({
             code: 'Code',
             isActive: 'IsActive',
+            valueIdType: 'ValueIdType',
+            valueNames: 'ValueId',
           }),
-          scroll: { x: 1300 },
+          scroll: { x: 1450 },
         }}
       />
 
@@ -359,6 +423,42 @@ export const DiscountCodesPage: React.FC = () => {
         onUpdate={updateDiscountCode}
         loading={isCreating || isUpdating}
       />
+
+      <Modal
+        title={
+          <div className="flex items-center gap-2">
+            <Trash2 size={20} className="text-red-500" />
+            <span className="text-xl font-bold">حذف کد تخفیف</span>
+          </div>
+        }
+        open={!!deleteTarget}
+        onCancel={handleCloseDeleteModal}
+        onOk={handleConfirmDelete}
+        okText="بله، حذف شود"
+        cancelText="انصراف"
+        okButtonProps={{ danger: true }}
+        confirmLoading={isDeleting}
+        width={480}
+        centered
+        destroyOnClose
+      >
+        <div className="py-4">
+          <p className="mb-4 text-gray-600">
+            آیا از حذف این کد تخفیف اطمینان دارید؟
+          </p>
+          {deleteTarget && (
+            <div className="rounded-lg bg-gray-50 p-4">
+              <span className="text-sm font-semibold text-gray-700">کد تخفیف:</span>
+              <p
+                className="mt-1 font-mono text-base font-semibold text-gray-900"
+                style={{ direction: 'ltr' }}
+              >
+                {deleteTarget.code}
+              </p>
+            </div>
+          )}
+        </div>
+      </Modal>
     </div>
   );
 };

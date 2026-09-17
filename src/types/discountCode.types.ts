@@ -72,6 +72,9 @@ export interface GetAllDiscountCodesParams {
   PageSize: number;
   Code?: string;
   IsActive?: boolean;
+  ValueIdType?: number;
+  ValueId?: string;
+  ValueName?: string;
 }
 
 export interface AllDiscountCodesResponse {
