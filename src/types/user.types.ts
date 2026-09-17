@@ -300,6 +300,8 @@ export interface PurchasedCoursesParams {
   UserFullName?: string;
   UserPhoneNumber?: string;
   PaymentType?: number;
+  IsSettled?: boolean;
+  HasAccess?: boolean;
   PageIndex: number;
   PageSize: number;
 }

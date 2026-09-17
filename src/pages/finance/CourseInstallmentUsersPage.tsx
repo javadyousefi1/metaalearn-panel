@@ -204,6 +204,13 @@ export const CourseInstallmentUsersPage: React.FC = () => {
       dataIndex: ['invoice', 'isSettled'],
       key: 'isSettled',
       align: 'center',
+      filters: [
+        { text: 'تسویه شده', value: true },
+        { text: 'تسویه نشده', value: false },
+      ],
+      filterMultiple: false,
+      filteredValue:
+        filters.IsSettled != null ? [filters.IsSettled as boolean] : null,
       render: (isSettled: boolean) => (
         <Tag color={isSettled ? 'green' : 'red'}>
           {isSettled ? 'تسویه شده' : 'تسویه نشده'}
@@ -226,6 +233,13 @@ export const CourseInstallmentUsersPage: React.FC = () => {
       dataIndex: ['invoice', 'hasAccess'],
       key: 'hasAccess',
       align: 'center',
+      filters: [
+        { text: 'دارد', value: true },
+        { text: 'ندارد', value: false },
+      ],
+      filterMultiple: false,
+      filteredValue:
+        filters.HasAccess != null ? [filters.HasAccess as boolean] : null,
       render: (hasAccess: boolean) => (
         <Tag color={hasAccess ? 'blue' : 'default'}>
           {hasAccess ? 'دارد' : 'ندارد'}
@@ -287,6 +301,8 @@ export const CourseInstallmentUsersPage: React.FC = () => {
         tableProps={{
           onChange: handleTableChange({
             userFullName: 'UserFullName',
+            isSettled: 'IsSettled',
+            hasAccess: 'HasAccess',
           }),
         }}
       />
