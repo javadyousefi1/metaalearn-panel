@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Tag, Avatar, Modal, Button, Spin, Empty, Alert, Form, Input, Popconfirm, Space, Tooltip } from 'antd';
+import { SearchOutlined } from '@ant-design/icons';
 import { Home, UserCircle, Eye, ShieldCheck, ShieldOff, Pencil, Check, X } from 'lucide-react';
 import { useParams } from 'react-router-dom';
 import type { ColumnsType } from 'antd/es/table';
 import { PageHeader, DataTable } from '@/components/common';
-import { useTable } from '@/hooks';
+import { useTable, useTableFilters } from '@/hooks';
 import { useGetUserWithInvoices, useUpdateUserInvoice, useUpdateInstallmentDueDate } from '@/hooks/useUsers';
 import { userService } from '@/services';
 import { PurchasedCourseItem } from '@/types/user.types';
@@ -26,6 +27,7 @@ const getPaymentMethodColor = (method: number): string => {
 
 export const CourseInstallmentUsersPage: React.FC = () => {
   const { id: courseId } = useParams<{ id: string }>();
+  const { filters, handleTableChange } = useTableFilters();
 
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -52,6 +54,7 @@ export const CourseInstallmentUsersPage: React.FC = () => {
       const response = await userService.getAllPurchasedCourses({
         ...params,
         CourseId: courseId,
+        PaymentType: 2,
       });
       return {
         items: response.courses.items,
@@ -60,6 +63,7 @@ export const CourseInstallmentUsersPage: React.FC = () => {
     },
     initialPageSize: 10,
     initialPageIndex: 1,
+    filters,
   });
 
   // Fetch user with invoices when modal is open
@@ -134,16 +138,47 @@ export const CourseInstallmentUsersPage: React.FC = () => {
   const columns: ColumnsType<PurchasedCourseItem> = [
     {
       title: 'کاربر',
-      key: 'user',
+      key: 'userFullName',
+      width: 200,
+      filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+        <div style={{ padding: 8 }}>
+          <Input
+            placeholder="جستجوی نام کاربر"
+            value={selectedKeys[0]}
+            onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+            onPressEnter={() => confirm()}
+            style={{ marginBottom: 8, display: 'block' }}
+          />
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Button type="primary" onClick={() => confirm()} icon={<SearchOutlined />} size="small" style={{ width: 90 }}>
+              جستجو
+            </Button>
+            <Button
+              onClick={() => {
+                clearFilters?.();
+                confirm();
+              }}
+              size="small"
+              style={{ width: 90 }}
+            >
+              پاک کردن
+            </Button>
+          </div>
+        </div>
+      ),
+      filterIcon: (filtered) => (
+        <SearchOutlined style={{ color: filtered ? '#4B26AD' : undefined }} />
+      ),
+      filteredValue: filters.UserFullName ? [filters.UserFullName as string] : null,
       render: (_: any, record: PurchasedCourseItem) => (
-      <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2">
           {record.userInfo.imageUrl ? (
-              <Avatar size={32} src={record.userInfo.imageUrl} />
+            <Avatar size={32} src={record.userInfo.imageUrl} />
           ) : (
-              <Avatar size={32} icon={<UserCircle />} style={{ backgroundColor: '#4B26AD' }} />
+            <Avatar size={32} icon={<UserCircle />} style={{ backgroundColor: '#4B26AD' }} />
           )}
           <span className="font-medium">{record.userInfo.fullNameFa || 'بدون نام'}</span>
-      </div>
+        </div>
       ),
     },
     {
@@ -248,6 +283,12 @@ export const CourseInstallmentUsersPage: React.FC = () => {
         pagination={pagination}
         emptyText="هیچ کاربری یافت نشد"
         itemName="کاربر"
+        scroll={{ x: 1100 }}
+        tableProps={{
+          onChange: handleTableChange({
+            userFullName: 'UserFullName',
+          }),
+        }}
       />
 
       {/* Installment Status Modal */}

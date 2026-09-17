@@ -14,6 +14,8 @@ export interface CourseComment {
   content: string;
   courseId: string;
   isApproved: boolean;
+  parentId?: string | null;
+  replies?: CourseComment[];
   id: string;
 }
 
@@ -32,4 +34,10 @@ export interface GetCourseCommentsParams {
 export interface UpdateCommentApprovalParams {
   state: boolean;
   id: string;
+}
+
+export interface CreateCommentReplyParams {
+  content: string;
+  courseId: string;
+  parentId: string;
 }

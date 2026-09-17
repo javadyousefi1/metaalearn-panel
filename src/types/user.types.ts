@@ -297,6 +297,9 @@ export interface UpdateUserInvoicePayload {
 export interface PurchasedCoursesParams {
   CourseId?: string;
   UserId?: string;
+  UserFullName?: string;
+  UserPhoneNumber?: string;
+  PaymentType?: number;
   PageIndex: number;
   PageSize: number;
 }
@@ -323,6 +326,7 @@ export interface InvoiceInfo {
 export interface PurchasedUserInfo {
   fullNameFa: string;
   imageUrl: string;
+  phoneNumber?: string | null;
   id: string;
 }
 

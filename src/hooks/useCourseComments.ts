@@ -3,6 +3,7 @@ import { message } from 'antd';
 import { courseCommentService } from '@/services/courseComment.service';
 import { queryKeys } from '@/config';
 import {
+  CreateCommentReplyParams,
   GetCourseCommentsParams,
   UpdateCommentApprovalParams,
 } from '@/types/courseComment.types';
@@ -12,6 +13,17 @@ import {
  */
 export const useCourseComments = () => {
   const queryClient = useQueryClient();
+
+  const createReplyMutation = useMutation({
+    mutationFn: courseCommentService.createReply,
+    onSuccess: () => {
+      message.success('پاسخ با موفقیت ثبت شد');
+      queryClient.invalidateQueries({ queryKey: queryKeys.courseComments.all });
+    },
+    onError: () => {
+      message.error('خطا در ثبت پاسخ');
+    },
+  });
 
   // Update comment approval mutation
   const updateApprovalMutation = useMutation({
@@ -28,9 +40,11 @@ export const useCourseComments = () => {
   return {
     // Mutations
     updateApproval: (params: UpdateCommentApprovalParams) => updateApprovalMutation.mutateAsync(params),
+    createReply: (params: CreateCommentReplyParams) => createReplyMutation.mutateAsync(params),
 
     // Loading states
     isUpdating: updateApprovalMutation.isPending,
+    isReplying: createReplyMutation.isPending,
   };
 };
 

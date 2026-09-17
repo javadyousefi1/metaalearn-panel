@@ -106,6 +106,11 @@ export interface CertificateListItem {
 export interface GetAllCertificatesParams {
   PageIndex: number;
   PageSize: number;
+  CourseId?: string;
+  StatusType?: number;
+  TemplateType?: number;
+  FullName?: string;
+  PhoneNumber?: string;
 }
 
 export interface AllCertificatesResponse {

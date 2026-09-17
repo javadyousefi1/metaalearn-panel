@@ -1,6 +1,7 @@
 import { httpService } from './http.service';
 import {
   CourseCommentsResponse,
+  CreateCommentReplyParams,
   GetCourseCommentsParams,
   UpdateCommentApprovalParams,
 } from '@/types/courseComment.types';
@@ -36,5 +37,17 @@ export const courseCommentService = {
    */
   updateApproval: async (params: UpdateCommentApprovalParams): Promise<void> => {
     await httpService.post('/CourseComment/Update', params);
+  },
+
+  /**
+   * Create an admin reply to a course comment
+   */
+  createReply: async (params: CreateCommentReplyParams): Promise<void> => {
+    await httpService.post('/CourseComment/Create', {
+      score: 0,
+      content: params.content,
+      courseId: params.courseId,
+      parentId: params.parentId,
+    });
   },
 };

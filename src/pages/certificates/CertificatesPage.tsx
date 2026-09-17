@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
-import { Avatar, Button, Tag, Tooltip } from 'antd';
+import { Avatar, Button, Input, Select, Tag, Tooltip } from 'antd';
+import { SearchOutlined } from '@ant-design/icons';
 import { Home, Award, UserCircle, Settings2 } from 'lucide-react';
 import type { ColumnsType } from 'antd/es/table';
 import { PageHeader, DataTable } from '@/components/common';
 import { useTable, useTableFilters, useCertificates } from '@/hooks';
-import { certificateService } from '@/services';
+import { certificateService, courseService } from '@/services';
+import { Course } from '@/types/course.types';
 import {
   CertificateListItem,
+  CertificateStatusType,
   CertificateTemplateType,
   UpdateCertificatePayload,
   getCertificateStatusName,
@@ -22,6 +25,13 @@ export const CertificatesPage: React.FC = () => {
 
   const { updateCertificate, isUpdating } = useCertificates();
   const { filters, handleTableChange } = useTableFilters({});
+
+  const { data: courses = [], isLoading: isLoadingCourses } = useTable<Course>({
+    queryKey: 'certificate-course-filter',
+    fetchFn: courseService.getAll,
+    initialPageSize: 1000,
+    initialPageIndex: 1,
+  });
 
   const {
     data: certificates,
@@ -54,8 +64,38 @@ export const CertificatesPage: React.FC = () => {
     {
       title: 'کاربر',
       dataIndex: 'user',
-      key: 'user',
+      key: 'fullName',
       width: 200,
+      filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+        <div style={{ padding: 8 }}>
+          <Input
+            placeholder="جستجوی نام کاربر"
+            value={selectedKeys[0]}
+            onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+            onPressEnter={() => confirm()}
+            style={{ marginBottom: 8, display: 'block' }}
+          />
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Button type="primary" onClick={() => confirm()} icon={<SearchOutlined />} size="small" style={{ width: 90 }}>
+              جستجو
+            </Button>
+            <Button
+              onClick={() => {
+                clearFilters?.();
+                confirm();
+              }}
+              size="small"
+              style={{ width: 90 }}
+            >
+              پاک کردن
+            </Button>
+          </div>
+        </div>
+      ),
+      filterIcon: (filtered) => (
+        <SearchOutlined style={{ color: filtered ? '#4B26AD' : undefined }} />
+      ),
+      filteredValue: filters.FullName ? [filters.FullName as string] : null,
       render: (user: CertificateListItem['user']) => (
         <div className="flex items-center gap-2">
           {user.imageUrl ? (
@@ -73,8 +113,44 @@ export const CertificatesPage: React.FC = () => {
     {
       title: 'دوره',
       dataIndex: 'course',
-      key: 'course',
+      key: 'courseId',
       width: 200,
+      filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+        <div style={{ padding: 8, width: 240 }}>
+          <Select
+            showSearch
+            allowClear
+            placeholder="انتخاب دوره"
+            style={{ width: '100%', marginBottom: 8 }}
+            value={selectedKeys[0]}
+            loading={isLoadingCourses}
+            onChange={(value) => setSelectedKeys(value ? [value] : [])}
+            filterOption={(input, option) =>
+              (option?.label?.toString() ?? '').toLowerCase().includes(input.toLowerCase())
+            }
+            options={courses.map((course) => ({
+              value: course.id,
+              label: course.name,
+            }))}
+          />
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Button type="primary" onClick={() => confirm()} icon={<SearchOutlined />} size="small" style={{ width: 90 }}>
+              جستجو
+            </Button>
+            <Button
+              onClick={() => {
+                clearFilters?.();
+                confirm();
+              }}
+              size="small"
+              style={{ width: 90 }}
+            >
+              پاک کردن
+            </Button>
+          </div>
+        </div>
+      ),
+      filteredValue: filters.CourseId ? [filters.CourseId as string] : null,
       render: (course: CertificateListItem['course']) => (
         <div className="flex items-center gap-2">
           {course.imageUrl && (
@@ -90,6 +166,27 @@ export const CertificatesPage: React.FC = () => {
       key: 'statusType',
       width: 120,
       align: 'center',
+      filters: [
+        {
+          text: getCertificateStatusName(CertificateStatusType.Requested),
+          value: CertificateStatusType.Requested,
+        },
+        {
+          text: getCertificateStatusName(CertificateStatusType.Verified),
+          value: CertificateStatusType.Verified,
+        },
+        {
+          text: getCertificateStatusName(CertificateStatusType.Rejected),
+          value: CertificateStatusType.Rejected,
+        },
+        {
+          text: getCertificateStatusName(CertificateStatusType.Revoked),
+          value: CertificateStatusType.Revoked,
+        },
+      ],
+      filterMultiple: false,
+      filteredValue:
+        filters.StatusType != null ? [filters.StatusType as number] : null,
       render: (statusType: number) => (
         <Tag color={getCertificateStatusColor(statusType)}>
           {getCertificateStatusName(statusType)}
@@ -102,6 +199,19 @@ export const CertificatesPage: React.FC = () => {
       key: 'templateType',
       width: 100,
       align: 'center',
+      filters: [
+        {
+          text: getCertificateTemplateName(CertificateTemplateType.Package),
+          value: CertificateTemplateType.Package,
+        },
+        {
+          text: getCertificateTemplateName(CertificateTemplateType.Normal),
+          value: CertificateTemplateType.Normal,
+        },
+      ],
+      filterMultiple: false,
+      filteredValue:
+        filters.TemplateType != null ? [filters.TemplateType as number] : null,
       render: (templateType: number | undefined) =>
         templateType === CertificateTemplateType.Package ||
         templateType === CertificateTemplateType.Normal ? (
@@ -191,7 +301,12 @@ export const CertificatesPage: React.FC = () => {
         emptyText="هیچ درخواست مدرکی یافت نشد"
         itemName="درخواست"
         tableProps={{
-          onChange: handleTableChange({}),
+          onChange: handleTableChange({
+            fullName: 'FullName',
+            courseId: 'CourseId',
+            statusType: 'StatusType',
+            templateType: 'TemplateType',
+          }),
         }}
       />
 
