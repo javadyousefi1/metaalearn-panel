@@ -6,9 +6,9 @@ import {
   Modal,
   Space,
   Progress,
-  Select,
   Input,
 } from 'antd';
+import { SearchOutlined } from '@ant-design/icons';
 import {
   Home,
   Plus,
@@ -38,14 +38,7 @@ export const DiscountCodesPage: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedCode, setSelectedCode] = useState<DiscountCode | null>(null);
 
-  // Local filter state (outside useTableFilters since GetAll has specific params)
-  const [codeFilter, setCodeFilter] = useState('');
-  const [activeFilter, setActiveFilter] = useState<boolean | undefined>(undefined);
-
-  const { filters, handleTableChange } = useTableFilters({
-    Code: null,
-    IsActive: null,
-  });
+  const { filters, handleTableChange } = useTableFilters();
 
   const { createDiscountCode, updateDiscountCode, deleteDiscountCode, isCreating, isUpdating, isDeleting } =
     useDiscountCodes();
@@ -56,13 +49,8 @@ export const DiscountCodesPage: React.FC = () => {
     isLoading,
     pagination,
   } = useTable<DiscountCode>({
-    queryKey: ['discountCodes', codeFilter, activeFilter],
-    fetchFn: (params) =>
-      discountCodeService.getAll({
-        ...params,
-        Code: codeFilter || undefined,
-        IsActive: activeFilter,
-      }),
+    queryKey: ['discountCodes'],
+    fetchFn: (params) => discountCodeService.getAll(params),
     initialPageSize: 10,
     initialPageIndex: 1,
     filters,
@@ -109,6 +97,36 @@ export const DiscountCodesPage: React.FC = () => {
       dataIndex: 'code',
       key: 'code',
       width: 160,
+      filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+        <div style={{ padding: 8 }}>
+          <Input
+            placeholder="جستجو بر اساس کد..."
+            value={selectedKeys[0]}
+            onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+            onPressEnter={() => confirm()}
+            style={{ marginBottom: 8, display: 'block' }}
+          />
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <Button type="primary" onClick={() => confirm()} icon={<SearchOutlined />} size="small" style={{ width: 90 }}>
+              جستجو
+            </Button>
+            <Button
+              onClick={() => {
+                clearFilters?.();
+                confirm();
+              }}
+              size="small"
+              style={{ width: 90 }}
+            >
+              پاک کردن
+            </Button>
+          </div>
+        </div>
+      ),
+      filterIcon: (filtered) => (
+        <SearchOutlined style={{ color: filtered ? '#4B26AD' : undefined }} />
+      ),
+      filteredValue: filters.Code ? [filters.Code as string] : null,
       render: (code: string) => (
         <span
           className="font-mono text-sm bg-gray-100 px-3 py-1 rounded"
@@ -157,8 +175,16 @@ export const DiscountCodesPage: React.FC = () => {
       title: 'وضعیت',
       dataIndex: 'isActive',
       key: 'isActive',
-      width: 90,
+      width: 130,
       align: 'center',
+      onHeaderCell: () => ({ style: { whiteSpace: 'nowrap' } }),
+      filters: [
+        { text: 'فعال', value: true },
+        { text: 'غیرفعال', value: false },
+      ],
+      filterMultiple: false,
+      filteredValue:
+        filters.IsActive != null ? [filters.IsActive as boolean] : null,
       render: (isActive: boolean) =>
         isActive ? (
           <Tag color="green">فعال</Tag>
@@ -189,19 +215,27 @@ export const DiscountCodesPage: React.FC = () => {
     {
       title: 'محدوده اعمال',
       key: 'scope',
-      width: 180,
+      width: 280,
       render: (_: unknown, record: DiscountCode) => (
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-2 py-1">
           <Tag color="purple" style={{ width: 'fit-content' }}>
             {getValueIdTypeName(record.valueIdType)}
           </Tag>
           {record.values.length > 0 ? (
-            <div className="flex flex-wrap gap-1">
-              {record.values.slice(0, 2).map((v) => (
-                <Tag key={v.id} className="text-xs">
-                  {v.name ?? '(حذف شده)'}
-                </Tag>
-              ))}
+            <div className="flex flex-col gap-1.5">
+              {record.values.slice(0, 2).map((v) => {
+                const label = v.name ?? '(حذف شده)';
+                return (
+                  <Tooltip key={v.id} title={label}>
+                    <Tag
+                      className="m-0 text-xs leading-relaxed"
+                      style={{ whiteSpace: 'normal', maxWidth: '100%', height: 'auto' }}
+                    >
+                      {label}
+                    </Tag>
+                  </Tooltip>
+                );
+              })}
               {record.values.length > 2 && (
                 <Tooltip
                   title={record.values
@@ -209,7 +243,7 @@ export const DiscountCodesPage: React.FC = () => {
                     .map((v) => v.name ?? '(حذف شده)')
                     .join('، ')}
                 >
-                  <Tag className="text-xs cursor-pointer">+{record.values.length - 2}</Tag>
+                  <Tag className="w-fit cursor-pointer text-xs">+{record.values.length - 2} مورد دیگر</Tag>
                 </Tooltip>
               )}
             </div>
@@ -299,28 +333,6 @@ export const DiscountCodesPage: React.FC = () => {
         }
       />
 
-      {/* Filters */}
-      <div className="flex items-center gap-3 mb-4 flex-wrap">
-        <Input
-          placeholder="جستجو بر اساس کد..."
-          allowClear
-          style={{ width: 220, direction: 'ltr', fontFamily: 'monospace' }}
-          value={codeFilter}
-          onChange={(e) => setCodeFilter(e.target.value)}
-        />
-        <Select
-          placeholder="وضعیت"
-          allowClear
-          style={{ width: 140 }}
-          value={activeFilter}
-          onChange={(v) => setActiveFilter(v)}
-          options={[
-            { value: true, label: 'فعال' },
-            { value: false, label: 'غیرفعال' },
-          ]}
-        />
-      </div>
-
       <DataTable<DiscountCode>
         columns={columns}
         dataSource={discountCodes}
@@ -331,8 +343,11 @@ export const DiscountCodesPage: React.FC = () => {
         emptyText="هیچ کد تخفیفی یافت نشد"
         itemName="کد"
         tableProps={{
-          onChange: handleTableChange({}),
-          scroll: { x: 1100 },
+          onChange: handleTableChange({
+            code: 'Code',
+            isActive: 'IsActive',
+          }),
+          scroll: { x: 1300 },
         }}
       />
 
