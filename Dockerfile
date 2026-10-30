@@ -2,8 +2,8 @@
 FROM node:20-alpine AS builder
 
 # Install pnpm with mirror registry
-RUN npm install -g pnpm@9.15.0 --registry https://mirror-npm.runflare.com
-RUN pnpm config set registry https://mirror-npm.runflare.com
+RUN npm install -g pnpm@9.15.0 #--registry https://mirror-npm.runflare.com
+#RUN pnpm config set registry https://mirror-npm.runflare.com
 
 # Set working directory
 WORKDIR /app
@@ -24,7 +24,7 @@ RUN pnpm run build
 FROM node:20-alpine
 
 # Install serve globally with mirror registry
-RUN npm install -g serve --registry https://mirror-npm.runflare.com
+RUN npm install -g serve #--registry https://mirror-npm.runflare.com
 
 # Set working directory
 WORKDIR /app

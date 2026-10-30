@@ -2,6 +2,7 @@ version: '3.8'
 
 services:
   web-panel:
+    platform: linux/amd64
     build:
       context: .
       dockerfile: Dockerfile
