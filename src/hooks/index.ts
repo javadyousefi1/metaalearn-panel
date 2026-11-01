@@ -27,3 +27,4 @@ export * from './useExams';
 export * from './useCertificates';
 export * from './useDiscountCodes';
 export * from './useSubscriptions';
+export * from './useBanners';

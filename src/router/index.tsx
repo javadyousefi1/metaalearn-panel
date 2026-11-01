@@ -16,6 +16,7 @@ import { ManagementPage } from '@/pages/management';
 import { CertificatesPage } from '@/pages/certificates';
 import { DiscountCodesPage } from '@/pages/discountCodes';
 import { SubscriptionsPage, PurchasedSubscriptionsPage } from '@/pages/subscriptions';
+import { BannersPage } from '@/pages/banners';
 import { SettingsPage } from '@/pages/settings';
 import { ROUTES } from '@/constants';
 import { Permission } from '@/types';
@@ -250,6 +251,12 @@ export const router = createBrowserRouter([
       {
         path: ROUTES.NOTIFICATIONS.ROOT,
         element: <NotificationsPage />,
+      },
+
+      // Banners
+      {
+        path: ROUTES.BANNERS.ROOT,
+        element: <BannersPage />,
       },
 
       // Video Management (super-admin only, enforced by the backend endpoints)

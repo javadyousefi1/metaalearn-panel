@@ -44,3 +44,4 @@ export * from './management.types';
 export * from './certificate.types';
 // Discount code types
 export * from './discountCode.types';
+export * from './banner.types';

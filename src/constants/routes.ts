@@ -130,6 +130,11 @@ export const ROUTES = {
     ROOT: '/notifications',
   },
 
+  // Banner Routes
+  BANNERS: {
+    ROOT: '/banners',
+  },
+
   // Management Routes
   MANAGEMENT: {
     ROOT: '/management',
@@ -195,6 +200,7 @@ export const PAGE_TITLES: Record<string, string> = {
   [ROUTES.BLOG.INFO_PATH]: 'اطلاعات مقاله',
   [ROUTES.BLOG.GALLERY_PATH]: 'گالری مقاله',
   [ROUTES.NOTIFICATIONS.ROOT]: 'اعلانات',
+  [ROUTES.BANNERS.ROOT]: 'بنرهای سایت',
   [ROUTES.MANAGEMENT.ROOT]: 'مدیریت ویدیو',
   [ROUTES.SETTINGS.PROFILE]: 'Profile Settings',
   [ROUTES.SETTINGS.ACCOUNT]: 'Account Settings',

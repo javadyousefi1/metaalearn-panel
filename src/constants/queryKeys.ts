@@ -6,4 +6,7 @@ export const QUERY_KEYS = {
   USER: {
     PROFILE: ['user', 'profile'],
   },
+  BANNERS: {
+    ALL: ['banners'] as const,
+  },
 } as const;

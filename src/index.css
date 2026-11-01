@@ -217,3 +217,32 @@ body {
     display: block;
     flex-shrink: 0;
 }
+
+.banner-color-picker-trigger.ant-color-picker .ant-color-picker-trigger {
+    height: 40px;
+    width: 40px;
+    padding: 4px;
+    border-radius: 8px;
+    border-color: #e5e7eb;
+}
+
+/* Banner modal: no inner body scroll; page scrolls if needed */
+.banner-form-modal .ant-modal-body {
+    max-height: none !important;
+    overflow: visible !important;
+}
+
+.banner-form-modal .ant-form-item {
+    margin-bottom: 12px;
+}
+
+.banners-data-table .banner-table-center-cell {
+    text-align: center !important;
+}
+
+.banners-data-table .banner-table-center-cell .ant-table-cell-content {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    width: 100%;
+}

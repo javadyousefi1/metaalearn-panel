@@ -17,6 +17,7 @@ import {
     Award,
     Tag,
     Star,
+    PanelTop,
     LucideIcon,
 } from 'lucide-react';
 import { ROUTES } from './routes';
@@ -57,6 +58,13 @@ export const MENU_ITEMS: MenuItemConfig[] = [
         label: 'اعلانات',
         icon: Bell,
         roles: ['super-admin', 'operator-admin'], // Admins can send notifications
+    },
+    {
+        key: 'banners',
+        path: ROUTES.BANNERS.ROOT,
+        label: 'بنرها',
+        icon: PanelTop,
+        roles: ['super-admin'],
     },
     {
         key: 'certificates',
