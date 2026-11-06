@@ -1,3 +1,4 @@
+import { cookieUtils } from '@/lib/cookies';
 import { httpService } from './http.service';
 import {
   LoginCredentials,
@@ -15,6 +16,14 @@ import {
 
 // Set to true to use mock data for development
 const USE_MOCK_AUTH = false;
+
+function persistSessionTokens(data: { token: string; refreshToken?: string | null }) {
+  if (data.refreshToken) {
+    cookieUtils.setTokens(data.token, data.refreshToken);
+  } else {
+    cookieUtils.setAccessToken(data.token);
+  }
+}
 
 /**
  * Authentication Service
@@ -40,6 +49,9 @@ export const authService = {
 
     // Real API call
     const response = await httpService.post<LoginResponse>('/Authentication/Login', credentials);
+    if (response.data?.token) {
+      persistSessionTokens(response.data);
+    }
     return response.data;
   },
 
@@ -60,6 +72,9 @@ export const authService = {
 
     // Real API call
     const response = await httpService.post<TokenResponse>('/Authentication/VerifyOtp', data);
+    if (response.data?.token) {
+      persistSessionTokens(response.data);
+    }
     return response.data;
   },
 
@@ -101,7 +116,14 @@ export const authService = {
     if (USE_MOCK_AUTH) {
       return Promise.resolve();
     }
-    await httpService.post('/auth/logout');
+    const refreshToken = cookieUtils.getRefreshToken();
+    if (refreshToken) {
+      try {
+        await httpService.post('/Authentication/Logout', { refreshToken });
+      } catch {
+        // Best-effort revoke.
+      }
+    }
   },
 
   /**
@@ -128,10 +150,13 @@ export const authService = {
   /**
    * Refresh access token
    */
-  refreshToken: async (refreshToken: string): Promise<{ token: string; refreshToken: string }> => {
+  refreshToken: async (
+    token: string | null,
+    refreshToken: string,
+  ): Promise<{ token: string; refreshToken: string }> => {
     const response = await httpService.post<{ token: string; refreshToken: string }>(
-      '/auth/refresh',
-      { refreshToken }
+      '/Authentication/RefreshToken',
+      { token, refreshToken },
     );
     return response.data;
   },

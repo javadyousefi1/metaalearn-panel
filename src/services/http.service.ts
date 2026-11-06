@@ -1,40 +1,78 @@
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
 import { env } from '@/config';
 import { message } from 'antd';
-import {ROUTES} from "@/constants";
+import { isPublicAuthPath } from '@/constants/authPaths';
+import { installSessionRefresh } from '@/lib/sessionRefresh';
+import { cookieUtils } from '@/lib/cookies';
+import { expireSession } from '@/lib/sessionSync';
 
-/**
- * Backend Error Response Structure
- */
 interface BackendError {
   code: string;
   description: string;
   type: number;
 }
 
+export const NOT_STAFF_ERROR_CODE = 'Users.NotStaff';
+export const NOT_STAFF_MESSAGE = 'این حساب کاربری دسترسی به پنل مدیریت ندارد.';
+
 interface BackendErrorResponse {
+  code?: string;
+  extensions?: { code?: string };
   type?: string;
   title?: string;
   status?: number;
   detail?: string;
   errors?: BackendError[];
   traceId?: string;
-  message?: string; // Fallback for simple error messages
+  message?: string;
 }
 
+/** True when the error is the backend's "Users.NotStaff" ProblemDetails (status 400/403). */
+export const isNotStaffError = (error: unknown): boolean => {
+  if (!axios.isAxiosError(error)) return false;
+  const data = error.response?.data as BackendErrorResponse | undefined;
+  if (!data) return false;
+  return (
+    data.code === NOT_STAFF_ERROR_CODE ||
+    data.extensions?.code === NOT_STAFF_ERROR_CODE ||
+    !!data.errors?.some((err) => err.code === NOT_STAFF_ERROR_CODE)
+  );
+};
+
+const getStoredToken = (): string | null => cookieUtils.getAccessToken() ?? null;
+
+const getStoredRefreshToken = (): string | null => cookieUtils.getRefreshToken() ?? null;
+
+export const clearStoredTokens = () => {
+  cookieUtils.removeTokens();
+};
+
 /**
- * HTTP Service
- * Centralized HTTP client with interceptors for auth and error handling
+ * True only for the current-user profile call (userService.getUserProfile):
+ * exact path `/User/Get` and no target-user id param. getUserWithInvoices uses
+ * the same path with `userId`, so it must not match.
  */
+const isCurrentUserProfileRequest = (config?: AxiosRequestConfig): boolean => {
+  const url = config?.url;
+  if (!url || url.includes('?')) return false;
+  const path = `/${url.replace(/^\/+/, '')}`;
+  if (path.toLowerCase() !== '/user/get') return false;
+  const params = config?.params as Record<string, unknown> | undefined;
+  return !params || (params.userId == null && params.id == null);
+};
+
 class HttpService {
   private client: AxiosInstance;
+  /** Refresh tokens are always issued by Web.Api, not Streamer/Worker. */
+  private readonly tokenRefreshBaseUrl: string;
 
-  constructor(baseURL: string) {
+  constructor(baseURL: string, options?: { tokenRefreshBaseUrl?: string }) {
+    this.tokenRefreshBaseUrl = options?.tokenRefreshBaseUrl ?? baseURL;
     this.client = axios.create({
       baseURL,
       timeout: env.apiTimeout,
       headers: {
-        'Back-Office' : 'true'
+        'Back-Office': 'true',
       },
     });
 
@@ -42,121 +80,97 @@ class HttpService {
   }
 
   private setupInterceptors(): void {
-    // Request interceptor - Add auth token
     this.client.interceptors.request.use(
       (config) => {
-        const token = localStorage.getItem('auth_token');
+        const token = getStoredToken();
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }
-
         return config;
       },
-      (error) => {
-        return Promise.reject(error);
-      }
+      (error) => Promise.reject(error),
     );
 
-    // Response interceptor - Handle errors
+    installSessionRefresh([this.client], {
+      lockName: 'metaalearn-backoffice-session-refresh',
+      getToken: getStoredToken,
+      getSessionMarker: getStoredRefreshToken,
+      refresh: async (token) => {
+        const response = await axios.post<{ token: string; refreshToken: string | null }>(
+          `${this.tokenRefreshBaseUrl.replace(/\/$/, '')}/Authentication/RefreshToken`,
+          { token, refreshToken: getStoredRefreshToken() },
+          {
+            timeout: env.apiTimeout,
+            headers: { 'Back-Office': 'true' },
+          },
+        );
+        return { token: response.data.token, refreshToken: response.data.refreshToken };
+      },
+      replaceTokens: ({ token, refreshToken }) => {
+        if (refreshToken) cookieUtils.setTokens(token, refreshToken);
+        else cookieUtils.setAccessToken(token);
+      },
+      discardTokens: clearStoredTokens,
+      expireSession,
+      isPublicAuthPath,
+    });
+
     this.client.interceptors.response.use(
       (response) => response,
       async (error: AxiosError) => {
-        const originalRequest = error.config as AxiosRequestConfig & { _retry?: boolean };
-
-        // Handle 401 Unauthorized - Clear auth and redirect
-        if (error.response?.status === 401) {
-          // Clear tokens from localStorage
-          localStorage.removeItem('auth_token');
-          localStorage.removeItem('refresh_token');
-
-          // Redirect to login page
-          if (window.location.pathname !== ROUTES.AUTH.LOGIN) {
-            window.location.href = ROUTES.AUTH.LOGIN;
-          }
-
+        if (error.response?.status === 404 && isCurrentUserProfileRequest(error.config)) {
+          expireSession();
           return Promise.reject(error);
         }
 
-        // Handle 404 on /User/Get endpoint - User doesn't exist, clear auth
-        if (error.response?.status === 404 && error.config?.url?.includes('/User/Get')) {
-          // Clear tokens from localStorage
-          localStorage.removeItem('auth_token');
-          localStorage.removeItem('refresh_token');
-
-          // Redirect to login page
-          if (window.location.pathname !== ROUTES.AUTH.LOGIN) {
-            window.location.href = ROUTES.AUTH.LOGIN;
-          }
-
-          return Promise.reject(error);
-        }
-
-        // Handle other errors
         this.handleError(error);
         return Promise.reject(error);
-      }
+      },
     );
   }
 
-  /**
-   * Extract and format error message from backend response
-   */
   private extractErrorMessage(data: BackendErrorResponse): string {
-    // Priority 1: Extract from errors array
     if (data.errors && data.errors.length > 0) {
       const errorDescriptions = data.errors
         .map((err) => err.description)
         .filter((desc) => desc && desc.trim() !== '');
 
       if (errorDescriptions.length > 0) {
-        // Join multiple errors with a bullet point
         return errorDescriptions.length === 1
           ? errorDescriptions[0]
           : errorDescriptions.map((desc, idx) => `${idx + 1}. ${desc}`).join('\n');
       }
     }
 
-    // Priority 2: Use detail field
-    if (data.detail) {
-      return data.detail;
-    }
-
-    // Priority 3: Use title field
-    if (data.title) {
-      return data.title;
-    }
-
-    // Priority 4: Use message field (fallback)
-    if (data.message) {
-      return data.message;
-    }
-
-    // Fallback message
+    if (data.detail) return data.detail;
+    if (data.title) return data.title;
+    if (data.message) return data.message;
     return 'خطایی رخ داده است';
   }
 
   private handleError(error: AxiosError): void {
-      console.error(error);
+    console.error(error);
     if (error.response) {
-      // Server responded with error
       const status = error.response.status;
       const data = error.response.data as BackendErrorResponse;
 
-      // Skip error message for 404 on /User/Get (already handled in interceptor)
-      if (status === 404 && error.config?.url?.includes('/User/Get')) {
+      if (status === 404 && isCurrentUserProfileRequest(error.config)) {
         return;
       }
 
-      // Extract formatted error message
+      if (isNotStaffError(error)) {
+        message.error(NOT_STAFF_MESSAGE);
+        return;
+      }
+
       const errorMessage = this.extractErrorMessage(data);
-        console.log(errorMessage ,"errorMessage")
+      console.log(errorMessage, 'errorMessage');
       switch (status) {
         case 400:
           message.error(errorMessage);
           break;
         case 401:
           message.error('دسترسی غیرمجاز. لطفاً دوباره وارد شوید');
-          window.location.href = ROUTES.AUTH.LOGIN;
           break;
         case 403:
           message.error('شما اجازه انجام این عملیات را ندارید');
@@ -171,10 +185,8 @@ class HttpService {
           message.error(errorMessage);
       }
     } else if (error.request) {
-      // Request made but no response
       message.error('خطای شبکه. لطفاً اتصال اینترنت خود را بررسی کنید');
     } else {
-      // Something else happened
       message.error('خطای غیرمنتظره‌ای رخ داد');
     }
   }
@@ -186,7 +198,7 @@ class HttpService {
   async post<T = unknown>(
     url: string,
     data?: unknown,
-    config?: AxiosRequestConfig
+    config?: AxiosRequestConfig,
   ): Promise<AxiosResponse<T>> {
     return this.client.post<T>(url, data, config);
   }
@@ -194,7 +206,7 @@ class HttpService {
   async put<T = unknown>(
     url: string,
     data?: unknown,
-    config?: AxiosRequestConfig
+    config?: AxiosRequestConfig,
   ): Promise<AxiosResponse<T>> {
     return this.client.put<T>(url, data, config);
   }
@@ -202,7 +214,7 @@ class HttpService {
   async patch<T = unknown>(
     url: string,
     data?: unknown,
-    config?: AxiosRequestConfig
+    config?: AxiosRequestConfig,
   ): Promise<AxiosResponse<T>> {
     return this.client.patch<T>(url, data, config);
   }
@@ -213,4 +225,6 @@ class HttpService {
 }
 
 export const httpService = new HttpService(env.apiBaseUrl);
-export const streamerHttpService = new HttpService(env.videoApiBaseUrl);
+export const streamerHttpService = new HttpService(env.videoApiBaseUrl, {
+  tokenRefreshBaseUrl: env.apiBaseUrl,
+});

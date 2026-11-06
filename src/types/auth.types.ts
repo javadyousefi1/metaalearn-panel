@@ -23,6 +23,7 @@ export interface ResendOtpRequest {
 
 export interface TokenResponse {
   token: string;
+  refreshToken?: string | null;
 }
 
 // POST /Authentication/Login returns { token } when password-login succeeds, otherwise null (OTP sent)

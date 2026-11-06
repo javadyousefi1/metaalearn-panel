@@ -1,9 +1,10 @@
-import { Card, Form, Input, Button, Segmented } from 'antd';
+import { Card, Form, Input, Button, Segmented, Alert } from 'antd';
 import { PhoneOutlined, SafetyOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks';
 import { ROUTES } from '@/constants';
 import { useState, useEffect } from 'react';
+import { isNotStaffError, NOT_STAFF_MESSAGE } from '@/services/http.service';
 import type { OtpLoginCredentials } from '@/types';
 
 /**
@@ -16,6 +17,7 @@ export const LoginPage: React.FC = () => {
   const [userPhone, setUserPhone] = useState('');
   const [timer, setTimer] = useState(0);
   const [usePassword, setUsePassword] = useState(false);
+  const [notStaff, setNotStaff] = useState(false);
 
   // Timer countdown
   useEffect(() => {
@@ -31,6 +33,7 @@ export const LoginPage: React.FC = () => {
   }, [timer]);
 
   const onFinish = async (values: OtpLoginCredentials & { code?: string; password?: string }) => {
+    setNotStaff(false);
     try {
       if (!otpSent) {
         // Step 1: Password login OR send OTP
@@ -53,7 +56,13 @@ export const LoginPage: React.FC = () => {
         }
       }
     } catch (error) {
-      // Error handled in useAuth hook
+      // Other errors are handled in useAuth hook. Not-staff: stay on the login step; no tokens are stored.
+      if (isNotStaffError(error)) {
+        setNotStaff(true);
+        setOtpSent(false);
+        setUserPhone('');
+        setTimer(0);
+      }
     }
   };
 
@@ -78,6 +87,10 @@ export const LoginPage: React.FC = () => {
         <h2 className="text-2xl font-bold text-center mb-6">
           {otpSent ? 'تأیید کد' : 'ورود'}
         </h2>
+
+        {notStaff && (
+            <Alert type="error" showIcon className="mb-4" message={NOT_STAFF_MESSAGE} />
+        )}
 
         {otpSent && (
             <div className="mb-4 p-3 bg-primary-50 rounded-md text-center">

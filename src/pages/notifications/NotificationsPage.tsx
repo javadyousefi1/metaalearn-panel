@@ -6,6 +6,7 @@ import 'react-quill/dist/quill.snow.css';
 import { PageHeader } from '@/components/common';
 import { useNotifications, useTable, useGetAllSchedules, useGetAllUsers } from '@/hooks';
 import { courseService } from '@/services';
+import { sanitizeHtml } from '@/utils/sanitizeHtml';
 import { Course } from '@/types/course.types';
 import { NotificationType, NotificationTypeLabels, CreateNotificationPayload } from '@/types/notification.types';
 
@@ -390,7 +391,7 @@ export const NotificationsPage: React.FC = () => {
                 <span className="font-semibold text-gray-700">متن اعلان:</span>
                 <div
                   className="text-gray-900 mt-2 p-3 bg-white rounded border border-gray-200"
-                  dangerouslySetInnerHTML={{ __html: formValues?.message || '' }}
+                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(formValues?.message || '') }}
                 />
               </div>
             </div>
