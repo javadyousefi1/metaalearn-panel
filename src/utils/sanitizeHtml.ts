@@ -16,3 +16,16 @@ export function sanitizeHtml(html: string): string {
     ALLOWED_URI_REGEXP: /^(?:https?|mailto|tel):/i,
   });
 }
+
+/**
+ * Sanitizes raw SVG markup (e.g. course club schedule icons) before rendering
+ * with dangerouslySetInnerHTML. Keeps SVG shapes, drops scripts, event handlers
+ * and foreign content.
+ */
+export function sanitizeSvg(svg: string | null | undefined): string {
+  if (!svg) return '';
+  return DOMPurify.sanitize(svg, {
+    USE_PROFILES: { svg: true, svgFilters: true },
+    FORBID_TAGS: ['use', 'foreignObject', 'a', 'image', 'style'],
+  });
+}

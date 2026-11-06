@@ -60,6 +60,8 @@ export const ROUTES = {
     GALLERY_PATH: '/course/:id/gallery',
     COMMENTS: (id: string) => `/course/${id}/comments`,
     COMMENTS_PATH: '/course/:id/comments',
+    CLUB: (id: string) => `/course/${id}/club`,
+    CLUB_PATH: '/course/:id/club',
   },
 
 

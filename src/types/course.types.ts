@@ -1,4 +1,5 @@
 // Course-related type definitions
+import type { CourseClubBuyerUser, CourseClubRs, CourseClubUpsertRq } from './courseClub.types';
 
 export interface CourseCategory {
   id: string;
@@ -74,6 +75,14 @@ export interface Course {
   instructorIds?: string[];
   gallery?: CourseGalleryItem[];
   faqs?: CourseFaq[];
+  defaultScheduleAsReserveHolder?: boolean;
+  // Course club (admin + Back-Office only)
+  isClub?: boolean;
+  /** Returned by Course/Get */
+  courseClub?: CourseClubRs | null;
+  /** Returned by Course/GetAll (same shape as courseClub) */
+  club?: CourseClubRs | null;
+  courseClubBuyerUsers?: CourseClubBuyerUser[];
 }
 
 export interface CourseListParams {
@@ -140,4 +149,8 @@ export interface UpdateCoursePayload {
   discountPercentage?: number;
   requiresIdentityVerification?: boolean;
   faqs?: CourseFaq[];
+  /** Toggle: true/false sets it, omitted leaves it unchanged */
+  isClub?: boolean;
+  /** Replaces the whole club (schedule, guests, link) */
+  courseClub?: CourseClubUpsertRq;
 }

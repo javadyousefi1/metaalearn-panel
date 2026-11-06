@@ -95,6 +95,12 @@ export const CourseListPage: React.FC = () => {
       title: 'نام دوره',
       dataIndex: 'name',
       key: 'name',
+      render: (name: string, record: Course) => (
+        <span className="flex flex-wrap items-center gap-2">
+          {name}
+          {record.isClub && <Tag color="magenta">کلاب</Tag>}
+        </span>
+      ),
     },
     {
       title: 'دسته‌بندی',

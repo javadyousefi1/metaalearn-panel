@@ -5,6 +5,7 @@ export * from './route.types';
 export * from './common.types';
 export * from './category.types';
 export * from './course.types';
+export * from './courseClub.types';
 export * from './session.types';
 export * from './courseSchedule.types';
 export * from './courseComment.types';

@@ -30,6 +30,9 @@ export const CourseDetailPage: React.FC = () => {
     if (location.pathname.endsWith('/comments')) {
       return 'comments';
     }
+    if (location.pathname.endsWith('/club')) {
+      return 'club';
+    }
     // Default to Introduction when on the base course detail page
     return 'introduction';
   };
@@ -69,6 +72,9 @@ export const CourseDetailPage: React.FC = () => {
         break;
       case 'comments':
         navigate(ROUTES.COURSE.COMMENTS(id));
+        break;
+      case 'club':
+        navigate(ROUTES.COURSE.CLUB(id));
         break;
       default:
         navigate(ROUTES.COURSE.INTRODUCTION(id));
@@ -125,6 +131,10 @@ export const CourseDetailPage: React.FC = () => {
                   {
                       label: 'کامنت‌ها',
                       value: 'comments',
+                  },
+                  {
+                      label: 'کلاب',
+                      value: 'club',
                   },
               ]}
               size="large"

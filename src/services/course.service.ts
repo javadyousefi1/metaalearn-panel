@@ -1,5 +1,6 @@
 import { httpService } from './http.service';
 import { CourseListResponse, CourseListParams, CreateCoursePayload, UpdateCoursePayload, Course } from '@/types/course.types';
+import { UploadClubGuestImageRs } from '@/types/courseClub.types';
 
 /**
  * Course Service
@@ -48,5 +49,28 @@ export const courseService = {
    */
   update: async (data: UpdateCoursePayload): Promise<void> => {
     await httpService.put('/Course/Update', data);
+  },
+
+  /**
+   * Upload (or replace) a course club guest photo
+   * @param courseId - The club course ID
+   * @param guestId - A saved guest id (from Course/Get)
+   * @param file - JPEG or PNG image
+   */
+  uploadClubGuestImage: async (
+    courseId: string,
+    guestId: string,
+    file: File,
+  ): Promise<UploadClubGuestImageRs> => {
+    const formData = new FormData();
+    formData.append('courseId', courseId);
+    formData.append('guestId', guestId);
+    formData.append('file', file);
+    const response = await httpService.post<UploadClubGuestImageRs>(
+      '/Course/UploadClubGuestImage',
+      formData,
+      { headers: { 'Content-Type': 'multipart/form-data' } },
+    );
+    return response.data;
   },
 };

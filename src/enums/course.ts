@@ -64,3 +64,17 @@ export const CredentialExamType = {
     1: 'تمرینی',
     2: 'نهایی',
 } as const;
+
+/**
+ * Persian labels for the course club schedule days (backend `DaysOfWeek`: Sunday = 0).
+ * Listed in Iranian week order (Saturday first) for selects and display.
+ */
+export const ClubDayOfWeekLabels: { value: number; label: string }[] = [
+    { value: 6, label: 'شنبه' },
+    { value: 0, label: 'یکشنبه' },
+    { value: 1, label: 'دوشنبه' },
+    { value: 2, label: 'سه‌شنبه' },
+    { value: 3, label: 'چهارشنبه' },
+    { value: 4, label: 'پنجشنبه' },
+    { value: 5, label: 'جمعه' },
+];
