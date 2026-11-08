@@ -312,7 +312,13 @@ export const TransactionsPage: React.FC = () => {
       fixed: 'right',
       render: (_: any, payment: PaymentListItem) => {
 
-        if (payment.method === PaymentMethod.CardToCard && (payment.status === PaymentStatus.Paid || payment.status === PaymentStatus.Rejected)) {
+        if (
+            payment.method === PaymentMethod.CardToCard
+            && payment.cardToCard?.imageUrl
+            && (payment.status === PaymentStatus.Paid
+                || payment.status === PaymentStatus.Rejected
+                || payment.status === PaymentStatus.Refunded)
+        ) {
                 return <div className={'flex gap-x-4 items-center'}>
                     <Image
                         src={payment.cardToCard.imageUrl}
@@ -324,16 +330,18 @@ export const TransactionsPage: React.FC = () => {
                             mask: <Eye size={18} />
                         }}
                     />
-                    <Tooltip title="استرداد وجه">
-                        <Button
-                            type="text"
-                            danger
-                            icon={<RotateCcw size={18} />}
-                            onClick={() => handleOpenRefundModal(payment)}
-                        >
-                            استرداد
-                        </Button>
-                    </Tooltip>
+                    {payment.status === PaymentStatus.Paid && (
+                        <Tooltip title="استرداد وجه">
+                            <Button
+                                type="text"
+                                danger
+                                icon={<RotateCcw size={18} />}
+                                onClick={() => handleOpenRefundModal(payment)}
+                            >
+                                استرداد
+                            </Button>
+                        </Tooltip>
+                    )}
                 </div>
         }
         // Refund button for paid payments
