@@ -69,6 +69,8 @@ export interface PurchasedSubscriptionInvoice {
   hasAccess: boolean;
   isRejectedByAdmin: boolean;
   rejectedByAdminMessage: string | null;
+  isRefundedByAdmin?: boolean;
+  refundedByAdminMessage?: string | null;
   accessStartTime: string | null;
   accessEndTime: string | null;
 }

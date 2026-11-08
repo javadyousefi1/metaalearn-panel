@@ -211,11 +211,16 @@ export const CourseInstallmentUsersPage: React.FC = () => {
       filterMultiple: false,
       filteredValue:
         filters.IsSettled != null ? [filters.IsSettled as boolean] : null,
-      render: (isSettled: boolean) => (
-        <Tag color={isSettled ? 'green' : 'red'}>
-          {isSettled ? 'تسویه شده' : 'تسویه نشده'}
-        </Tag>
-      ),
+      render: (isSettled: boolean, record: PurchasedCourseItem) =>
+        record.invoice?.isRefundedByAdmin ? (
+          <Tooltip title={record.invoice.refundedByAdminMessage || undefined}>
+            <Tag color="purple">بازگشت داده شده</Tag>
+          </Tooltip>
+        ) : (
+          <Tag color={isSettled ? 'green' : 'red'}>
+            {isSettled ? 'تسویه شده' : 'تسویه نشده'}
+          </Tag>
+        ),
     },
       {
           title: 'تعداد قسط پرداختی',
@@ -346,12 +351,25 @@ export const CourseInstallmentUsersPage: React.FC = () => {
             <div className="border rounded-xl p-4 bg-gray-50">
               <div className="flex items-center justify-between mb-3">
                 <span className="font-semibold text-gray-700 text-sm">مدیریت دسترسی</span>
-                <Tag color={invoice.isRejectedByAdmin ? 'red' : 'green'} className="text-sm">
-                  {invoice.isRejectedByAdmin ? 'غیرفعال توسط ادمین' : 'دسترسی فعال'}
-                </Tag>
+                {invoice.isRefundedByAdmin ? (
+                  <Tooltip title={invoice.refundedByAdminMessage || undefined}>
+                    <Tag color="purple" className="text-sm">بازگشت داده شده</Tag>
+                  </Tooltip>
+                ) : (
+                  <Tag
+                    color={invoice.isRejectedByAdmin ? 'red' : invoice.hasAccess === false ? 'default' : 'green'}
+                    className="text-sm"
+                  >
+                    {invoice.isRejectedByAdmin
+                      ? 'غیرفعال توسط ادمین'
+                      : invoice.hasAccess === false
+                        ? 'بدون دسترسی'
+                        : 'دسترسی فعال'}
+                  </Tag>
+                )}
               </div>
 
-              {invoice.isRejectedByAdmin ? (
+              {invoice.isRefundedByAdmin ? null : invoice.isRejectedByAdmin ? (
                 <div className="space-y-3">
                   {invoice.rejectedByAdminMessage && (
                     <Alert
@@ -461,10 +479,11 @@ export const CourseInstallmentUsersPage: React.FC = () => {
                   const transaction = invoice.transactions?.find(
                     (t: any) => t.installmentStep === stepNumber,
                   );
-                  const isPaid = transaction?.isPaid || false;
+                  const isRefunded = transaction?.isRefunded || false;
+                  const isPaid = (!isRefunded && transaction?.isPaid) || false;
                   const isPending = transaction?.isPaymentPending || false;
                   const paidTransactions = invoice.transactions?.filter((t: any) => t.isPaid) || [];
-                  const unpaidTransactions = invoice.transactions?.filter((t: any) => !t.isPaid) || [];
+                  const unpaidTransactions = invoice.transactions?.filter((t: any) => !t.isPaid && !t.isRefunded) || [];
                   const currentInstallmentStep =
                     unpaidTransactions.length > 0
                       ? unpaidTransactions[0].installmentStep || paidTransactions.length + 1
@@ -473,7 +492,9 @@ export const CourseInstallmentUsersPage: React.FC = () => {
                   const isFuture = stepNumber > currentInstallmentStep;
 
                   let circleColor = 'bg-[#F0F0F0] text-[#767676]'; // Future - gray
-                  if (isPaid) {
+                  if (isRefunded) {
+                    circleColor = 'bg-[#F3E8FF] text-[#7C3AED]'; // Refunded - purple
+                  } else if (isPaid) {
                     circleColor = 'bg-[#E6FFE7] text-[#1C9121]'; // Paid - green
                   } else if (isPending) {
                     circleColor = 'bg-[#FFF4E6] text-[#FF8C00]'; // Pending - orange
@@ -540,7 +561,7 @@ export const CourseInstallmentUsersPage: React.FC = () => {
                                     {new Date(transaction.dueDate).toLocaleDateString('fa-IR')}
                                   </p>
                                 )}
-                                {!isPaid && (
+                                {!isPaid && !isRefunded && !invoice.isRefundedByAdmin && (
                                   <Tooltip title="ویرایش تاریخ قسط">
                                     <Button
                                       type="text"
@@ -555,6 +576,11 @@ export const CourseInstallmentUsersPage: React.FC = () => {
                             )}
                           </>
                         )}
+                        {isRefunded && (
+                          <Tooltip title={transaction?.refundedMessage || undefined}>
+                            <p className="mt-1 text-xs text-purple-600">بازگشت داده شده</p>
+                          </Tooltip>
+                        )}
                         {isPaid && (
                           <p className="mt-1 text-xs text-green-600">پرداخت شده</p>
                         )}
@@ -564,6 +590,7 @@ export const CourseInstallmentUsersPage: React.FC = () => {
                           </p>
                         )}
                         {!isPaid &&
+                          !isRefunded &&
                           !isPending &&
                           isCurrent &&
                           invoice.valueInstallmentCount !== index + 1 && (
@@ -571,7 +598,7 @@ export const CourseInstallmentUsersPage: React.FC = () => {
                               در انتظار پرداخت
                             </p>
                           )}
-                        {isFuture && (
+                        {isFuture && !isRefunded && (
                           <p className="mt-1 text-center text-xs text-gray-500">
                             آینده
                           </p>

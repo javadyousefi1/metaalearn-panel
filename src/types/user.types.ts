@@ -322,6 +322,8 @@ export interface InvoiceInfo {
   totalInstallmentCount: number;
   isRejectedByAdmin: boolean;
   rejectedByAdminMessage: string | null;
+  isRefundedByAdmin?: boolean;
+  refundedByAdminMessage?: string | null;
   id: string;
 }
 

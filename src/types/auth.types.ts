@@ -79,6 +79,8 @@ export interface Transaction {
   dueDate: string;
   installmentStep: number;
   isPaid: boolean;
+  isRefunded?: boolean;
+  refundedMessage?: string | null;
   paymentId: string;
   paidTime: string;
   createdTime: string;
@@ -95,6 +97,8 @@ export interface Invoice {
   valueMinimumInstallmentToPay: number;
   isSettled: boolean;
   settledTime: string;
+  isRefundedByAdmin?: boolean;
+  refundedByAdminMessage?: string | null;
   transactions: Transaction[];
   createdTime: string;
   updatedTime: string;
