@@ -6,6 +6,7 @@ import type {
   UpdateBannerPayload,
   UploadBannerImageResponse,
   BannerType,
+  BannerImageType,
 } from '@/types/banner.types';
 
 export const bannerService = {
@@ -26,10 +27,16 @@ export const bannerService = {
     await httpService.delete('/Banner/Delete', { params: { id } });
   },
 
-  async uploadImage(file: File, type: BannerType): Promise<UploadBannerImageResponse> {
+  /** Only stores the file; send the returned URL in Create/Update (imageUrl or desktopImageUrl). */
+  async uploadImage(
+    file: File,
+    type: BannerType,
+    imageType: BannerImageType,
+  ): Promise<UploadBannerImageResponse> {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('type', String(type));
+    formData.append('imageType', String(imageType));
 
     const response = await httpService.post<UploadBannerImageResponse>(
       '/Banner/Upload',

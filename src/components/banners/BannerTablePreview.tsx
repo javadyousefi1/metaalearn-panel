@@ -5,7 +5,7 @@ import { resolveBannerBackgroundColor } from '@/utils/banner.utils';
 import type { Banner } from '@/types/banner.types';
 
 interface BannerTablePreviewProps {
-  banner: Pick<Banner, 'backgroundColor' | 'imageUrl' | 'text' | 'linkText'>;
+  banner: Pick<Banner, 'backgroundColor' | 'imageUrl' | 'desktopImageUrl' | 'text' | 'linkText'>;
 }
 
 /** Compact site-strip preview for the banners table. */
@@ -17,7 +17,7 @@ export const BannerTablePreview: React.FC<BannerTablePreviewProps> = ({ banner }
     <div className="inline-flex w-[176px] max-w-full flex-col items-center gap-1">
       <BannerStripFrame
         backgroundColor={bg}
-        imageUrl={banner.imageUrl}
+        imageUrl={banner.desktopImageUrl || banner.imageUrl}
         heightPx={BANNER_STRIP_LAYOUT.tablePreviewHeightPx}
         className="w-full min-w-[176px] rounded-md border border-gray-200/80 shadow-sm"
       >

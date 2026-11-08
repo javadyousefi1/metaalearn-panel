@@ -1,6 +1,6 @@
 import { httpService } from './http.service';
 import { CourseListResponse, CourseListParams, CreateCoursePayload, UpdateCoursePayload, Course } from '@/types/course.types';
-import { UploadClubGuestImageRs } from '@/types/courseClub.types';
+import { UploadClubImageRs, UploadClubImageType } from '@/types/courseClub.types';
 
 /**
  * Course Service
@@ -52,22 +52,25 @@ export const courseService = {
   },
 
   /**
-   * Upload (or replace) a course club guest photo
+   * Upload (or replace) a course club image. The backend saves it on the target.
    * @param courseId - The club course ID
-   * @param guestId - A saved guest id (from Course/Get)
-   * @param file - JPEG or PNG image
+   * @param type - Guest photo or playlist cover
+   * @param targetId - A saved guest / playlist item id (from Course/Get)
+   * @param file - JPEG or PNG image, max 10 MB
    */
-  uploadClubGuestImage: async (
+  uploadClubImage: async (
     courseId: string,
-    guestId: string,
+    type: UploadClubImageType,
+    targetId: string,
     file: File,
-  ): Promise<UploadClubGuestImageRs> => {
+  ): Promise<UploadClubImageRs> => {
     const formData = new FormData();
     formData.append('courseId', courseId);
-    formData.append('guestId', guestId);
+    formData.append('type', String(type));
+    formData.append('targetId', targetId);
     formData.append('file', file);
-    const response = await httpService.post<UploadClubGuestImageRs>(
-      '/Course/UploadClubGuestImage',
+    const response = await httpService.post<UploadClubImageRs>(
+      '/Course/UploadClub',
       formData,
       { headers: { 'Content-Type': 'multipart/form-data' } },
     );

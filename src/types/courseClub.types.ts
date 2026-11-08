@@ -14,8 +14,15 @@ export enum ClubDayOfWeek {
   Saturday = 6,
 }
 
+/** `type` field of `Course/UploadClub` */
+export enum UploadClubImageType {
+  Guest = 0,
+  PlaylistCover = 1,
+}
+
 // ---------- requests ----------
 export interface CourseClubScheduleLineRq {
+  title: string;
   svg: string;
   dayOfWeek: ClubDayOfWeek;
   timeRange: string;
@@ -26,18 +33,30 @@ export interface CourseClubGuestRq {
   id?: string | null;
   fullName: string;
   description?: string | null;
-  /** ISO date */
-  time?: string | null;
 }
 
+export interface CourseClubPlaylistItemRq {
+  /** Existing item id; omit for a new item */
+  id?: string | null;
+  title: string;
+  description?: string | null;
+  sortOrder: number;
+  linkUrl?: string | null;
+}
+
+/** Replaces the whole club: always send every list in full. */
 export interface CourseClubUpsertRq {
   scheduleLines: CourseClubScheduleLineRq[];
   guests: CourseClubGuestRq[];
+  playlist: CourseClubPlaylistItemRq[];
+  /** Club holding time, ISO date */
+  time?: string | null;
   linkUrl?: string | null;
 }
 
 // ---------- responses ----------
 export interface CourseClubScheduleLineRs {
+  title: string;
   svg: string;
   dayOfWeek: ClubDayOfWeek;
   timeRange: string;
@@ -47,13 +66,24 @@ export interface CourseClubGuestRs {
   id: string;
   fullName: string;
   description: string | null;
-  time: string | null;
   imageUrl: string | null;
+}
+
+export interface CourseClubPlaylistItemRs {
+  id: string;
+  title: string;
+  description: string | null;
+  coverImageUrl: string | null;
+  sortOrder: number;
+  linkUrl: string | null;
 }
 
 export interface CourseClubRs {
   scheduleLines: CourseClubScheduleLineRs[];
   guests: CourseClubGuestRs[];
+  /** Sorted by sortOrder */
+  playlist: CourseClubPlaylistItemRs[];
+  time: string | null;
   linkUrl: string | null;
 }
 
@@ -63,6 +93,6 @@ export interface CourseClubBuyerUser {
   imageUrl: string | null;
 }
 
-export interface UploadClubGuestImageRs {
+export interface UploadClubImageRs {
   imageUrl: string;
 }

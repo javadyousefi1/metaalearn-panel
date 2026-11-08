@@ -3,6 +3,14 @@ export enum BannerType {
   Announcement = 2,
 }
 
+/** `imageType` field of `Banner/Upload` */
+export enum BannerImageType {
+  /** Mobile / default image -> `imageUrl` */
+  Image = 1,
+  /** Desktop image -> `desktopImageUrl` */
+  DesktopImage = 2,
+}
+
 export const getBannerTypeLabel = (type: BannerType): string => {
   switch (type) {
     case BannerType.Promotional:
@@ -41,6 +49,7 @@ export interface Banner {
   id: string;
   type: BannerType;
   imageUrl?: string | null;
+  desktopImageUrl?: string | null;
   backgroundColor: string;
   text: string;
   linkUrl?: string | null;
@@ -65,6 +74,7 @@ export interface AllBannersResponse {
 export interface CreateBannerPayload {
   type: BannerType;
   imageUrl?: string | null;
+  desktopImageUrl?: string | null;
   backgroundColor?: string | null;
   text: string;
   linkUrl?: string | null;
@@ -76,6 +86,8 @@ export interface UpdateBannerPayload {
   type?: BannerType;
   imageUrl?: string | null;
   clearImageUrl?: boolean;
+  desktopImageUrl?: string | null;
+  clearDesktopImageUrl?: boolean;
   backgroundColor?: string | null;
   text?: string;
   linkUrl?: string | null;

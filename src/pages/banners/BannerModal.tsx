@@ -4,22 +4,21 @@ import {
   Form,
   Input,
   Select,
-  Upload,
   Alert,
-  Image,
-  Button,
   Divider,
+  Segmented,
   Tag,
 } from 'antd';
-import { Upload as UploadIcon, PanelTop } from 'lucide-react';
-import type { UploadFile } from 'antd';
+import { Monitor, PanelTop, Smartphone } from 'lucide-react';
 import { BannerBackgroundColorField } from '@/components/banners/BannerBackgroundColorField';
+import { BannerImageField } from '@/components/banners/BannerImageField';
 import { BannerPublishSwitch } from '@/components/banners/BannerPublishSwitch';
 import { BannerStripPreview } from '@/components/banners/BannerStripPreview';
 import { bannerService } from '@/services';
 import { parseBannerBackgroundColor } from '@/utils/banner.utils';
 import {
   Banner,
+  BannerImageType,
   BannerType,
   CreateBannerPayload,
   UpdateBannerPayload,
@@ -47,9 +46,11 @@ export const BannerModal: React.FC<BannerModalProps> = ({
 }) => {
   const [form] = Form.useForm();
   const isEditMode = !!banner;
-  const [uploading, setUploading] = useState(false);
+  const [uploadingImageType, setUploadingImageType] = useState<BannerImageType | null>(null);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [fileList, setFileList] = useState<UploadFile[]>([]);
+  const [desktopImageUrl, setDesktopImageUrl] = useState<string | null>(null);
+  const [previewMode, setPreviewMode] = useState<'desktop' | 'mobile'>('desktop');
+  const uploading = uploadingImageType !== null;
 
   const bannerType = Form.useWatch('type', form) as BannerType | undefined;
   const linkUrl = Form.useWatch('linkUrl', form) as string | undefined;
@@ -71,7 +72,7 @@ export const BannerModal: React.FC<BannerModalProps> = ({
         backgroundColor: banner.backgroundColor || DEFAULT_BANNER_BACKGROUND_COLOR,
       });
       setImageUrl(banner.imageUrl ?? null);
-      setFileList([]);
+      setDesktopImageUrl(banner.desktopImageUrl ?? null);
     } else if (open) {
       form.resetFields();
       form.setFieldsValue({
@@ -80,37 +81,32 @@ export const BannerModal: React.FC<BannerModalProps> = ({
         backgroundColor: DEFAULT_BANNER_BACKGROUND_COLOR,
       });
       setImageUrl(null);
-      setFileList([]);
+      setDesktopImageUrl(null);
     }
+    setPreviewMode('desktop');
   }, [open, banner, form]);
 
-  const handleUpload = async (file: File) => {
+  // Upload only stores the file; the URL is saved on the banner by Create/Update.
+  const handleUpload = async (file: File, imageType: BannerImageType) => {
     const type = form.getFieldValue('type') as BannerType;
     if (!type) {
-      return false;
+      return;
     }
 
-    setUploading(true);
+    setUploadingImageType(imageType);
     try {
-      const result = await bannerService.uploadImage(file, type);
-      setImageUrl(result.imageUrl);
-      setFileList([
-        {
-          uid: '-1',
-          name: file.name,
-          status: 'done',
-        },
-      ]);
+      const result = await bannerService.uploadImage(file, type, imageType);
+      if (imageType === BannerImageType.DesktopImage) {
+        setDesktopImageUrl(result.imageUrl);
+        setPreviewMode('desktop');
+      } else {
+        setImageUrl(result.imageUrl);
+      }
+    } catch {
+      // Error message is shown by the http service
     } finally {
-      setUploading(false);
+      setUploadingImageType(null);
     }
-
-    return false;
-  };
-
-  const handleRemoveImage = () => {
-    setImageUrl(null);
-    setFileList([]);
   };
 
   const handleSubmit = async () => {
@@ -140,11 +136,20 @@ export const BannerModal: React.FC<BannerModalProps> = ({
           }
         }
 
+        if (desktopImageUrl !== (banner.desktopImageUrl ?? null)) {
+          if (desktopImageUrl) {
+            payload.desktopImageUrl = desktopImageUrl;
+          } else {
+            payload.clearDesktopImageUrl = true;
+          }
+        }
+
         await onUpdate(payload);
       } else {
         await onCreate({
           type: values.type,
           imageUrl: imageUrl ?? null,
+          desktopImageUrl: desktopImageUrl ?? null,
           backgroundColor: bgColor,
           text: values.text.trim(),
           linkUrl: linkUrlValue,
@@ -208,13 +213,40 @@ export const BannerModal: React.FC<BannerModalProps> = ({
           )}
 
           <div className="mb-3 rounded-lg border border-gray-200 bg-gray-50/60 p-3">
-            <BannerStripPreview
-              backgroundColor={backgroundColor}
-              imageUrl={imageUrl}
-              text={previewText?.trim() || 'متن بنر در اینجا نمایش داده می‌شود'}
-              linkText={previewLink}
-              className="mb-0"
+            <Segmented
+              size="small"
+              className="mb-2"
+              value={previewMode}
+              onChange={(value) => setPreviewMode(value as 'desktop' | 'mobile')}
+              options={[
+                {
+                  value: 'desktop',
+                  label: (
+                    <span className="flex items-center gap-1">
+                      <Monitor size={12} /> دسکتاپ
+                    </span>
+                  ),
+                },
+                {
+                  value: 'mobile',
+                  label: (
+                    <span className="flex items-center gap-1">
+                      <Smartphone size={12} /> موبایل
+                    </span>
+                  ),
+                },
+              ]}
             />
+            <div className={previewMode === 'mobile' ? 'mx-auto max-w-[375px]' : undefined}>
+              <BannerStripPreview
+                backgroundColor={backgroundColor}
+                // Same rule as the site: desktop uses the desktop image if set, else the default image.
+                imageUrl={previewMode === 'desktop' ? desktopImageUrl || imageUrl : imageUrl}
+                text={previewText?.trim() || 'متن بنر در اینجا نمایش داده می‌شود'}
+                linkText={previewLink}
+                className="mb-0"
+              />
+            </div>
           </div>
 
           <Divider plain className="!my-3 !text-xs !text-gray-500">
@@ -298,44 +330,33 @@ export const BannerModal: React.FC<BannerModalProps> = ({
           </Form.Item>
 
           <Form.Item label="تصویر پس‌زمینه" className="!mb-2">
-            <div className="rounded-lg border border-dashed border-gray-300 bg-white p-3">
-              <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
-                <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
-                  <Upload
-                    accept="image/*"
-                    maxCount={1}
-                    fileList={fileList}
-                    beforeUpload={handleUpload}
-                    onRemove={() => {
-                      handleRemoveImage();
-                    }}
-                    disabled={!bannerType || uploading}
-                  >
-                    <Button
-                      icon={<UploadIcon size={16} />}
-                      loading={uploading}
-                      disabled={!bannerType}
-                    >
-                      آپلود تصویر
-                    </Button>
-                  </Upload>
-                  {imageUrl && (
-                    <Button type="link" danger onClick={handleRemoveImage} className="px-1">
-                      حذف تصویر
-                    </Button>
-                  )}
-                </div>
-                {imageUrl && (
-                  <Image
-                    src={imageUrl}
-                    alt="پیش‌نمایش تصویر بنر"
-                    className="max-h-24 max-w-full rounded-lg object-cover sm:max-w-[200px]"
-                  />
-                )}
-              </div>
-              <p className="mb-0 mt-2 text-xs text-gray-500">
-                اختیاری — روی رنگ پس‌زمینه (پیشنهاد: ۱۹۲۰×۱۲۰).
-              </p>
+            <div className="space-y-2">
+              <BannerImageField
+                title={
+                  <>
+                    <Smartphone size={14} /> تصویر موبایل / پیش‌فرض
+                  </>
+                }
+                hint="اختیاری — در موبایل نمایش داده می‌شود و اگر تصویر دسکتاپ نباشد، در دسکتاپ هم."
+                imageUrl={imageUrl}
+                uploading={uploadingImageType === BannerImageType.Image}
+                disabled={!bannerType || uploading}
+                onUpload={(file) => handleUpload(file, BannerImageType.Image)}
+                onRemove={() => setImageUrl(null)}
+              />
+              <BannerImageField
+                title={
+                  <>
+                    <Monitor size={14} /> تصویر دسکتاپ
+                  </>
+                }
+                hint="اختیاری — فقط در دسکتاپ نمایش داده می‌شود (پیشنهاد: ۱۹۲۰×۱۲۰)."
+                imageUrl={desktopImageUrl}
+                uploading={uploadingImageType === BannerImageType.DesktopImage}
+                disabled={!bannerType || uploading}
+                onUpload={(file) => handleUpload(file, BannerImageType.DesktopImage)}
+                onRemove={() => setDesktopImageUrl(null)}
+              />
             </div>
           </Form.Item>
 
