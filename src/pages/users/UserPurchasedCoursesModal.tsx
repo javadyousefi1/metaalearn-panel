@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, Spin, Tag, Empty, Button, Form, Input, Popconfirm, Space, Alert } from 'antd';
+import { Modal, Spin, Tag, Empty, Button, Form, Input, Popconfirm, Space, Alert, Tooltip } from 'antd';
 import { BookOpen, ShieldCheck, ShieldOff, Settings } from 'lucide-react';
 import { useAuth, useGetUserPurchasedCourses, useUpdateUserInvoice } from '@/hooks';
 import { isSuperAdminUser } from '@/utils';
@@ -129,11 +129,14 @@ export const UserPurchasedCoursesModal: React.FC<UserPurchasedCoursesModalProps>
                 <div className="flex-1 min-w-0">
                   <h4 className="font-medium text-sm truncate">{course.name}</h4>
                   <p className="text-xs text-gray-500 mt-1">{course.category.name}</p>
+                  {course.invoice?.isRefundedByAdmin && (
+                    <Tag color="purple" className="mt-1 text-xs">بازگشت داده شده</Tag>
+                  )}
                   {course.invoice?.isRejectedByAdmin && (
                     <Tag color="red" className="mt-1 text-xs">مسدود شده</Tag>
                   )}
                 </div>
-                {superAdmin && course.invoice?.id && (
+                {superAdmin && course.invoice?.id && !course.invoice.isRefundedByAdmin && (
                   <Button
                     size="small"
                     icon={<Settings size={14} />}
@@ -176,12 +179,25 @@ export const UserPurchasedCoursesModal: React.FC<UserPurchasedCoursesModalProps>
           <div className="border rounded-xl p-4 bg-gray-50">
             <div className="flex items-center justify-between mb-3">
               <span className="font-semibold text-gray-700 text-sm">مدیریت دسترسی</span>
-              <Tag color={invoice.isRejectedByAdmin ? 'red' : 'green'} className="text-sm">
-                {invoice.isRejectedByAdmin ? 'غیرفعال توسط ادمین' : 'دسترسی فعال'}
-              </Tag>
+              {invoice.isRefundedByAdmin ? (
+                <Tooltip title={invoice.refundedByAdminMessage || undefined}>
+                  <Tag color="purple" className="text-sm">بازگشت داده شده</Tag>
+                </Tooltip>
+              ) : (
+                <Tag
+                  color={invoice.isRejectedByAdmin ? 'red' : invoice.hasAccess === false ? 'default' : 'green'}
+                  className="text-sm"
+                >
+                  {invoice.isRejectedByAdmin
+                    ? 'غیرفعال توسط ادمین'
+                    : invoice.hasAccess === false
+                      ? 'بدون دسترسی'
+                      : 'دسترسی فعال'}
+                </Tag>
+              )}
             </div>
 
-            {invoice.isRejectedByAdmin ? (
+            {invoice.isRefundedByAdmin ? null : invoice.isRejectedByAdmin ? (
               <div className="space-y-3">
                 {invoice.rejectedByAdminMessage && (
                   <Alert

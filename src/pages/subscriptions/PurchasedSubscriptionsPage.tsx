@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Tag, Avatar, Input } from 'antd';
+import { Tag, Avatar, Input, Tooltip } from 'antd';
 import { Home } from 'lucide-react';
 import { useParams } from 'react-router-dom';
 import type { ColumnsType } from 'antd/es/table';
@@ -87,11 +87,16 @@ export const PurchasedSubscriptionsPage: React.FC = () => {
       title: 'دسترسی',
       key: 'hasAccess',
       align: 'center',
-      render: (_: unknown, record: PurchasedSubscription) => (
-        <Tag color={record.invoice.hasAccess ? 'blue' : 'default'}>
-          {record.invoice.hasAccess ? 'دارد' : 'ندارد'}
-        </Tag>
-      ),
+      render: (_: unknown, record: PurchasedSubscription) =>
+        record.invoice.isRefundedByAdmin ? (
+          <Tooltip title={record.invoice.refundedByAdminMessage || undefined}>
+            <Tag color="purple">بازگشت داده شده</Tag>
+          </Tooltip>
+        ) : (
+          <Tag color={record.invoice.hasAccess ? 'blue' : 'default'}>
+            {record.invoice.hasAccess ? 'دارد' : 'ندارد'}
+          </Tag>
+        ),
     },
     {
       title: 'بازه دسترسی',
